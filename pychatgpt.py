@@ -1,6 +1,32 @@
-import openai
-from datetime import datetime
 import os
+from datetime import datetime
+
+def get_boolean_input(prompt):
+    while True:
+        try:
+            return {"1": True, "0": False}[input(prompt).lower()]
+        except KeyError:
+            print("Invalid input. Please enter '1' or '0'.")
+
+def check_and_install_module(module_name):
+    try:
+        # Check if the module is already installed
+        importlib.import_module(module_name)
+        #import module_name
+        #print(f"The module '{module_name}' is already installed.")
+    except ImportError:
+        # If the module is not installed, try installing it
+        x = get_boolean_input(
+            "\n" + module_name + "  module is not installed.\nwould you like to install it? (yes:1/no:0):")
+        if x:
+            import subprocess
+            subprocess.check_call(["pip", "install", module_name])
+            print(f"The module '{module_name}' was installed correctly.")
+        else:
+            exit()
+
+check_and_install_module("openai")
+import openai
 
 current_dir = os.getcwd()
 api_key = None
