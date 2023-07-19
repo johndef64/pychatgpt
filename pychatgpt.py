@@ -45,7 +45,7 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
 
 # chat functions ----------------------------
 #https://platform.openai.com/account/rate-limits
-def chatWithGPT(prompt, system= 'you are an helpful assistant', printuser = False):
+def ask_gpt(prompt, system= 'you are an helpful assistant', printuser = False):
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
