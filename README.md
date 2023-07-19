@@ -12,7 +12,7 @@ Or simply add it to your Project Workspace
 ## Requirements
 
 - The `openai` module is required. It will prompt automatic installation if this requirement is not met.
-- To use this module, you need to have an OpenAI API key. You have to provide your API key when requested once and it will be stored automatically in a file called `openai_api_key.txt` in your working directory.
+- To use this module, you need to have an OpenAI API key. You have to provide your API key when requested once and it will be stored automatically in a file called `openai_api_key.txt` in your working directory. Get your API key at: https://platform.openai.com/account/api-keys
 
 ## Usage
 `import pychatgpt as op`
