@@ -17,7 +17,7 @@ Add the `pychatgpt.py` file to the `site-packages` directory in your current Pyt
 
 The module provides the following main functions:
 
-1. `op.ask_gpt(prompt, system='you are a helpful assistant', printuser=False)`: This function takes a prompt as input and generates a response from the GPT-3.5 Turbo model. It returns the generated a single response and logs the interaction in the `conversation_log.txt` file.
+1. `op.ask_gpt(prompt, system='you are a helpful assistant', printuser=False)`: This function takes a prompt as input and generates a single response from the GPT-3.5 Turbo model. It returns the generated response and logs the interaction in the `conversation_log.txt` file.
 You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 
 2. `op.send_message_gpt(message, language='eng', maxtoken=800, persona='', system='', printuser=False)`: This function allows for a more interactive conversation with the GPT-3.5 Turbo model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
