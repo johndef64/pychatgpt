@@ -3,7 +3,9 @@
 `pychatgpt` is small and useful Python module that provides functions for interacting with OpenAI's GPT-3.5 Turbo model to create conversational agents. This module allows users to have interactive conversations with the GPT-3.5 Turbo model and keeps track of the conversation history in your Python Projects or working on a Jupyter Notebook.
 
 ## Installation
-In a Conda envoiroment, add `pychatgpt.py` inside `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`; else simply add it in `/lib/site-packages` in your Python folder.
+Add the `pychatgpt.py` file to the `site-packages` directory in your current Python environment:
+- in a Conda envoiroment `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`;
+- else simply add it in `/lib/site-packages` in your Python folder.
 
 ## Requirements
 
