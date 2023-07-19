@@ -32,7 +32,8 @@ The code in this module assumes that the conversation history is stored in a glo
 
 Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (4097 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
 
---> Try it out on Google Colab simply importing `pychatgpt_trial.ipynb` from this repository `https://github.com/johndef64/pychatgpt.git`
+## Demo
+Try it out on Google Colab simply importing `pychatgpt_trial.ipynb` from this repository `https://github.com/johndef64/pychatgpt.git`
 
 ## Author
 Written by: JohnDef64 
