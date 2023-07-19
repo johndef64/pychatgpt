@@ -2,6 +2,8 @@
 
 `pychatgpt` is small and useful Python module that provides functions for interacting with OpenAI's GPT-3.5 Turbo model to create conversational agents. This module allows users to have interactive conversations with the GPT-3.5 Turbo model and keeps track of the conversation history in your Python Projects or working on a Jupyter Notebook.
 
+Try it out on Google Colab [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
+
 ## Installation
 Add the `pychatgpt.py` file to the `site-packages` directory in your current Python environment:
 - in a Conda envoiroment `C:\Users\*your_user_name*\.conda\envs\*your_env*\Lib\site-packages`;
@@ -31,9 +33,6 @@ The module also provides additional utility functions for managing the conversat
 The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show the running conversation and `op.conversation_gpt.pop()` to remove last interacition.
 
 Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (4097 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
-
-## Demo
-Try it out on Google Colab simply importing `pychatgpt_trial.ipynb` from this repository `https://github.com/johndef64/pychatgpt.git` [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
 
 ## Author
 Written by: JohnDef64 
