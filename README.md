@@ -7,6 +7,8 @@ Add the `pychatgpt.py` file to the `site-packages` directory in your current Pyt
 - in a Conda envoiroment `C:\Users\*your_user_name*\.conda\envs\*your_env*\Lib\site-packages`;
 - in a Python enviroment `/lib/site-packages`.
 
+Or simply add it to your Project Workspace
+
 ## Requirements
 
 - The `openai` module is required. It will prompt automatic installation if this requirement is not met.
