@@ -38,5 +38,5 @@ Try it out on Google Colab simply importing `pychatgpt_trial.ipynb` from this re
 ## Author
 Written by: JohnDef64 
 
-## Credits
-This project relies on OpenAI technology. https://openai.com/blog/openai-api
+## Acknowledgements
+This project utilizes technology provided by OpenAI. For more information, please visit: [https://openai.com](https://openai.com)
