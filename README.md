@@ -24,7 +24,7 @@ You can simply `op.send_message_gpt(message)` and keep the default parameters.
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting a system message.
 
 ## Notes
-The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. `print(op.conversation_gpt)` to show all conversation and `op.conversation_gpt.pop() to remove last interaciotion.
+The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show the running conversation and `op.conversation_gpt.pop()` to remove last interaciotion.
 
 Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (4097 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
 
