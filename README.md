@@ -5,7 +5,7 @@
 ## Installation
 Add the `pychatgpt.py` file to the `site-packages` directory in your current Python environment:
 - in a Conda envoiroment `C:\Users\*your_user_name*\.conda\envs\*your_env*\Lib\site-packages`;
-- else simply add it in `/lib/site-packages` in your Python folder.
+- in a Python enviroment `/lib/site-packages`.
 
 ## Requirements
 
