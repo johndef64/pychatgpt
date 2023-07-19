@@ -10,8 +10,6 @@ def check_and_install_module(module_name):
     try:
         # Check if the module is already installed
         importlib.import_module(module_name)
-        #import module_name
-        #print(f"The module '{module_name}' is already installed.")
     except ImportError:
         # If the module is not installed, try installing it
         x = simple_bool(
