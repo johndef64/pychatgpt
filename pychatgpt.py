@@ -1,12 +1,10 @@
 import os
 from datetime import datetime
 
-def get_boolean_input(prompt):
-    while True:
-        try:
-            return {"1": True, "0": False}[input(prompt).lower()]
-        except KeyError:
-            print("Invalid input. Please enter '1' or '0'.")
+def simple_bool(message):
+    choose = input(message+" (y/n): ").lower()
+    your_bool = choose in ["y", "yes"]
+    return your_bool
 
 def check_and_install_module(module_name):
     try:
@@ -16,8 +14,8 @@ def check_and_install_module(module_name):
         #print(f"The module '{module_name}' is already installed.")
     except ImportError:
         # If the module is not installed, try installing it
-        x = get_boolean_input(
-            "\n" + module_name + "  module is not installed.\nwould you like to install it? (yes:1/no:0):")
+        x = simple_bool(
+            "\n" + module_name + "  module is not installed.\nwould you like to install it?")
         if x:
             import subprocess
             subprocess.check_call(["pip", "install", module_name])
@@ -45,7 +43,7 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
     with open(current_dir + '/conversation_log.txt', 'w', encoding= 'utf-8') as file:
         file.write('Auto-GPT\n\nConversation LOG:\n')
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
-        
+
 
 # chat functions ----------------------------
 #https://platform.openai.com/account/rate-limits
