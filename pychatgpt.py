@@ -40,7 +40,7 @@ current_dir = os.getcwd()
 #inizialize log:
 if not os.path.isfile(current_dir + '/conversation_log.txt'):
     with open(current_dir + '/conversation_log.txt', 'w', encoding= 'utf-8') as file:
-        file.write('Auto-GPT\n\nConversation LOG:\n')
+        file.write('PyChatGPT\n\nConversation LOG:\n')
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
 
 
