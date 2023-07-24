@@ -30,7 +30,9 @@ The module also provides additional utility functions for managing the conversat
 ## Notes
 The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show the running conversation and `op.conversation_gpt.pop()` to remove last interacition.
 
-Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt-3.5-turbo 4097 tokens, gpt-3.5-turbo-16k 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
+Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length . If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
+- gpt-3.5-turbo:      4,097 tokens
+- gpt-3.5-turbo-16k:  16,384 tokens
 
 ## Demo
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
