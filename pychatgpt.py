@@ -11,6 +11,8 @@ def check_and_install_module(module_name):
     try:
         # Check if the module is already installed
         importlib.import_module(module_name)
+        #import module_name
+        #print(f"The module '{module_name}' is already installed.")
     except ImportError:
         # If the module is not installed, try installing it
         x = simple_bool(
@@ -40,15 +42,16 @@ current_dir = os.getcwd()
 #inizialize log:
 if not os.path.isfile(current_dir + '/conversation_log.txt'):
     with open(current_dir + '/conversation_log.txt', 'w', encoding= 'utf-8') as file:
-        file.write('PyChatGPT\n\nConversation LOG:\n')
+        file.write('Auto-GPT\n\nConversation LOG:\n')
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
 
 
 # chat functions ----------------------------
 #https://platform.openai.com/account/rate-limits
-def ask_gpt(prompt, system= 'you are an helpful assistant', printuser = False):
+def ask_gpt(prompt, model = "gpt-3.5-turbo", system= 'you are an helpful assistant', printuser = False):
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        #https://platform.openai.com/docs/models/gpt-4
+        model= model,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": prompt}
@@ -83,10 +86,13 @@ keep_persona = True
 last token report 2568 (not cosidering response tokens that could be up to 500-700)
 '''
 
-def send_message_gpt(message, language='eng', maxtoken = 800, persona='', system='', printuser = False):
+def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoken = 800, persona='', system='', printuser = False):
     global conversation_gpt
     global total_tokens
-    token_limit = 4096 - (maxtoken*1.2)
+    if model == 'gpt-3.5-turbo-16k':
+        token_limit = 16384 - (maxtoken*1.2)
+    if model == 'gpt-3.5-turbo':
+        token_limit = 4096 - (maxtoken*1.2)
 
     if message == 'clearchat':
         conversation_gpt = []
@@ -106,17 +112,14 @@ def send_message_gpt(message, language='eng', maxtoken = 800, persona='', system
                                      "content": "Tu sei " + persona + ". Pensa, ragiona e senti in accordo."})
 
     if total_tokens > token_limit:
-        print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit,
-              ' in the messages, 4100 in total.')
-        #print('\n Inizializing new conversation.')
-        #conversation_gpt.clear()
-        if language == 'eng':
-            print('\n the first third of the conversation was forgotten\n')
-        elif language == 'ita':
-            print("il primo terzo della conversazione è stato dimenticato\n")
+        print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the conversation was forgotten\n')
 
-        quarter_length = len(conversation_gpt) // 3
-        conversation_gpt = conversation_gpt[quarter_length:]
+        if model == 'gpt-3.5-turbo-16k':
+            cut_length = len(conversation_gpt) // 10
+        if model == 'gpt-3.5-turbo':
+            cut_length = len(conversation_gpt) // 3
+        conversation_gpt = conversation_gpt[cut_length:]
+
         if keep_persona and persona != '':
             if language == 'ita':
                 conversation_gpt.append({"role": "system", "content": "Tu sei " + persona + ". Pensa, senti e rispondi di conseguenza."})
@@ -129,7 +132,7 @@ def send_message_gpt(message, language='eng', maxtoken = 800, persona='', system
         expand_conversation_gpt(message)
         messages = build_messages(conversation_gpt)
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model= model,
             messages=messages,
             max_tokens=maxtoken  # set max token
         )
