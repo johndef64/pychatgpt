@@ -1,77 +1,29 @@
-# GRPM System
+# PyChatGPT Python Module
 
-The GRPM (Gene-Rsid-Pmid-Mesh) system is a comprehensive tool designed to integrate and analyze genetic polymorphism data associated with nutrition. It comprises five modules that facilitate data retrieval, merging, analysis, and incorporation of GWAS data.
-
-## Overview
-
-- [Introduction](#introduction)
-- [Modules](#modules)
-- [Usage](#usage)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Trial](#trial)
-
-## Introduction
-
-The GRPM System aims to build a comprehensive dataset of human genetic polymorphisms associated with nutrition. By combining data from multiple sources and utilizing MeSH terms as a framework, the system enables researchers and nutritionists to explore gene-diet interactions and personalized nutrition interventions.
-
-
-## Modules
-
-The GRPM System comprises five modules that perform various tasks to facilitate the integration and analysis of genetic polymorphism data associated with nutrition. These modules are as follows:
-
-1. [Dataset Builder](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_01_dataset_builder.ipynb): Retrieves data from LitVar and PubMed databases, merging them into a CSV format. 
-
-2. [Reference Mesh List Builder](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_02_ref-mesh_builder.ipynb): Generates a coherent MeSH term list using the ChatGPT language model and the OpenAI API for exploring the GRPM dataset. 
-
-3. [GRPM Dataset Screening](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_03_dataset_survey.ipynb): Integrates the MeSH term list into the GRPM dataset and extracts a survey for comprehensive analysis. 
-
-4. [GRPM Reports and Data Analyzer](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_04_grpm-data_analyzer.ipynb): Analyzes reports and GRPM association data, utilizing `matplotlib` and `seaborn` for data visualization. 
-
-5. [Merge GWAS and GRPM Data](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_05_gwas_grpm_merger.ipynb): Integrates GWAS data from the complete catalog, associating GWAS phenotypes and potential risk/effect alleles with GRPM relationships. 
-
-These modules provide a comprehensive framework for researchers and nutritionists to explore genetic polymorphism data and gain insights into gene-diet interactions and personalized nutrition interventions.
-
-## Usage
-
-Detailed instructions on how to use each module of the GRPM System can be found inside the relative Jupyter Module provided in the repository. Make sure to follow the instructions and install the necessary Python modules specified for each module.
-
-## Requirements
-
-The GRPM System has the following requirements:
-
-- `Python 3.9 or above`
-- `pandas`
-- `requests`
-- `biopython`
-- `nbib`
-- `beautifulsoup`
-- `openai`
-- `matplotlib`
-- `seaborn`
-- `nltk`
-
+`pychatgpt` is small and useful Python module that provides functions for interacting with OpenAI's GPT-3.5 Turbo model to create conversational agents. This module allows users to have interactive conversations with the GPT-3.5 Turbo model and keeps track of the conversation history in your Python Projects or working on a Jupyer Notebook.
 
 ## Installation
+In a Conda envoiroment, add `pychatgpt.py` to the folder `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`; else simply add it in `/lib/site-packages` in your Python folder.
 
-To install the GRPM System, clone the repository to your local machine:
+To use this module, you need to have an OpenAI API key. You have to provide your API key when requested once and it will be stored automatically in a file called `openai_api_key.txt` in your working directory.
 
-```
-git clone https://github.com/johndef64/GRPM_playground.git
-```
+## Usage
+`import pychatgpt as op`
 
+The module provides the following main functions:
 
-## Trial
+1. `op.chatWithGPT(prompt, system='you are a helpful assistant', printuser=False)`: This function takes a prompt as input and generates a response from the GPT-3.5 Turbo model. It returns the generated response and logs the conversation in the `conversation_log.txt` file.
+You can simply use `op.chatWithGPT(prompt)` and keep the default parameters.
 
-To execute the GRPM System, you can run each module separately by clicking the "Open in Colab" button:
+2. `op.send_message_gpt(message, language='eng', maxtoken=800, persona='', system='', printuser=False)`: This function allows for a more interactive conversation with the GPT-3.5 Turbo model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
+You can simply `op.send_message_gpt(message)` and keep the default parameters.
 
-1. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_01_dataset_builder.ipynb) - GRPM Dataset Builder 
+The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting a system message.
 
-2.  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_02_ref-mesh_builder.ipynb)  - Reference Mesh List Builder
+## Notes
+The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. `print(op.conversation_gpt)` to show all conversation and `op.conversation_gpt.pop() to remove last interaciotion.
 
-3. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_03_dataset_survey.ipynb)  - GRPM Dataset Screening
+Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (4097 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
 
-4. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_04_grpm-data_analyzer.ipynb)   - GRPM Reports and Data Analyzer
-
-5. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_05_gwas_grpm_merger.ipynb)   - Merge GWAS and GRPM Data
-
+## Author
+Written by: JohnDef64 
