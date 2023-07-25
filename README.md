@@ -1,44 +1,77 @@
-# PyChatGPT Python Module
+# GRPM System
 
-`pychatgpt` is small and useful Python module that provides functions for interacting with OpenAI's GPT-3.5 Turbo model to create conversational agents. This module allows users to have interactive conversations with the GPT-3.5 Turbo model and keeps track of the conversation history in your Python Projects or working on a Jupyter Notebook.
+The GRPM (Gene-Rsid-Pmid-Mesh) system is a comprehensive tool designed to integrate and analyze genetic polymorphism data associated with nutrition. It comprises five modules that facilitate data retrieval, merging, analysis, and incorporation of GWAS data.
 
-## Installation
-Add the `pychatgpt.py` file to the `site-packages` directory in your current Python environment:
-- in a Conda envoiroment `C:\Users\*your_user_name*\.conda\envs\*your_env*\Lib\site-packages`;
-- in a Python enviroment `/lib/site-packages`.
+## Overview
 
-Or simply add it to your Project Workspace
+- [Introduction](#introduction)
+- [Modules](#modules)
+- [Usage](#usage)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Trial](#trial)
+
+## Introduction
+
+The GRPM System aims to build a comprehensive dataset of human genetic polymorphisms associated with nutrition. By combining data from multiple sources and utilizing MeSH terms as a framework, the system enables researchers and nutritionists to explore gene-diet interactions and personalized nutrition interventions.
+
+
+## Modules
+
+The GRPM System comprises five modules that perform various tasks to facilitate the integration and analysis of genetic polymorphism data associated with nutrition. These modules are as follows:
+
+1. [Dataset Builder](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_01_dataset_builder.ipynb): Retrieves data from LitVar and PubMed databases, merging them into a CSV format. 
+
+2. [Reference Mesh List Builder](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_02_ref-mesh_builder.ipynb): Generates a coherent MeSH term list using the ChatGPT language model and the OpenAI API for exploring the GRPM dataset. 
+
+3. [GRPM Dataset Screening](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_03_dataset_survey.ipynb): Integrates the MeSH term list into the GRPM dataset and extracts a survey for comprehensive analysis. 
+
+4. [GRPM Reports and Data Analyzer](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_04_grpm-data_analyzer.ipynb): Analyzes reports and GRPM association data, utilizing `matplotlib` and `seaborn` for data visualization. 
+
+5. [Merge GWAS and GRPM Data](https://github.com/johndef64/GRPM_playground/blob/main/GRPM_05_gwas_grpm_merger.ipynb): Integrates GWAS data from the complete catalog, associating GWAS phenotypes and potential risk/effect alleles with GRPM relationships. 
+
+These modules provide a comprehensive framework for researchers and nutritionists to explore genetic polymorphism data and gain insights into gene-diet interactions and personalized nutrition interventions.
+
+## Usage
+
+Detailed instructions on how to use each module of the GRPM System can be found inside the relative Jupyter Module provided in the repository. Make sure to follow the instructions and install the necessary Python modules specified for each module.
 
 ## Requirements
 
-- The `openai` module is required. It will prompt automatic installation if this requirement is not met.
-- To use this module, you need to have an OpenAI API key. You have to provide your API key when requested once and it will be stored automatically in a file called `openai_api_key.txt` in your working directory. Get your API key here [API keys - OpenAI API](https://platform.openai.com/account/api-keys)
+The GRPM System has the following requirements:
 
-## Usage
-`import pychatgpt as op`
+- `Python 3.9 or above`
+- `pandas`
+- `requests`
+- `biopython`
+- `nbib`
+- `beautifulsoup`
+- `openai`
+- `matplotlib`
+- `seaborn`
+- `nltk`
 
-The module provides the following main functions:
 
-1. `op.ask_gpt(prompt, model = "gpt-3.5-turbo" system='you are a helpful assistant', printuser=False)`: This function takes a prompt as input and generates a single response from the GPT-3.5 Turbo model. It returns the generated response and logs the interaction in the `conversation_log.txt` file.
-You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
+## Installation
 
-2. `op.send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoken=1000, persona='', system='', printuser=False)`: This function allows for a more interactive conversation with the GPT-3.5 Turbo model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
-You can simply `op.send_message_gpt(message)` and keep the default parameters.
+To install the GRPM System, clone the repository to your local machine:
 
-The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting a system message.
+```
+git clone https://github.com/johndef64/GRPM_playground.git
+```
 
-## Notes
-The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show the running conversation and `op.conversation_gpt.pop()` to remove last interacition.
 
-Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length . If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
-- gpt-3.5-turbo:      4,097 tokens
-- gpt-3.5-turbo-16k:  16,384 tokens
+## Trial
 
-## Demo
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
+To execute the GRPM System, you can run each module separately by clicking the "Open in Colab" button:
 
-## Author
-Written by: JohnDef64 
+1. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_01_dataset_builder.ipynb) - GRPM Dataset Builder 
 
-## Credits
-This project utilizes technology provided by OpenAI. For more information, please visit: [https://openai.com](https://openai.com)
+2.  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_02_ref-mesh_builder.ipynb)  - Reference Mesh List Builder
+
+3. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_03_dataset_survey.ipynb)  - GRPM Dataset Screening
+
+4. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_04_grpm-data_analyzer.ipynb)   - GRPM Reports and Data Analyzer
+
+5. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/GRPM_playground/blob/main/GRPM_05_gwas_grpm_merger.ipynb)   - Merge GWAS and GRPM Data
+
