@@ -23,7 +23,11 @@ The module also provides additional utility functions for managing the conversat
 ## Notes
 The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. `print(op.conversation_gpt)` to show all conversation and `op.conversation_gpt.pop() to remove last interaciotion.
 
-Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (4097 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
+Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
 
 ## Author
 Written by: JohnDef64 
+
+## Acknowledgment
+Special thanks to OpenAI for providing the powerful GPT-3.5 Turbo model, which forms the foundation of this module. 
+
