@@ -18,15 +18,15 @@ You can simply use `op.chatWithGPT(prompt)` and keep the default parameters.
 2. `op.send_message_gpt(message, language='eng', maxtoken=800, persona='', system='', printuser=False)`: This function allows for a more interactive conversation with the GPT-3.5 Turbo model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
 You can simply `op.send_message_gpt(message)` and keep the default parameters.
 
-The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting a system message.
+The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions.
 
 ## Trial
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb) 
 
 ## Notes
-The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. `print(op.conversation_gpt)` to show all conversation and `op.conversation_gpt.pop() to remove last interacition.
+The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show conversation history and `op.conversation_gpt.pop() to remove last interacition. `op.send_message_gpt('clearchat') to start a new conversation.
 
-Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first third of the conversation will automatically be deleted to make room for the next interaction.
+Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
 
 ## Author
 Written by: JohnDef64 
