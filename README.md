@@ -12,10 +12,10 @@ To use this module, you need to have an OpenAI API key. You have to provide your
 
 The module provides the following main functions:
 
-1. `op.chatWithGPT(prompt, system='you are a helpful assistant', printuser=False)`: This function takes a prompt as input and generates a response from the GPT-3.5 Turbo model. It returns the generated response and logs the conversation in the `conversation_log.txt` file.
+1. `op.chatWithGPT(prompt, model = "gpt-3.5-turbo", system='you are a helpful assistant', printuser=False)`: This function takes a prompt as input and generates a response from the GPT-3.5 Turbo model. It returns the generated response and logs the conversation in the `conversation_log.txt` file.
 You can simply use `op.chatWithGPT(prompt)` and keep the default parameters.
 
-2. `op.send_message_gpt(message, language='eng', maxtoken=800, persona='', system='', printuser=False)`: This function allows for a more interactive conversation with the GPT-3.5 Turbo model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
+2. `op.send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoken=800, persona='', system='', printuser=False)`: This function allows for a more interactive conversation with the GPT-3.5 Turbo model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
 You can simply `op.send_message_gpt(message)` and keep the default parameters.
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions.
