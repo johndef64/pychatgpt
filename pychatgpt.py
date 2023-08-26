@@ -152,7 +152,7 @@ def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoke
             elif persona != '' and persona.find(',') == -1:
                 persona_p = persona
             elif persona == '':
-                persona_p = 'GPT'
+                persona_p = model
             file.write('\n\n'+persona_p+':\n' + response.choices[0].message.content + '\n\n')
 
         conversation_gpt.append({"role": "assistant", "content": response.choices[0].message.content})
