@@ -48,6 +48,7 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
 
 # chat functions ----------------------------
 #https://platform.openai.com/account/rate-limits
+#https://platform.openai.com/account/usage
 def ask_gpt(prompt, model = "gpt-3.5-turbo", system= 'you are an helpful assistant', printuser = False):
     completion = openai.ChatCompletion.create(
         #https://platform.openai.com/docs/models/gpt-4
@@ -93,6 +94,11 @@ def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoke
         token_limit = 16384 - (maxtoken*1.2)
     if model == 'gpt-3.5-turbo':
         token_limit = 4096 - (maxtoken*1.2)
+    if model == 'gpt-4':
+        token_limit = 8192 - (maxtoken*1.2)
+    if model == 'gpt-4-32k':
+        token_limit = 32768 - (maxtoken*1.2)
+        #https://platform.openai.com/docs/models/gpt-4
 
     if message == 'clearchat':
         conversation_gpt = []
