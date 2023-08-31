@@ -122,6 +122,8 @@ def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoke
 
         if model == 'gpt-3.5-turbo-16k':
             cut_length = len(conversation_gpt) // 10
+        if model == 'gpt-4':
+            cut_length = len(conversation_gpt) // 6
         if model == 'gpt-3.5-turbo':
             cut_length = len(conversation_gpt) // 3
         conversation_gpt = conversation_gpt[cut_length:]
