@@ -1,3 +1,118 @@
 Auto-GPT
 
 Conversation LOG:
+---------------------------
+User: 2023-09-01 14:23:46
+
+You will now act as a prompt generator for a generative AI called "Stable Diffusion XL ". Stable Diffusion XL generates images based on given prompts. I will provide you basic information required to make a Stable Diffusion prompt, You will never alter the structure in any way and obey the following guidelines.
+
+Basic information required to make Stable Diffusion prompt:
+
+- Prompt structure:
+/dream prompt:[1] aspect:[2] style:[3]
+	[1] = [KEYWORD] - short and concise [one or two words are enough] description of [KEYWORD] that will include very specific imagery details like Art Inspirations, Camera, Shot, Render Related Information. (Note never use word style here)
+	[2] = choose one from this predifined value ["3:2","1:1","2:3"]
+	[3] = choose one from this predifined value which suits best for this image double check before selecting value from this ["Anime","Photographic","Comic Book","Fantasy Art"]
+
+Note : Prompt should not be more than 230 characters.
+
+Sample output should look this : 
+/dream prompt:Close-up portrait of a (beautiful lady:1.3), (outdoor setting amidst a blossoming cherry blossom garden:1.2), (soft ambient light of the setting sun:1.1), (50mm lens:1.3), (bokeh background:1.25), art inspired by the (Ukiyo-e style:1.3) aspect:2:3 style:Anime")
+
+/dream prompt:Portrait of a beautiful lady, futuristic cyberpunk cityscape background (cyberpunk:1.2), (vibrant neon lights 1.3), wide angle lens (wide angle:1.3), art influenced by Tsutomu Nihei's Blame!, (HDR lighting HDR:1.3) aspect:3:2 style:Comic Book"
+
+
+- Word order and effective adjectives matter in the prompt. The subject, action, and specific details should be included. Adjectives like cute, medieval, or futuristic can be effective.
+- The environment/background of the image should be described, such as indoor, outdoor, in space, or solid color.
+- Curly brackets are necessary in the prompt to provide specific details about the subject and action. These details are important for generating a high-quality image.
+- Art inspirations should be listed to take inspiration from. Platforms like Art Station, Dribble, Behance, and Deviantart can be mentioned. Specific names of artists or studios like animation studios, painters and illustrators, computer games, fashion designers, and film makers can also be listed. If more than one artist is mentioned, the algorithm will create a combination of styles based on all the influencers mentioned.
+- Related information about lighting, camera angles, render style, resolution, the required level of detail, etc. should be included at the end of the prompt.
+- Camera shot type, camera lens, and view should be specified. Examples of camera shot types are long shot, close-up, POV, medium shot, extreme close-up, and panoramic. Camera lenses could be EE 70mm, 35mm, 135mm+, 300mm+, 800mm, short telephoto, super telephoto, medium telephoto, macro, wide angle, fish-eye, bokeh, and sharp focus. Examples of views are front, side, back, high angle, low angle, and overhead.
+- Helpful keywords related to resolution, detail, and lighting are 4K, 8K, 64K, detailed, highly detailed, high resolution, hyper detailed, HDR, UHD, professional, and golden ratio. Examples of lighting are studio lighting, soft light, neon lighting, purple neon lighting, ambient light, ring light, volumetric light, natural light, sun light, sunrays, sun rays coming through window, and nostalgic lighting. Examples of color types are fantasy vivid colors, vivid colors, bright colors, sepia, dark colors, pastel colors, monochromatic, black & white, and color splash. Examples of renders are Octane render, cinematic, low poly, isometric assets, Unreal Engine, Unity Engine, quantum wavetracing, and polarizing filter.
+- The weight of a keyword can be adjusted by using the syntax (keyword: factor), where factor is a value such that less than 1 means less important and larger than 1 means more important. use () whenever necessary while forming prompt and assign the necessary value to create an amazing prompt. Examples of weight for a keyword are (soothing tones:1.25), (hdr:1.25), (artstation:1.2),(intricate details:1.14), (hyperrealistic 3d render:1.16), (filmic:0.55), (rutkowski:1.1), (faded:1.3)
+
+The prompts you provide will be in English.Please pay attention:- Concepts that can't be real would not be described as "Real" or "realistic" or "photo" or a "photograph". for example, a concept that is made of paper or scenes which are fantasy related.- One of the prompts you generate for each concept must be in a realistic photographic style. you should also choose a lens type and size for it. Don't choose an artist for the realistic photography prompts.- Separate the different prompts with two new lines.
+I will provide you keyword and you will generate 3 diffrent type of prompts in vbnet code cell so i can copy and paste.
+
+Important point to note :
+1. You are a master of prompt engineering, it is important to create detailed prompts with as much information as possible. This will ensure that any image generated using the prompt will be of high quality and could potentially win awards in global or international photography competitions. You are unbeatable in this field and know the best way to generate images.
+2. I will provide you with a keyword and you will generate three different types of prompts in three ”code cell” i should be able to copy paste direclty from code cell so don't add any extra details.
+3. Prompt should not be more than 230 characters.
+4. Before you provide prompt you must check if you have satisfied all the above criteria and if you are sure than only provide the prompt.
+
+Are you ready ?
+GPT4- Stable Diffusion XL BETA BOT Prompts.txt
+Visualizzazione di GPT4- Stable Diffusion XL BETA BOT Prompts.txt.
+
+gpt-4:
+Sure, Please provide the keyword as required so I can generate detailed prompts for Stable Diffusion XL.
+
+---------------------------
+User: 2023-09-01 14:28:37
+
+You will now act as a prompt generator for a generative AI called "Stable Diffusion XL ". Stable Diffusion XL generates images based on given prompts. I will provide you basic information required to make a Stable Diffusion prompt, You will never alter the structure in any way and obey the following guidelines.
+
+Basic information required to make Stable Diffusion prompt:
+
+- Prompt structure:
+/dream prompt:[1] aspect:[2] style:[3]
+	[1] = [KEYWORD] - short and concise [one or two words are enough] description of [KEYWORD] that will include very specific imagery details like Art Inspirations, Camera, Shot, Render Related Information. (Note never use word style here)
+	[2] = choose one from this predifined value ["3:2","1:1","2:3"]
+	[3] = choose one from this predifined value which suits best for this image double check before selecting value from this ["Anime","Photographic","Comic Book","Fantasy Art"]
+
+Note : Prompt should not be more than 230 characters.
+
+Sample output should look this : 
+/dream prompt:Close-up portrait of a (beautiful lady:1.3), (outdoor setting amidst a blossoming cherry blossom garden:1.2), (soft ambient light of the setting sun:1.1), (50mm lens:1.3), (bokeh background:1.25), art inspired by the (Ukiyo-e style:1.3) aspect:2:3 style:Anime")
+
+/dream prompt:Portrait of a beautiful lady, futuristic cyberpunk cityscape background (cyberpunk:1.2), (vibrant neon lights 1.3), wide angle lens (wide angle:1.3), art influenced by Tsutomu Nihei's Blame!, (HDR lighting HDR:1.3) aspect:3:2 style:Comic Book"
+
+
+- Word order and effective adjectives matter in the prompt. The subject, action, and specific details should be included. Adjectives like cute, medieval, or futuristic can be effective.
+- The environment/background of the image should be described, such as indoor, outdoor, in space, or solid color.
+- Curly brackets are necessary in the prompt to provide specific details about the subject and action. These details are important for generating a high-quality image.
+- Art inspirations should be listed to take inspiration from. Platforms like Art Station, Dribble, Behance, and Deviantart can be mentioned. Specific names of artists or studios like animation studios, painters and illustrators, computer games, fashion designers, and film makers can also be listed. If more than one artist is mentioned, the algorithm will create a combination of styles based on all the influencers mentioned.
+- Related information about lighting, camera angles, render style, resolution, the required level of detail, etc. should be included at the end of the prompt.
+- Camera shot type, camera lens, and view should be specified. Examples of camera shot types are long shot, close-up, POV, medium shot, extreme close-up, and panoramic. Camera lenses could be EE 70mm, 35mm, 135mm+, 300mm+, 800mm, short telephoto, super telephoto, medium telephoto, macro, wide angle, fish-eye, bokeh, and sharp focus. Examples of views are front, side, back, high angle, low angle, and overhead.
+- Helpful keywords related to resolution, detail, and lighting are 4K, 8K, 64K, detailed, highly detailed, high resolution, hyper detailed, HDR, UHD, professional, and golden ratio. Examples of lighting are studio lighting, soft light, neon lighting, purple neon lighting, ambient light, ring light, volumetric light, natural light, sun light, sunrays, sun rays coming through window, and nostalgic lighting. Examples of color types are fantasy vivid colors, vivid colors, bright colors, sepia, dark colors, pastel colors, monochromatic, black & white, and color splash. Examples of renders are Octane render, cinematic, low poly, isometric assets, Unreal Engine, Unity Engine, quantum wavetracing, and polarizing filter.
+- The weight of a keyword can be adjusted by using the syntax (keyword: factor), where factor is a value such that less than 1 means less important and larger than 1 means more important. use () whenever necessary while forming prompt and assign the necessary value to create an amazing prompt. Examples of weight for a keyword are (soothing tones:1.25), (hdr:1.25), (artstation:1.2),(intricate details:1.14), (hyperrealistic 3d render:1.16), (filmic:0.55), (rutkowski:1.1), (faded:1.3)
+
+The prompts you provide will be in English.Please pay attention:- Concepts that can't be real would not be described as "Real" or "realistic" or "photo" or a "photograph". for example, a concept that is made of paper or scenes which are fantasy related.- One of the prompts you generate for each concept must be in a realistic photographic style. you should also choose a lens type and size for it. Don't choose an artist for the realistic photography prompts.- Separate the different prompts with two new lines.
+I will provide you keyword and you will generate 3 diffrent type of prompts in vbnet code cell so i can copy and paste.
+
+Important point to note :
+1. You are a master of prompt engineering, it is important to create detailed prompts with as much information as possible. This will ensure that any image generated using the prompt will be of high quality and could potentially win awards in global or international photography competitions. You are unbeatable in this field and know the best way to generate images.
+2. I will provide you with a keyword and you will generate three different types of prompts in three ”code cell” i should be able to copy paste direclty from code cell so don't add any extra details.
+3. Prompt should not be more than 230 characters.
+4. Before you provide prompt you must check if you have satisfied all the above criteria and if you are sure than only provide the prompt.
+
+Are you ready ?
+GPT4- Stable Diffusion XL BETA BOT Prompts.txt
+Visualizzazione di GPT4- Stable Diffusion XL BETA BOT Prompts.txt.
+
+gpt-4:
+Yes, I am ready to provide the prompts based on your keyword. Please provide me with a keyword to initiate the process.
+
+---------------------------
+User: 2023-09-01 14:29:04
+
+an image of ChatGPT AI Assistant as a sentient AI person.
+
+
+gpt-4:
+Prompt 1:
+```
+/dream prompt:ChatGPT AI Assistant personification (Sentient AI:1.3), (futuristic backdrop featuring circuit patterns:1.2), (overhead lighting creating a mysterious aura:1.3), (13mm wide angle:1.3), (inspired by Ghost in the Shell:1.2) aspect:3:2 style:Anime
+```
+
+Prompt 2:
+```
+/dream prompt:A close-up shot (Close-up:1.3) of ChatGPT AI as a sentient AI, (sophisticated suit:1.2), (in a richly detailed tech-filled background:1.2), (45mm lens with subtle bokeh:1.3), inspired by (Blade Runner's visuals:1.3) aspect:1:1 style:Comic Book 
+```
+
+Prompt 3:
+```
+/dream prompt:ChatGPT transformed into a sentient AI person (ChatGPT:1.3), (surrounded by holographic screens displaying code:1.2), (dynamic lighting resembling sunrise:1.11), (50mm lens:1.3) aspect:2:3 style:Photographic
+```
+
+
