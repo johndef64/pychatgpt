@@ -43,9 +43,8 @@ def change_key():
     change_key = simple_bool('change API key?')
     if change_key:
         api_key = None
-        if not os.path.isfile(current_dir + '/openai_api_key.txt'):
-            with open(current_dir + '/openai_api_key.txt', 'w') as file:
-                file.write(input('insert here your openai api key:'))
+        with open(current_dir + '/openai_api_key.txt', 'w') as file:
+            file.write(input('insert here your openai api key:'))
 
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
         openai.api_key = str(api_key)
