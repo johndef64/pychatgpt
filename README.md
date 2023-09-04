@@ -1,6 +1,6 @@
 # PyChatGPT: Python Module
 
-`pychatgpt` is small and useful Python module that provides functions for interacting with OpenAI's GPT-3.5 Turbo model to create conversational agents. This module allows users to have interactive conversations with the GPT-3.5 Turbo model and keeps track of the conversation history in your Python Projects or working on a Jupyer Notebook.
+`pychatgpt` is small and useful Python module that provides functions for interacting with OpenAI's GPT-3.5 Turbo model to create conversational agents. This module allows users to have interactive conversations with the GPT-3.5 Turbo and GPT-4 models and keeps track of the conversation history in your Python Projects or working on a Jupyer Notebook.
 
 ## Installation
 In a Conda envoiroment, add `pychatgpt.py` to the folder `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`; else simply add it in `/lib/site-packages` in your Python folder.
@@ -19,6 +19,8 @@ You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 You can simply `op.send_message_gpt(message)` and keep the default parameters.
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions.
+
+To set-up multiple conversations, follow the example proposed in [pychatgpt_trial.ipynb](https://github.com/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
 
 ## Trial
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb) 
