@@ -1,24 +1,20 @@
 import os
 import importlib
 
-def get_boolean_input(prompt):
-    while True:
-        try:
-            return {"1": True, "0": False}[input(prompt).lower()]
-        except KeyError:
-            print("Invalid input. Please enter '1' or '0'.")
+def simple_bool(message):
+    choose = input(message+" (y/n): ").lower()
+    your_bool = choose in ["y", "yes"]
+    return your_bool
 
 def check_and_install_module(module_name):
     try:
         # Check if the module is already installed
         importlib.import_module(module_name)
-        #import module_name
-        #print(f"The module '{module_name}' is already installed.")
     except ImportError:
         # If the module is not installed, try installing it
-        x = get_boolean_input(
-            "\n" + module_name + "  module is not installed.\nwould you like to install it? (yes:1/no:0):")
-        if x:
+        install = simple_bool(
+            "\n" + module_name + "  module is not installed.\nWould you like to install it?")
+        if install:
             import subprocess
             subprocess.check_call(["pip", "install", module_name])
             print(f"The module '{module_name}' was installed correctly.")
@@ -26,6 +22,7 @@ def check_and_install_module(module_name):
             exit()
 
 check_and_install_module('pyaudio')
+check_and_install_module('keyboard')
 check_and_install_module('pyperclip')
 check_and_install_module('openai')
 check_and_install_module('pyautogui')
@@ -46,16 +43,14 @@ openai.api_key = str(api_key)
 #----------------------------------------------
 
 import time
+import pandas as pd
 import pyperclip
 import pyautogui
+import keyboard
 import pyaudio
 import wave
 
-import pandas as pd
-
 input_device_id = 0
-
-print('\nSeleziona il tuo microfono dalla seguente lista:')
 audio = pyaudio.PyAudio()
 
 list = []
@@ -63,26 +58,18 @@ for index in range(audio.get_device_count()):
     info = audio.get_device_info_by_index(index)
     list.append(f"Device {index}: {info['name']}")
 mics = pd.DataFrame(list)
-input_device_id = input("Seleziona il tuo microfono dalla seguente lista:"+mics.to_string(index=False))
+input_device_id = input("/Select your microphone from the following list:\n"+mics.to_string(index=False))
 
 chunk = 1024  # Number of frames per buffer
 sample_format = pyaudio.paInt16  # 16 bits per sample
 channels = 1  # Mono audio
 rate = 44100  # Sampling rate in Hz
 
-import msvcrt
-import keyboard
 
-def get_key_press():
-    while True:
-        if msvcrt.kbhit():  # Check if a key is pressed
-            key = msvcrt.getch().decode()  # Get the pressed key
-            return key  # Return the pressed key
-
-print("\nTo start record press alt+a")
+print("\nTo start record press Alt+A")
 while True:
 
-    if keyboard.is_pressed('alt+a'):
+    if keyboard.is_pressed('Alt+S'):
         stream = audio.open(format=sample_format,
                             channels=channels,
                             rate=rate,
@@ -119,4 +106,4 @@ while True:
         pyperclip.copy(text_value)
         #pyperclip.paste()
         pyautogui.hotkey('ctrl', 'v')
-        print('\n',text_value)
+        print('\n',text_value,'\n')
