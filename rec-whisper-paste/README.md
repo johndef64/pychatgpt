@@ -27,7 +27,7 @@ The project is a python script that uses the OpenAI library, specifically the Wh
 
 ## Usage
 
-To start recording, press 'alt+a'. The recording can be interrupted by pressing 'alt+a+s'. After each recording session, the transcribed text is automatically pasted into the active window.
+To start recording, press 'alt+a'. The recording can be interrupted by pressing 'alt+s'. After each recording session, the transcribed text is automatically pasted into the active window.
 
 Note: You need to be using OpenAI Python v0.27.0 for the code to work correctly. 
 

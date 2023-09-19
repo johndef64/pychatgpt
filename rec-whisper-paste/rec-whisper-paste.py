@@ -92,10 +92,10 @@ while True:
 
         frames = []
         print("Recording...")
-        print("press alt+a+s to interrupt")
+        print("press alt+s to interrupt")
 
         while True:
-            if keyboard.is_pressed('alt+a+s'):  # if key 'ctrl + c' is pressed
+            if keyboard.is_pressed('alt+s'):  # if key 'ctrl + c' is pressed
                break  # finish the loop
             else:
                 data = stream.read(chunk)
