@@ -113,10 +113,10 @@ def build_messages(conversation):
         messages.append({"role": message["role"], "content": message["content"]})
     return messages
 
-
+#The Max Token Limit In ChatGPT: gpt-4 (8,192 tokens), gpt-4-0613 (8,192 tokens), gpt-4-32k (32,768 tokens), gpt-4-32k-0613 (32,768 tokens). maximum limit (4097 tokens for gpt-3.5-turbo )
 total_tokens = 0
 maxtoken = 1000
-prmtoken = 8050 - (maxtoken * 1.1)
+prmtoken = 8192 - (maxtoken * 1.3)
 keep_persona = True
 language = '1'
 
@@ -142,8 +142,7 @@ def send_message_gpt(message, language='eng', persona=''):
                                  "content": system})
 
     if total_tokens > prmtoken:
-        print('\n\nWarning: reaching token limit. \nThis model maximum context length is ', prmtoken,
-              ' in the messages, ' + prmtoken + maxtoken + ' in total.')
+        print('\n\nWarning: reaching token limit. \nThis model maximum context length is '+ str(prmtoken)+ ' in the messages, ' + str(prmtoken + maxtoken) + ' in total.')
         #print('\n Inizializing new conversation.')
         #conversation_gpt.clear()
         if language == 'eng':
@@ -274,6 +273,7 @@ while True:  # external cycle
 
 
         while safe_word != 'restartnow' or 'exitnow' or 'maxtoken':
+            timea = datetime.now()
             print('\n--------------------------------\n')
             message = input('user:')
             safe_word = message
@@ -288,6 +288,7 @@ while True:  # external cycle
 
             if choose == '4':
                 if safe_word == 'system':
+                    conversation_gpt = []
                     system = input('define custum system instructions:')
                     print('*system instruction changed*')
                     pass
@@ -297,6 +298,11 @@ while True:  # external cycle
                 ask_gpt(message)
             else:
                 pass
+            timed = datetime.now() - timea
 
+            #Rate-Limit gpt-4 = 200
+            #https://medium.com/@pankaj_pandey/understanding-the-chatgpt-api-key-information-and-frequently-asked-questions-4a0e963fb138#:~:text=The%20ChatGPT%20API%20has%20different,90000%20TPM%20after%2048%20hours.
+            #https://platform.openai.com/docs/guides/rate-limits/overview
+            #https://platform.openai.com/account/rate-limits
             time.sleep(1)  # Wait 1 second before checking again
 
