@@ -267,7 +267,9 @@ while True:  # external cycle
 
         elif choose == '3':
             persona = input('Tell me who you want to talk to:')
-            add = "**instruction: you are " + persona + ", answer like you are " + persona + "** \n"
+            persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
+                            'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona}
+            add = persona_dict['character']
             with open('conversation_log.txt', 'a') as file:
                 file.write('\n' + str(datetime.now()) + ': <You asked to ' + persona + '>\n')
             print("I'm connecting you with " + persona)
@@ -293,10 +295,12 @@ while True:  # external cycle
                         '\n' + str(datetime.now()) + ': <You are chatting with the greatest  scientist ever>\n')
             elif assistant == '4':
                 persona = input(dict['instructions']['tell me'])
+                persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
+                                'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona}
                 if language == '1':
-                    content = "You are " + persona + ". Think, feel answer accordingly."
+                    content = persona_dict['character']
                 elif language == '2':
-                    content = "Tu sei " + persona + ". Pensa, senti e rispondi di conseguenza."
+                    content = persona_dict['personaggio']
                 conversation_gpt.append({"role": "system",
                                          "content": content})
                 with open('conversation_log.txt', 'a') as file:

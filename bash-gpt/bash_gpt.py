@@ -124,19 +124,21 @@ language = '1'
 gpt-3.5-turbo: InvalidRequestError: This model's maximum context length is 4097 tokens. However, you requested 4201 tokens (3201 in the messages, 1000 in the completion). Please reduce the length of the messages or completion.
 last token report 2568 (not cosidering response tokens that could be up to 500-700)
 '''
-
-system=''
-def send_message_gpt(message, language='eng', persona=''):
+persona = ''
+system = ''
+def send_message_gpt(message, language='eng'):
     global conversation_gpt
     global total_tokens
 
     if persona != '':
+        persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
+                        'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona}
         if language == 'eng':
             conversation_gpt.append({"role": "system",
-                                     "content": "You are " + persona + ". Think, feel and answer accordingly."})
+                                     "content": persona_dict['character']})
         if language == 'ita':
             conversation_gpt.append({"role": "system",
-                                     "content": "Tu sei " + persona + ". Pensa, ragiona e rispondi in accordo."})
+                                     "content": persona_dict['personaggio']})
     if system != '':
         conversation_gpt.append({"role": "system",
                                  "content": system})
@@ -150,16 +152,22 @@ def send_message_gpt(message, language='eng', persona=''):
         elif language == 'ita':
             print("il primo terzo della conversazione è stato dimenticato")
 
-        quarter_length = len(conversation_gpt) // 3
-        conversation_gpt = conversation_gpt[quarter_length:]
+        if model == 'gpt-3.5-turbo-16k':
+            cut_length = len(conversation_gpt) // 10
+        if model == 'gpt-4':
+            cut_length = len(conversation_gpt) // 6
+        if model == 'gpt-3.5-turbo':
+            cut_length = len(conversation_gpt) // 3
+        conversation_gpt = conversation_gpt[cut_length:]
         if keep_persona:
             if language == 'eng':
                 conversation_gpt.append(
-                    {"role": "system", "content": "Tu sei " + persona + ". Pensa, senti e rispondi di conseguenza."})
+                    {"role": "system", "content": persona_dict['character']})
             elif language == 'ita':
                 conversation_gpt.append({"role": "system",
-                                         "content": "You are " + persona + ". Think, feel and respond in accordance with this."})
+                                         "content": persona_dict['personaggio']})
 
+    #send message
     expand_conversation_gpt(message)
     messages = build_messages(conversation_gpt)
     response = openai.ChatCompletion.create(
@@ -188,7 +196,11 @@ def send_message_gpt(message, language='eng', persona=''):
     #print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
     #print('user:',print_mess,'\n...')
     answer = response.choices[0].message.content
-    print('\ngpt-4:', answer)
+
+    if persona != '':
+        print('\n'+persona+':', answer)
+    else:
+        print('\ngpt-4:', answer)
     total_tokens = response.usage.total_tokens
     print('(token count: '+str(total_tokens)+')')
 
@@ -264,8 +276,14 @@ while True:  # external cycle
                             '\n' + str(datetime.now()) + ': <You are chatting with the greatest  scientist ever>\n')
                 else:
                     persona = input('Tell me who you want to talk to:')
-                    conversation_gpt.append({"role": "system",
-                                             "content": "You are " + persona + ". Think, feel answer accordingly."})
+                    persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
+                                    'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona}
+                    if language == 'eng':
+                        conversation_gpt.append({"role": "system",
+                                                 "content": persona_dict['character']})
+                    if language == 'ita':
+                        conversation_gpt.append({"role": "system",
+                                                 "content": persona_dict['personaggio']})
                     with open('conversation_log.txt', 'a') as file:
                         file.write('\n' + str(datetime.now()) + ': <You are chatting with ' + persona + '>\n')
             else:
