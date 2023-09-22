@@ -1,11 +1,25 @@
 import os
+import ast
+import glob
 import importlib
+import pandas as pd
 from datetime import datetime
 
 def simple_bool(message):
     choose = input(message+" (y/n): ").lower()
     your_bool = choose in ["y", "yes"]
     return your_bool
+
+def display_file_as_pd(ext, path=os.getcwd(), contains=''):
+    file_pattern = os.path.join(path, "*."+ext)
+    files = glob.glob(file_pattern)
+    files_name = []
+    for file in files:
+        file_name = os.path.basename(file)
+        files_name.append(file_name)
+    files_df = pd.Series(files_name)
+    file = files_df[files_df.str.contains(contains)]
+    return file
 
 def check_and_install_module(module_name):
     try:
@@ -57,10 +71,14 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
 
 
-# chat functions ----------------------------
+# ask function ----------------------------
 #https://platform.openai.com/account/rate-limits
 #https://platform.openai.com/account/usage
-def ask_gpt(prompt, model = "gpt-3.5-turbo", system= 'you are an helpful assistant', printuser = False):
+def ask_gpt(prompt,
+            model = "gpt-3.5-turbo",
+            system= 'you are an helpful assistant',
+            printuser = False
+            ):
     completion = openai.ChatCompletion.create(
         #https://platform.openai.com/docs/models/gpt-4
         model= model,
@@ -79,6 +97,12 @@ def ask_gpt(prompt, model = "gpt-3.5-turbo", system= 'you are an helpful assista
     if printuser: print('user:',print_mess,'\n')
     return print(completion.choices[0].message.content)
 
+# conversation function -----------------------------
+
+total_tokens = 0 # iniziale token count
+persona = ''
+keep_persona = True
+
 if not 'conversation_gpt' in locals():
     conversation_gpt = []
 
@@ -91,24 +115,40 @@ def build_messages(conversation):
         messages.append({"role": message["role"], "content": message["content"]})
     return messages
 
-total_tokens = 0
-persona = ''
-keep_persona = True
-'''InvalidRequestError: This model's maximum context length is 4097 tokens. However, you requested 4201 tokens (3201 in the messages, 1000 in the completion). Please reduce the length of the messages or completion.
-last token report 2568 (not cosidering response tokens that could be up to 500-700)
-'''
+def save_conversation():
+    tag = input('filename_tag')
+    with open('conversation_'+tag+'.txt', 'w', encoding= 'utf-8') as file:
+        file.write(str(conversation_gpt))
+        file.close()
 
-def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoken = 800, persona='', system='', printuser = False):
+def load_conversation():
+    global conversation_gpt
+    files_df = display_file_as_pd('txt',contains='conversation')
+    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+    with open(filename,'r') as file:
+        conversation_gpt = ast.literal_eval(file.read())
+        file.close()
+
+def send_message_gpt(message,
+                     model='gpt-3.5-turbo-16k',
+                     language='eng',
+                     maxtoken = 800,
+                     temperature = 1,
+                     system='',
+                     persona='',
+                     printuser = False
+                     ):
     global conversation_gpt
     global total_tokens
+
     if model == 'gpt-3.5-turbo-16k':
-        token_limit = 16384 - (maxtoken*1.2)
+        token_limit = 16384 - (maxtoken*1.3)
     if model == 'gpt-3.5-turbo':
-        token_limit = 4096 - (maxtoken*1.2)
+        token_limit = 4096 - (maxtoken*1.3)
     if model == 'gpt-4':
-        token_limit = 8192 - (maxtoken*1.2)
+        token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
-        token_limit = 32768 - (maxtoken*1.2)
+        token_limit = 32768 - (maxtoken*1.3)
         #https://platform.openai.com/docs/models/gpt-4
 
     if message == 'clearchat':
@@ -120,16 +160,20 @@ def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoke
                                  "content": system})
         persona = ''
 
+    persona_dict = {'system': "You are " + persona + ". Think, feel and answer accordingly.",
+                    'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
+                    'sistema': "Tu sei " + persona + ". Pensa, ragiona e rispondi di conseguenza.",
+                    'personaggio': "Stai impersonando "+persona+", . Ricordate di riflettere i tratti di "+persona+" in tutte le comunicazioni. Utilizzate lo stile di linguaggio appropriato e mantenete un atteggiamento o una mentalità appropriata in linea con "+persona}
     if persona != '':
         if language == 'eng':
             conversation_gpt.append({"role": "system",
-                                     "content": "You are " + persona + ". Think, feel answer accordingly."})
+                                     "content": persona_dict['character']})
         if language== 'ita':
             conversation_gpt.append({"role": "system",
-                                     "content": "Tu sei " + persona + ". Pensa, ragiona e senti in accordo."})
+                                     "content": persona_dict['personaggio']})
 
     if total_tokens > token_limit:
-        print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the conversation was forgotten\n')
+        print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the conversation are forgotten\n')
 
         if model == 'gpt-3.5-turbo-16k':
             cut_length = len(conversation_gpt) // 10
@@ -141,9 +185,9 @@ def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoke
 
         if keep_persona and persona != '':
             if language == 'ita':
-                conversation_gpt.append({"role": "system", "content": "Tu sei " + persona + ". Pensa, senti e rispondi di conseguenza."})
+                conversation_gpt.append({"role": "system", "content": persona_dict['personaggio']})
             elif language == 'eng':
-                conversation_gpt.append({"role": "system", "content": "You are " + persona + ". Think, feel and respond in accordance with this."})
+                conversation_gpt.append({"role": "system", "content": persona_dict['character']})
         if keep_persona and system != '':
             conversation_gpt.append({"role": "system", "content": system})
 
@@ -151,9 +195,13 @@ def send_message_gpt(message, model='gpt-3.5-turbo-16k', language='eng', maxtoke
         expand_conversation_gpt(message)
         messages = build_messages(conversation_gpt)
         response = openai.ChatCompletion.create(
-            model= model,
-            messages=messages,
-            max_tokens=maxtoken  # set max token
+            model = model,
+            messages = messages,
+            temperature = temperature,
+            max_tokens = maxtoken,  # set max token
+            top_p = 1,
+            frequency_penalty = 0,
+            presence_penalty = 0
         )
         # Add the assistant's reply to the conversation
         with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
