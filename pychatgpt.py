@@ -163,7 +163,7 @@ def send_message_gpt(message,
     persona_dict = {'system': "You are " + persona + ". Think, feel and answer accordingly.",
                     'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
                     'sistema': "Tu sei " + persona + ". Pensa, ragiona e rispondi di conseguenza.",
-                    'personaggio': "Stai impersonando "+persona+", . Ricordate di riflettere i tratti di "+persona+" in tutte le comunicazioni. Utilizzate lo stile di linguaggio appropriato e mantenete un atteggiamento o una mentalità appropriata in linea con "+persona}
+                    'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona}
     if persona != '':
         if language == 'eng':
             conversation_gpt.append({"role": "system",
@@ -226,3 +226,4 @@ def send_message_gpt(message,
         #answer = response.choices[0].message.content
         total_tokens = response.usage.total_tokens
         print('prompt tokens:', total_tokens)
+
