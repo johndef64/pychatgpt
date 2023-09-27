@@ -69,7 +69,7 @@ rate = 44100  # Sampling rate in Hz
 
 print("\nTo start record press Alt+A")
 while True:
-
+    
     if keyboard.is_pressed('Alt+A'):
         stream = audio.open(format=sample_format,
                             channels=channels,
@@ -81,7 +81,7 @@ while True:
         frames = []
         print("Recording...")
         print("press again alt+A to stop")
-        time.sleep(2)
+        
 
         while True:
             if keyboard.is_pressed('alt+A'):  # if key 'ctrl + c' is pressed
@@ -109,3 +109,4 @@ while True:
         #pyperclip.paste()
         pyautogui.hotkey('ctrl', 'v')
         print('\n',text_value,'\n')
+        print("\nTo start record press Alt+A")
