@@ -65,7 +65,7 @@ api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 openai.api_key = str(api_key)
 
 add = "You are a helpful assistant."
-model = "gpt-4"
+model = "gpt-3.5-turbo-16k"
 
 #inizialize log:
 if not os.path.isfile(current_dir + '/conversation_log.txt'):
@@ -94,7 +94,7 @@ def ask_gpt(prompt):
     return print(completion.choices[0].message.content)
 
 
-# Initialize the conversation (gpt-4)----------------------------
+# Initialize the conversation----------------------------
 
 # Conversation history
 conversation_gpt = [
@@ -200,7 +200,7 @@ def send_message_gpt(message, language='eng'):
     if persona != '':
         print('\n'+persona+':', answer)
     else:
-        print('\ngpt-4:', answer)
+        print('\n'+model.replace('-turbo-16k','')+':', answer)
     total_tokens = response.usage.total_tokens
     print('(token count: '+str(total_tokens)+')')
 
@@ -211,7 +211,7 @@ assistant = ''
 while True:  # external cycle
     safe_word = ''
     print(
-        '''---------------------\nWelcome to Bash-GPT!\n\nGPT-4 will answer every question.\n\nReply with:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'system' to set new system instructions' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n''')
+        '''---------------------\nWelcome to Bash-GPT!\n\nChatGPT will answer every question.\n\nReply with:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'system' to set new system instructions' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n''','\nNow using:',model)
     language = '1'  # setting Italian default temporarly
     while language not in ['1', '2']:
         language = input('\nPlease choose language: \n1. English\n2. Italian\n\nLanguage number:')
@@ -223,7 +223,7 @@ while True:  # external cycle
         while choose not in ['1', '2', '3', '4']:
             # Prompt the user to make a choice between three predefined strings
             choose = input(
-                '''\nChoose settings:\n1. Ask to gpt-4\n2. Ask to gpt-4 (instruct)\n3. Ask to someone\n4. Chat with gpt-4\n\nSetting number:''')
+                '''\nChoose settings:\n1. Ask ChatGPT\n2. Ask ChatGPT (instruct)\n3. Ask someone\n4. Chat with ChatGPT\n\nSetting number:''')
 
             # Verify user's choice
             if choose == '1':
@@ -254,7 +254,7 @@ while True:  # external cycle
             elif choose == '4':
                 print("You chose to have some conversation.")
                 assistant = input(
-                    "\nWho do you want to converse with?: \n1. the assistant\n2. the poet \n3. the scientist\n4. someone else\n\nNumber: ")
+                    "\nWho do you want to chat with?: \n1. the assistant\n2. the poet \n3. the scientist\n4. someone else\n\nNumber: ")
 
                 if assistant == '1':
                     conversation_gpt.append({"role": "system",
