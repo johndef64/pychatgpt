@@ -49,6 +49,7 @@ import pyautogui
 import keyboard
 import pyaudio
 import wave
+import time
 
 input_device_id = 0
 audio = pyaudio.PyAudio()
@@ -69,7 +70,7 @@ rate = 44100  # Sampling rate in Hz
 print("\nTo start record press Alt+A")
 while True:
 
-    if keyboard.is_pressed('Alt+S'):
+    if keyboard.is_pressed('Alt+A'):
         stream = audio.open(format=sample_format,
                             channels=channels,
                             rate=rate,
@@ -79,10 +80,11 @@ while True:
 
         frames = []
         print("Recording...")
-        print("press alt+s to interrupt")
+        print("press again alt+A to stop")
+        time.sleep(2)
 
         while True:
-            if keyboard.is_pressed('alt+s'):  # if key 'ctrl + c' is pressed
+            if keyboard.is_pressed('alt+A'):  # if key 'ctrl + c' is pressed
                break  # finish the loop
             else:
                 data = stream.read(chunk)
