@@ -211,7 +211,7 @@ assistant = ''
 while True:  # external cycle
     safe_word = ''
     print(
-        '''---------------------\nWelcome to Bash-GPT!\n\nChatGPT will answer every question.\n\nReply with:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'system' to set new system instructions' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n''','\nNow using:',model)
+        '''---------------------\nWelcome to Line-GPT!\n\nChatGPT will answer every question.\n\nReply with:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'system' to set new system instructions' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n''','\nNow using:',model)
     language = '1'  # setting Italian default temporarly
     while language not in ['1', '2']:
         language = input('\nPlease choose language: \n1. English\n2. Italian\n\nLanguage number:')
