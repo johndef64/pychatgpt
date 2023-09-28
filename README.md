@@ -33,7 +33,7 @@ Using `op.send_message_gpt`, the code checks if the total number of tokens excee
 ## Openai-based applications
 Some other python applications executable in Terminal that take advantage of openai modulo features
 - auto-gpt
-- bash-gpt
+- line-gpt
 - rec-whisper-paste
 
 ## Author
