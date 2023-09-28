@@ -289,11 +289,24 @@ while True:  # external cycle
             else:
                 print("Invalid choice.")
 
+        print("Enter your input (press enter twice to finish):")
+
 
         while safe_word != 'restartnow' or 'exitnow' or 'maxtoken':
             timea = datetime.now()
             print('\n--------------------------------\n')
-            message = input('user:')
+            lines = []
+            print('user:')
+            while True:
+                line = input()
+                if line:
+                    lines.append(line)
+                    message='\n'.join(lines)
+                else:
+                    break
+
+            #message = input('user:')
+
             safe_word = message
 
             if safe_word == 'restartnow':
