@@ -172,7 +172,7 @@ def send_message_gpt(message):
     if persona != '':
         print('\n'+persona+':', answer)
     else:
-        print('\n'+model.replace('-turbo-16k','')+':', answer)
+        print('\n'+model.replace('-turbo','').replace('-16k','')+':', answer)
     total_tokens = response.usage.total_tokens
     print('(token count: '+str(total_tokens)+')')
 
