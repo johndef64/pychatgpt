@@ -76,32 +76,10 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
 
 
-# chat functions ----------------------------
-#https://platform.openai.com/account/rate-limits
-def ask_gpt(prompt):
-    completion = openai.ChatCompletion.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": add},
-            {"role": "user", "content": prompt}
-        ])
-    with open('conversation_log.txt', 'a', encoding='utf-8') as file:
-        file.write('---------------------------')
-        if add != '':
-            file.write('\nSystem: \n"' + add + '"\n')
-        file.write('\nUser: ' + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '\n' + prompt)
-        file.write('\n\nGPT:\n' + completion.choices[0].message.content + '\n\n')
-
-    #print('user:',prompt,'\n')
-    return print(completion.choices[0].message.content)
-
 
 # Initialize the conversation----------------------------
 
 # Conversation history
-conversation_gpt = [
-    {"role": "system", "content": "You are a helpful assistant expert in science and informatics."},
-]
 conversation_gpt = []
 
 
@@ -221,134 +199,89 @@ while True:  # external cycle
             print("Invalid choice.")
 
     #----------
-    if language == '1':
-        choose = ""
-        while choose not in ['1', '2', '3', '4']:
-            # Prompt the user to make a choice between three predefined strings
-            choose = input(
-                '''\nChoose settings:\n1. Ask ChatGPT\n2. Ask ChatGPT (instruct)\n3. Ask someone\n4. Chat with ChatGPT\n\nSetting number:''')
 
-            # Verify user's choice
-            if choose == '1':
-                with open('conversation_log.txt', 'a') as file:
-                    file.write('\n' + str(datetime.now()) + ": <You are asking the virtual assistant>\n")
-                print("You chose option 1.")
+    assistant = input(
+        "\nWho do you want to chat with? \n"+df['index'].to_string()+'\nindex number:')
+    assistant_is = dict_as_list[int(assistant)][1]
 
-            elif choose == '2':
-                add = input('''
-                            Enter system instructions.
-                            examples:
-                             - Answer the question and give only the correct answer:
-                             - Correct this code:
+    if dict_as_list[int(assistant)][0] != 'someone else':
+        conversation_gpt.append({"role": "system",
+                                 "content": assistant_is})
+        with open('conversation_log.txt', 'a') as file:
+            file.write('\n' + str(datetime.now()) + ': <You are chatting with '+dict_as_list[int(assistant)][1])
+    else :
+        persona = input('Tell me who you want to talk to:')
 
-                              Instruction:''')
-                with open('conversation_log.txt', 'a') as file:
-                    file.write(
-                        '\n' + str(datetime.now()) + ": <You are asking the virtual assistant, system: " + add + "> \n")
-                print("You chose option 2.")
+        if language == '1':
+            lang_tag = assistant_dict['someone else']['character'].format(persona, persona, persona)
+            print(lang_tag)
+        if language == '2':
+            lang_tag = assistant_dict['someone else']['personaggio'].format(persona, persona, persona)
 
-            elif choose == '3':
-                persona = input('Tell me who you want to talk to:')
-                add = assistant_dict['someone else']['character']
-                with open('conversation_log.txt', 'a') as file:
-                    file.write('\n' + str(datetime.now()) + ': <You asked to ' + persona + '>\n')
-                print("I'm connecting you with " + persona)
-            #-------------------------------------------------------------
+        conversation_gpt.append({"role": "system",
+                                 "content": lang_tag})
+
+        with open('conversation_log.txt', 'a') as file:
+            file.write('\n' + str(datetime.now()) + ': <You are chatting with ' + persona + '>\n')
 
 
-            #-------------------------------------------------------------
-            elif choose == '4':
-                print("You chose to have some conversation.")
-                assistant = input(
-                    "\nWho do you want to chat with? \n"+df['index'].to_string()+'\nindex number:')
-                assistant_is = dict_as_list[int(assistant)][1]
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-                if dict_as_list[int(assistant)][0] != 'someone else':
-                    conversation_gpt.append({"role": "system",
-                                             "content": assistant_is})
-                    with open('conversation_log.txt', 'a') as file:
-                        file.write('\n' + str(datetime.now()) + ': <You are chatting with '+dict_as_list[int(assistant)][1])
-                else :
-                    persona = input('Tell me who you want to talk to:')
+    while safe_word != 'restartnow' or 'exitnow' or 'maxtoken':
+        timea = datetime.now()
+        print('\n--------------------------------\n')
 
-                    if language == '1':
-                        lang_tag = assistant_dict['someone else']['character'].format(persona, persona, persona)
-                        print(lang_tag)
-                    if language == '2':
-                        lang_tag = assistant_dict['someone else']['personaggio'].format(persona, persona, persona)
+        if total_tokens > prmtoken:
+            print('\n\nWarning: reaching token limit. \nThis model maximum context length is '+ str(prmtoken)+ ' in the messages, ' + str(prmtoken + maxtoken) + ' in total.')
+            #print('\n Inizializing new conversation.')
+            #conversation_gpt.clear()
+            if language == '1':
+                print('\n the first third of the conversation was forgotten')
+            elif language == '2':
+                print("il primo terzo della conversazione è stato dimenticato")
 
-                    conversation_gpt.append({"role": "system",
-                                                 "content": lang_tag})
-
-                    with open('conversation_log.txt', 'a') as file:
-                        file.write('\n' + str(datetime.now()) + ': <You are chatting with ' + persona + '>\n')
-            else:
-                print("Invalid choice.")
-
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-        while safe_word != 'restartnow' or 'exitnow' or 'maxtoken':
-            timea = datetime.now()
-            print('\n--------------------------------\n')
-
-            if total_tokens > prmtoken:
-                print('\n\nWarning: reaching token limit. \nThis model maximum context length is '+ str(prmtoken)+ ' in the messages, ' + str(prmtoken + maxtoken) + ' in total.')
-                #print('\n Inizializing new conversation.')
-                #conversation_gpt.clear()
+            if model == 'gpt-3.5-turbo-16k':
+                cut_length = len(conversation_gpt) // 10
+            if model == 'gpt-4':
+                cut_length = len(conversation_gpt) // 6
+            if model == 'gpt-3.5-turbo':
+                cut_length = len(conversation_gpt) // 3
+            conversation_gpt = conversation_gpt[cut_length:]
+            if keep_persona:
                 if language == '1':
-                    print('\n the first third of the conversation was forgotten')
-                elif language == '2':
-                    print("il primo terzo della conversazione è stato dimenticato")
-
-                if model == 'gpt-3.5-turbo-16k':
-                    cut_length = len(conversation_gpt) // 10
-                if model == 'gpt-4':
-                    cut_length = len(conversation_gpt) // 6
-                if model == 'gpt-3.5-turbo':
-                    cut_length = len(conversation_gpt) // 3
-                conversation_gpt = conversation_gpt[cut_length:]
-                if keep_persona:
-                    if language == '1':
-                        lang_tag = assistant_dict['someone else']['character'].format(persona, persona, persona)
-                    if language == '2':
-                        lang_tag = assistant_dict['someone else']['personaggio'].format(persona, persona, persona)
+                    lang_tag = assistant_dict['someone else']['character'].format(persona, persona, persona)
+                if language == '2':
+                    lang_tag = assistant_dict['someone else']['personaggio'].format(persona, persona, persona)
 
 
-            message = input('user:')
-            safe_word = message
+        message = input('user:')
+        safe_word = message
 
-            if safe_word == 'restartnow':
-                conversation_gpt = []
-                break
-            if safe_word == 'exitnow':
-                exit()
-            if safe_word == 'maxtoken':
-                maxtoken = int(input('set max response tokens (1000 default):'))
-                break
-
-            if choose == '4':
-                if safe_word == 'system':
-                    conversation_gpt = []
-                    system = input('define custum system instructions:')
-                    print('*system instruction changed*')
-                    pass
-                else:
-                    send_message_gpt(message)
-            elif choose != '4':
-                ask_gpt(message)
-            else:
-                pass
-            timed = datetime.now() - timea
-
-            #Rate-Limit gpt-4 = 200
-            #https://medium.com/@pankaj_pandey/understanding-the-chatgpt-api-key-information-and-frequently-asked-questions-4a0e963fb138#:~:text=The%20ChatGPT%20API%20has%20different,90000%20TPM%20after%2048%20hours.
-            #https://platform.openai.com/docs/guides/rate-limits/overview
-            #https://platform.openai.com/account/rate-limits
-            time.sleep(0.5)  # Wait 1 second before checking again
+        if safe_word == 'restartnow':
+            conversation_gpt = []
+            break
+        if safe_word == 'exitnow':
+            exit()
+        if safe_word == 'maxtoken':
+            maxtoken = int(input('set max response tokens (1000 default):'))
+            break
 
 
-4#%%
-5
+        if safe_word == 'system':
+            conversation_gpt = []
+            system = input('define custum system instructions:')
+            print('*system instruction changed*')
+            pass
+        else:
+            send_message_gpt(message)
+
+        timed = datetime.now() - timea
+
+        #Rate-Limit gpt-4 = 200
+        #https://medium.com/@pankaj_pandey/understanding-the-chatgpt-api-key-information-and-frequently-asked-questions-4a0e963fb138#:~:text=The%20ChatGPT%20API%20has%20different,90000%20TPM%20after%2048%20hours.
+        #https://platform.openai.com/docs/guides/rate-limits/overview
+        #https://platform.openai.com/account/rate-limits
+        time.sleep(0.5)  # Wait 1 second before checking again
+
 
 #%%
-4
