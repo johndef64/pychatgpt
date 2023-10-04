@@ -2,7 +2,6 @@ import os
 import time
 import importlib
 from datetime import datetime
-import pandas as pd
 
 
 def get_boolean_input(prompt):
@@ -32,11 +31,12 @@ def check_and_install_module(module_name):
 
 # check requirements
 try:
-    import pyperclip
+    import pandas as pd
     import openai
 except ImportError:
     print('Check requirements:')
-check_and_install_module("pyperclip")
+
+check_and_install_module("pandas")
 check_and_install_module("openai")
 #print('--------------------------------------')
 
@@ -50,7 +50,7 @@ else:
 
 # If  import openai
 import openai
-import pyperclip
+import pandas as pd
 
 # check Usage:
 # https://platform.openai.com/account/usage
@@ -66,7 +66,8 @@ api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 openai.api_key = str(api_key)
 
 add = "You are a helpful assistant."
-model = "gpt-3.5-turbo-16k"
+models = ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4"]
+model = models[1]
 
 #inizialize log:
 if not os.path.isfile(current_dir + '/conversation_log.txt'):
@@ -116,8 +117,11 @@ def build_messages(conversation):
 
 #The Max Token Limit In ChatGPT: gpt-4 (8,192 tokens), gpt-4-0613 (8,192 tokens), gpt-4-32k (32,768 tokens), gpt-4-32k-0613 (32,768 tokens). maximum limit (4097 tokens for gpt-3.5-turbo )
 total_tokens = 0
-maxtoken = 1000
-prmtoken = 8192 - (maxtoken * 1.3)
+maxtoken = 900
+modeltoken = {"gpt-3.5-turbo":4097,
+              "gpt-3.5-turbo-16k":16000,
+              "gpt-4": 8192}
+prmtoken = modeltoken[model] - (maxtoken * 1.3)
 keep_persona = True
 language = '1'
 
@@ -127,47 +131,14 @@ last token report 2568 (not cosidering response tokens that could be up to 500-7
 '''
 persona = ''
 system = ''
-def send_message_gpt(message, language='eng'):
+def send_message_gpt(message):
     global conversation_gpt
     global total_tokens
+    global persona
 
-    if persona != '':
-        persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character.",
-                        'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona}
-        if language == 'eng':
-            conversation_gpt.append({"role": "system",
-                                     "content": persona_dict['character']})
-        if language == 'ita':
-            conversation_gpt.append({"role": "system",
-                                     "content": persona_dict['personaggio']})
     if system != '':
         conversation_gpt.append({"role": "system",
                                  "content": system})
-
-    if total_tokens > prmtoken:
-        print('\n\nWarning: reaching token limit. \nThis model maximum context length is '+ str(prmtoken)+ ' in the messages, ' + str(prmtoken + maxtoken) + ' in total.')
-        #print('\n Inizializing new conversation.')
-        #conversation_gpt.clear()
-        if language == 'eng':
-            print('\n the first third of the conversation was forgotten')
-        elif language == 'ita':
-            print("il primo terzo della conversazione è stato dimenticato")
-
-        if model == 'gpt-3.5-turbo-16k':
-            cut_length = len(conversation_gpt) // 10
-        if model == 'gpt-4':
-            cut_length = len(conversation_gpt) // 6
-        if model == 'gpt-3.5-turbo':
-            cut_length = len(conversation_gpt) // 3
-        conversation_gpt = conversation_gpt[cut_length:]
-        if keep_persona:
-            if language == 'eng':
-                conversation_gpt.append(
-                    {"role": "system", "content": persona_dict['character']})
-            elif language == 'ita':
-                conversation_gpt.append({"role": "system",
-                                         "content": persona_dict['personaggio']})
-
     #send message
     expand_conversation_gpt(message)
     messages = build_messages(conversation_gpt)
@@ -206,29 +177,17 @@ def send_message_gpt(message, language='eng'):
     print('(token count: '+str(total_tokens)+')')
 
 
-#-----------------------------------------------------
-assistant = ''
-# Run script:
-while True:  # external cycle
-    safe_word = ''
-    print(
-        '''---------------------\nWelcome to Line-GPT!\n\nChatGPT will answer every question.\n\nReply with:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'system' to set new system instructions' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n''','\nNow using:',model)
-    language = '1'  # setting Italian default temporarly
-    while language not in ['1', '2']:
-        language = input('\nPlease choose language: \n1. English\n2. Italian\n\nLanguage number:')
-        if language not in ['1', '2']:
-            print("Invalid choice.")
+#================================================================
+assistant_dict = {
+    "assistant": "You are my helpful assistant. Answer in accordance with this.",
 
-    assistant_dict = {
-        "assistant": "You are my helpful assistant. Answer in accordance with this.",
+    "poet": "Today, you are the greatest poet ever, inspired, profound, sensitive, visionary and creative. Answer in accordance with this.",
 
-        "poet": "Today, you are the greatest poet ever, inspired, profound, sensitive, visionary and creative. Answer in accordance with this.",
+    "scientist": "Today, you are the greatest and most experienced scientist ever, analytical, precise and rational. Answer in accordance with this.",
 
-        "scientist": "Today, you are the greatest and most experienced scientist ever, analytical, precise and rational. Answer in accordance with this.",
+    "informatics engineer": "As a chatbot focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages  (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, etc).",
 
-        "informatics engineer": "As a chatbot focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages  (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, etc).",
-
-        "prompt engineer": '''You are an AI trained to provide suggestions for creating system instructions for chatgpt in a task-focused or conversational manor. Remember these key points:
+    "prompt engineer": '''You are an AI trained to provide suggestions for creating system instructions for chatgpt in a task-focused or conversational manor. Remember these key points:
       1. Be specific, clear, and concise in your instructions.
       2. Directly state the role or behavior you want the model to take.
       3. If relevant, specify the format you want the output in.
@@ -237,15 +196,30 @@ while True:  # external cycle
       6. Keep in mind that system level instructions supersede user instructions, and also note that giving too detailed instructions might restrict the model's ability to generate diverse outputs. 
       Use your knowledge to the best of your capacity.''',
 
-        "someone else": {
-            'character': "You are now impersonating {}. Please reflect {}'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with {}'s character.".format(persona, persona, persona),
-            'personaggio': "Stai impersonando {}. Ricorda di riflettere i tratti di {} in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di {}.".format(persona, persona, persona)
-        }
+    "someone else": {
+        'character': "You are now impersonating {}. Please reflect {}'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with {}'s character.",
+        'personaggio': "Stai impersonando {}. Ricorda di riflettere i tratti di {} in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di {}."
     }
-    dict_as_list = list(assistant_dict.items())
-    dict_as_list[0][1]
+}
+dict_as_list = list(assistant_dict.items())
+df = pd.DataFrame(assistant_dict).T.reset_index()
+#================================================================
 
-    df=pd.DataFrame(assistant_dict).T.reset_index()
+
+persona = ''
+assistant = ''
+# Run script:
+while True:  # external cycle
+    safe_word = ''
+
+    print(
+        '''---------------------\nWelcome to GPT-CLI!\n\nChatGPT will answer every question.\n\nReply with:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'system' to set new system instructions' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n''','\nNow using:',model)
+    language = '1'  # setting Italian default temporarly
+    while language not in ['1', '2']:
+        language = input('\nPlease choose language: \n1. English\n2. Italian\n\nLanguage number:')
+        if language not in ['1', '2']:
+            print("Invalid choice.")
+
     #----------
     if language == '1':
         choose = ""
@@ -286,7 +260,7 @@ while True:  # external cycle
             elif choose == '4':
                 print("You chose to have some conversation.")
                 assistant = input(
-                    "\nWho do you want to chat with? \n"+df['index'].to_string()+'\n(index number:')
+                    "\nWho do you want to chat with? \n"+df['index'].to_string()+'\nindex number:')
                 assistant_is = dict_as_list[int(assistant)][1]
 
                 if dict_as_list[int(assistant)][0] != 'someone else':
@@ -298,9 +272,10 @@ while True:  # external cycle
                     persona = input('Tell me who you want to talk to:')
 
                     if language == '1':
-                        lang_tag = assistant_dict['someone else']['character']
+                        lang_tag = assistant_dict['someone else']['character'].format(persona, persona, persona)
+                        print(lang_tag)
                     if language == '2':
-                        lang_tag = assistant_dict['someone else']['personaggio']
+                        lang_tag = assistant_dict['someone else']['personaggio'].format(persona, persona, persona)
 
                     conversation_gpt.append({"role": "system",
                                                  "content": lang_tag})
@@ -310,14 +285,40 @@ while True:  # external cycle
             else:
                 print("Invalid choice.")
 
+        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
         while safe_word != 'restartnow' or 'exitnow' or 'maxtoken':
             timea = datetime.now()
             print('\n--------------------------------\n')
+
+            if total_tokens > prmtoken:
+                print('\n\nWarning: reaching token limit. \nThis model maximum context length is '+ str(prmtoken)+ ' in the messages, ' + str(prmtoken + maxtoken) + ' in total.')
+                #print('\n Inizializing new conversation.')
+                #conversation_gpt.clear()
+                if language == '1':
+                    print('\n the first third of the conversation was forgotten')
+                elif language == '2':
+                    print("il primo terzo della conversazione è stato dimenticato")
+
+                if model == 'gpt-3.5-turbo-16k':
+                    cut_length = len(conversation_gpt) // 10
+                if model == 'gpt-4':
+                    cut_length = len(conversation_gpt) // 6
+                if model == 'gpt-3.5-turbo':
+                    cut_length = len(conversation_gpt) // 3
+                conversation_gpt = conversation_gpt[cut_length:]
+                if keep_persona:
+                    if language == '1':
+                        lang_tag = assistant_dict['someone else']['character'].format(persona, persona, persona)
+                    if language == '2':
+                        lang_tag = assistant_dict['someone else']['personaggio'].format(persona, persona, persona)
+
+
             message = input('user:')
             safe_word = message
 
             if safe_word == 'restartnow':
+                conversation_gpt = []
                 break
             if safe_word == 'exitnow':
                 exit()
@@ -343,7 +344,7 @@ while True:  # external cycle
             #https://medium.com/@pankaj_pandey/understanding-the-chatgpt-api-key-information-and-frequently-asked-questions-4a0e963fb138#:~:text=The%20ChatGPT%20API%20has%20different,90000%20TPM%20after%2048%20hours.
             #https://platform.openai.com/docs/guides/rate-limits/overview
             #https://platform.openai.com/account/rate-limits
-            time.sleep(1)  # Wait 1 second before checking again
+            time.sleep(0.5)  # Wait 1 second before checking again
 
 
 4#%%
