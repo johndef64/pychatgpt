@@ -2,6 +2,7 @@ import os
 import time
 import importlib
 from datetime import datetime
+import pandas as pd
 
 
 def get_boolean_input(prompt):
@@ -220,15 +221,31 @@ while True:  # external cycle
 
     assistant_dict = {
         "assistant": "You are my helpful assistant. Answer in accordance with this.",
+
         "poet": "Today, you are the greatest poet ever, inspired, profound, sensitive, visionary and creative. Answer in accordance with this.",
+
         "scientist": "Today, you are the greatest and most experienced scientist ever, analytical, precise and rational. Answer in accordance with this.",
-        "informatics engineer": "",
-        "": "",
-        "persona": {
+
+        "informatics engineer": "As a chatbot focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages  (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, etc).",
+
+        "prompt engineer": '''You are an AI trained to provide suggestions for creating system instructions for chatgpt in a task-focused or conversational manor. Remember these key points:
+      1. Be specific, clear, and concise in your instructions.
+      2. Directly state the role or behavior you want the model to take.
+      3. If relevant, specify the format you want the output in.
+      4. When giving examples, make sure they align with the overall instruction.
+      5. Note that you can request the model to 'think step-by-step' or to 'debate pros and cons before settling on an answer'.
+      6. Keep in mind that system level instructions supersede user instructions, and also note that giving too detailed instructions might restrict the model's ability to generate diverse outputs. 
+      Use your knowledge to the best of your capacity.''',
+
+        "someone else": {
             'character': "You are now impersonating {}. Please reflect {}'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with {}'s character.".format(persona, persona, persona),
             'personaggio': "Stai impersonando {}. Ricorda di riflettere i tratti di {} in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di {}.".format(persona, persona, persona)
         }
     }
+    dict_as_list = list(assistant_dict.items())
+    dict_as_list[0][1]
+
+    df=pd.DataFrame(assistant_dict).T.reset_index()
     #----------
     if language == '1':
         choose = ""
@@ -258,42 +275,36 @@ while True:  # external cycle
 
             elif choose == '3':
                 persona = input('Tell me who you want to talk to:')
-                add = "**instruction: you are " + persona + ", answer like you are " + persona + "** \n"
+                add = assistant_dict['someone else']['character']
                 with open('conversation_log.txt', 'a') as file:
                     file.write('\n' + str(datetime.now()) + ': <You asked to ' + persona + '>\n')
                 print("I'm connecting you with " + persona)
+            #-------------------------------------------------------------
 
+
+            #-------------------------------------------------------------
             elif choose == '4':
                 print("You chose to have some conversation.")
                 assistant = input(
-                    "\nWho do you want to chat with?: \n1. the assistant\n2. the poet \n3. the scientist\n4. someone else\n\nNumber: ")
+                    "\nWho do you want to chat with? \n"+df['index'].to_string()+'\n(index number:')
+                assistant_is = dict_as_list[int(assistant)][1]
 
-                if assistant == '1':
+                if dict_as_list[int(assistant)][0] != 'someone else':
                     conversation_gpt.append({"role": "system",
-                                             "content": assistant_dict["assistant"]})
+                                             "content": assistant_is})
                     with open('conversation_log.txt', 'a') as file:
-                        file.write('\n' + str(datetime.now()) + ': <You are chatting with the general assistant>\n')
-
-                elif assistant == '2':
-                    conversation_gpt.append({"role": "system",
-                                             "content": assistant_dict["poet"]})
-                    with open('conversation_log.txt', 'a') as file:
-                        file.write('\n' + str(datetime.now()) + ': <You are chatting with the greatest poet ever>\n')
-
-                elif assistant == '3':
-                    conversation_gpt.append({"role": "system",
-                                             "content": assistant_dict["scientist"]})
-                    with open('conversation_log.txt', 'a') as file:
-                        file.write(
-                            '\n' + str(datetime.now()) + ': <You are chatting with the greatest  scientist ever>\n')
-                else:
+                        file.write('\n' + str(datetime.now()) + ': <You are chatting with '+dict_as_list[int(assistant)][1])
+                else :
                     persona = input('Tell me who you want to talk to:')
-                    if language == 'eng':
-                        conversation_gpt.append({"role": "system",
-                                                 "content": assistant_dict['persona']['character']})
-                    if language == 'ita':
-                        conversation_gpt.append({"role": "system",
-                                                 "content": assistant_dict['persona']['personaggio']})
+
+                    if language == '1':
+                        lang_tag = assistant_dict['someone else']['character']
+                    if language == '2':
+                        lang_tag = assistant_dict['someone else']['personaggio']
+
+                    conversation_gpt.append({"role": "system",
+                                                 "content": lang_tag})
+
                     with open('conversation_log.txt', 'a') as file:
                         file.write('\n' + str(datetime.now()) + ': <You are chatting with ' + persona + '>\n')
             else:
@@ -334,3 +345,9 @@ while True:  # external cycle
             #https://platform.openai.com/account/rate-limits
             time.sleep(1)  # Wait 1 second before checking again
 
+
+4#%%
+5
+
+#%%
+4
