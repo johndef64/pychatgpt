@@ -118,15 +118,16 @@ def build_messages(conversation):
 def save_conversation():
     filename = input('Conversation name:')
     directory = 'conversations'
+    formatted_json = json.dumps(conversation_gpt, indent=4)
     if not os.path.exists(directory):
         os.mkdir(directory)
-    with open('conversations/'+filename+'.txt', 'w', encoding= 'utf-8') as file:
-        file.write(str(conversation_gpt))
+    with open('conversations/'+filename+'.json', 'w', encoding= 'utf-8') as file:
+        file.write(formatted_json)
         file.close()
 
 def load_conversation():
     global conversation_gpt
-    files_df = display_file_as_pd('txt',contains='',path='conversations/')
+    files_df = display_file_as_pd('json',contains='',path='conversations/')
     filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
     with open('conversations/'+filename,'r') as file:
         conversation_gpt = ast.literal_eval(file.read())
