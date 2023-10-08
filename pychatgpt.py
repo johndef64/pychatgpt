@@ -116,17 +116,17 @@ def build_messages(conversation):
     return messages
 
 def save_conversation():
-    tag = input('filename_tag')
+    filename = input('Conversation name:')
     directory = 'conversations'
     if not os.path.exists(directory):
         os.mkdir(directory)
-    with open('conversations/conversation_'+tag+'.txt', 'w', encoding= 'utf-8') as file:
+    with open('conversations/'+filename+'.txt', 'w', encoding= 'utf-8') as file:
         file.write(str(conversation_gpt))
         file.close()
 
 def load_conversation():
     global conversation_gpt
-    files_df = display_file_as_pd('txt',contains='conversation',path='conversations/')
+    files_df = display_file_as_pd('txt',contains='',path='conversations/')
     filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
     with open('conversations/'+filename,'r') as file:
         conversation_gpt = ast.literal_eval(file.read())
