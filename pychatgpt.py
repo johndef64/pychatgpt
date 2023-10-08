@@ -132,15 +132,15 @@ def load_conversation():
         conversation_gpt = ast.literal_eval(file.read())
         file.close()
 
-def send_message_gpt(message,
-                     model='gpt-3.5-turbo-16k',
-                     language='eng',
-                     maxtoken = 800,
-                     temperature = 1,
-                     system='',
-                     persona='',
-                     printuser = False
-                     ):
+def send_message(message,
+                 model='gpt-3.5-turbo-16k',
+                 language='eng',
+                 maxtoken = 800,
+                 temperature = 1,
+                 system='',
+                 persona='',
+                 printuser = False
+                 ):
     global conversation_gpt
     global total_tokens
 

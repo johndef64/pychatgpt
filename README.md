@@ -18,17 +18,17 @@ The module provides the following main functions:
 1. `op.ask_gpt(prompt, *parameters*)`: This function takes a prompt as input and generates a response from the GPT chosen model. It returns the generated response and logs the conversation in the `conversation_log.txt` file.
 You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 
-2. `op.send_message_gpt(message,*parameters*)`: This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
-You can simply `op.send_message_gpt(message)` and keep the default parameters.
+2. `op.send_message(message,*parameters*)`: This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
+You can simply `op.send_message(message)` and keep the default parameters.
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions, save/load conversations.
 
 To set-up multiple conversations or change the API-key, follow the example proposed in [pychatgpt_trial.ipynb](https://github.com/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
 
 ## Notes
-The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show conversation history and `op.conversation_gpt.pop()` to remove last interacition. `op.send_message_gpt('clearchat')` to start a new conversation.
+The code in this module assumes that the conversation history is stored in a global variable named `conversation_gpt`. Use `print(op.conversation_gpt)` to show conversation history and `op.conversation_gpt.pop()` to remove last interacition. `op.send_message('clearchat')` to start a new conversation.
 
-Using `op.send_message_gpt`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
+Using `op.send_message`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
 
 ## Openai-based applications
 Some other python applications executable in Terminal that take advantage of openai modulo features
