@@ -1,0 +1,45 @@
+{'sdxl':'''
+Positive prompt: futuristic Neon cyberpunk synthwave cybernetic , a look of severe determination , + / A fat purple haired woman on vacation enjoying the local party scene in NAIROBI at midnight
+Steps: 30, NGMS: 4, Size: 896x1152, Seed: 2821905894, Model: DynaVisionXL_0.5.3.4.fp16, Version: v1.6.0, Sampler: DPM++ 3M SDE Karras, CFG scale: 3.5, Model hash: e2ff992181, Hires steps: 20, Hires prompt: , Hires upscale: 1.25, Hires upscaler: 8x_NMKD-Superscale_150000_G, Denoising strength: 0.45
+
+Positive prompt: cinematic color grading lighting vintage realistic film grain scratches celluloid analog cool shadows warm highlights soft focus actor directed cinematography technicolor , confused, looking around scared , + / A lanky blonde haired man on vacation enjoying the local party scene in Brisbane at dawn
+Steps: 30, NGMS: 4, Size: 896x1152, Seed: 2964181825, Model: DynaVisionXL_0.5.3.4.fp16, Version: v1.6.0, Sampler: DPM++ 3M SDE Karras, CFG scale: 3.5, Model hash: e2ff992181, Hires steps: 20, Hires prompt: , Hires upscale: 1.25, Hires upscaler: 8x_NMKD-Superscale_150000_G, Denoising strength: 0.45
+
+Positive prompt: front shot, portrait photo of a 25 y.o american woman, looks away, natural skin, skin moles, cozy interior, (cinematic, film grain:1.1)
+Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
+Steps: 25, Size: 896x1152, Seed: 3013322479, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
+
+Positive prompt: front shot, portrait photo of a cute 22 y.o woman, looks away, full lips, natural skin, skin moles, stormy weather, (cinematic, film grain:1.1)
+Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
+Steps: 25, Size: 896x1152, Seed: 2020353893, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
+
+Positive prompt: instagram photo, portrait photo of 23 y.o Chloe in black sweater, (cleavage:1.2), pale skin, (smile:0.4), cozy, natural skin, soft lighting, (cinematic, film grain:1.1)
+Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
+Steps: 25, Size: 896x1152, Seed: 3988633469, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
+
+Positive prompt: 1990s, closeup portrait photo of 25 y.o afro american man, Carl Johnson, white tank top, short hair, natural skin, looks away, los angeles street, Grove Street Families gang, (cinematic shot, film grain:1.1)
+Negative prompt: afro, (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
+Steps: 25, Size: 896x1152, Seed: 775832263, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
+ 
+Positive prompt: instagram photo, closeup face photo of 23 y.o Chloe, pale skin, cozy, natural skin, soft lighting, (cinematic, film grain:1.1)
+Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
+Steps: 25, Size: 1024x1024, Seed: 1331257999, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
+
+Positive prompt: 
+
+''',
+
+'sd':'''
+RAW photo, face portrait photo of beautiful 26 y.o woman, cute face, wearing black dress, happy face, hard shadows, cinematic shot, dramatic lighting
+Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
+Steps: 25, VAE: vae-ft-mse-840000-ema-pruned.safetensors, Size: 640x960, Seed: 3898569358, Model: realisticVisionV51, Version: v1.6.0, Sampler: DPM++ SDE Karras, VAE hash: 551eac7037, CFG scale: 7, Model hash: ef76aa2332
+
+instagram photo, closeup face photo of 18 y.o swedish woman in dress, beautiful face, makeup, night city street, bokeh, motion blur
+Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
+Steps: 25, Size: 640x960, Seed: 3755925407, Model: Realistic_Vision_V5.1, Version: v1.5.1, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: ef76aa2332, Hires upscale: 1.5, Hires upscaler: 4x-UltraSharp, Denoising strength: 0.35
+
+masterpiece, best quality, 1girl, (colorful),(delicate eyes and face), volumatic light, ray tracing, bust shot ,extremely detailed CG unity 8k wallpaper,solo,smile,intricate skirt,((flying petal)),(Flowery meadow) sky, cloudy_sky, moonlight, moon, night, (dark theme:1.3), light, fantasy, windy, magic sparks, dark castle,white hair
+Negative prompt: paintings, sketches, fingers, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, ((monochrome)), ((grayscale)), skin spots, acnes, skin blemishes, age spot, (outdoor:1.6), backlight,(ugly:1.331), (duplicate:1.331), (morbid:1.21), (mutilated:1.21), (tranny:1.331), mutated hands, (poorly drawn hands:1.5), blurry, (bad anatomy:1.21), (bad proportions:1.331), extra limbs, (disfigured:1.331), (more than 2 nipples:1.331), (missing arms:1.331), (extra legs:1.331), (fused fingers:1.61051), (too many fingers:1.61051), (unclear eyes:1.331), lowers, bad hands, missing fingers, extra digit, (futa:1.1),bad hands, missing fingers, bad-hands-5
+Steps: 20, Size: 512x832, Seed: 1931785963, (futa: 1.1),bad hands, missing fingers, bad-hands-5", (ugly: 1.331), Model: MAADBD2fp16, (morbid: 1.21), (tranny: 1.331), mutated hands, Version: v1.3.2, Sampler: DPM++ 2M Karras, (outdoor: 1.6), backlight, CFG scale: 8, Clip skip: 2, (duplicate: 1.331), (mutilated: 1.21), Model hash: cca17b08da, (disfigured: 1.331), (extra legs: 1.331), Hires steps: 20, (bad anatomy: 1.21), (low quality: 2), (missing arms: 1.331), (unclear eyes: 1.331), lowers, bad hands, missing fingers, extra digit, Hires upscale: 2, (fused fingers: 1.61051), (worst quality: 2), Hires upscaler: Latent, (normal quality: 2), lowres, normal quality, ((monochrome)), ((grayscale)), skin spots, acnes, skin blemishes, age spot, (bad proportions: 1.331), extra limbs, (too many fingers: 1.61051), Denoising strength: 0.5, (poorly drawn hands: 1.5), blurry, (more than 2 nipples: 1.331), Wildcard negative prompt: "paintings, sketches, fingers
+
+'''}
