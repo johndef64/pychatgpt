@@ -22,6 +22,17 @@ def display_file_as_pd(ext, path=os.getcwd(), contains=''):
     file = files_df[files_df.str.contains(contains)]
     return file
 
+def display_allfile_as_pd(path=os.getcwd(), contains=''):
+    file_pattern = os.path.join(path, "*")
+    files = glob.glob(file_pattern)
+    files_name = []
+    for file in files:
+        file_name = os.path.basename(file)
+        files_name.append(file_name)
+    files_df = pd.Series(files_name)
+    file = files_df[files_df.str.contains(contains)]
+    return file
+
 def check_and_install_module(module_name):
     try:
         # Check if the module is already installed
@@ -130,9 +141,17 @@ def load_conversation():
     global conversation_gpt
     files_df = display_file_as_pd('json',contains='',path='conversations/')
     filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
-    with open('conversations/'+filename,'r') as file:
+    with open(path+filename,'r') as file:
         conversation_gpt = ast.literal_eval(file.read())
         file.close()
+        
+def load_file(path=os.getcwd(), contains=''):
+    files_df = display_allfile_as_pd(path)
+    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+    with open(path+'\\'+filename,'r') as file:
+        my_file = file.read()#ast.literal_eval(file.read())
+        file.close()
+    return my_file
 
 def send_message(message,
                  model='gpt-3.5-turbo-16k',

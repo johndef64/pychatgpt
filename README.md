@@ -22,6 +22,9 @@ You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 You can simply `op.send_message(message)` and keep the default parameters.
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions, save/load conversations.
+- save_conversation()
+- load_conversation()
+- load_file()
 
 To set-up multiple conversations or change the API-key, follow the example proposed in [pychatgpt_trial.ipynb](https://github.com/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
 
