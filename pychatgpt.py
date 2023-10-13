@@ -121,6 +121,9 @@ if not 'conversation_gpt' in locals():
 def expand_conversation_gpt(message):
     conversation_gpt.append({"role": "user", "content": message})
 
+def expand_conversation_assistant(message):
+    conversation_gpt.append({"role": "assistant", "content": message})
+    
 def build_messages(conversation):
     messages = []
     for message in conversation:
