@@ -112,6 +112,7 @@ def ask_gpt(prompt,
 # conversation function -----------------------------
 
 total_tokens = 0 # iniziale token count
+token_limit = 0 # iniziale token limit
 persona = ''
 keep_persona = True
 
@@ -171,6 +172,7 @@ def send_message(message,
                  ):
     global conversation_gpt
     global total_tokens
+    global token_limit
 
     if model == 'gpt-3.5-turbo-16k':
         token_limit = 16384 - (maxtoken*1.3)
