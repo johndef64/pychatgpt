@@ -137,11 +137,13 @@ def save_conversation(path='conversations/'):
         file.write(formatted_json)
         file.close()
 
-def load_conversation(path='conversations/'):
+def load_conversation(contains= '', path='conversations/'):
     global conversation_gpt
-    files_df = display_file_as_pd('json',contains='',path=path)
+    files_df = display_file_as_pd('json',contains=contains,path=path)
     files_df = files_df.sort_values().reset_index(drop=True)
-    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+    files_df_rep = files_df.str.replace('.json','',regex =True)
+    files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
+    filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))]) 
     with open(path+filename,'r') as file:
         conversation_gpt = ast.literal_eval(file.read())
         file.close()
