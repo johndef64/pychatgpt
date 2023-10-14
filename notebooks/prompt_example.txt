@@ -1,78 +1,100 @@
 {'sdxl':'''
+{
 Positive prompt: futuristic Neon cyberpunk synthwave cybernetic , a look of severe determination , + / A fat purple haired woman on vacation enjoying the local party scene in NAIROBI at midnight
-Steps: 30, NGMS: 4, Size: 896x1152, Seed: 2821905894, Model: DynaVisionXL_0.5.3.4.fp16, Version: v1.6.0, Sampler: DPM++ 3M SDE Karras, CFG scale: 3.5, Model hash: e2ff992181, Hires steps: 20, Hires prompt: , Hires upscale: 1.25, Hires upscaler: 8x_NMKD-Superscale_150000_G, Denoising strength: 0.45
-
+}
+{
 Positive prompt: cinematic color grading lighting vintage realistic film grain scratches celluloid analog cool shadows warm highlights soft focus actor directed cinematography technicolor , confused, looking around scared , + / A lanky blonde haired man on vacation enjoying the local party scene in Brisbane at dawn
-Steps: 30, NGMS: 4, Size: 896x1152, Seed: 2964181825, Model: DynaVisionXL_0.5.3.4.fp16, Version: v1.6.0, Sampler: DPM++ 3M SDE Karras, CFG scale: 3.5, Model hash: e2ff992181, Hires steps: 20, Hires prompt: , Hires upscale: 1.25, Hires upscaler: 8x_NMKD-Superscale_150000_G, Denoising strength: 0.45
-
+}
+{
 Positive prompt: front shot, portrait photo of a 25 y.o american woman, looks away, natural skin, skin moles, cozy interior, (cinematic, film grain:1.1)
 Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
-Steps: 25, Size: 896x1152, Seed: 3013322479, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
-
+}
+{
 Positive prompt: front shot, portrait photo of a cute 22 y.o woman, looks away, full lips, natural skin, skin moles, stormy weather, (cinematic, film grain:1.1)
 Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
-Steps: 25, Size: 896x1152, Seed: 2020353893, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
-
+}
+{
 Positive prompt: instagram photo, portrait photo of 23 y.o Chloe in black sweater, (cleavage:1.2), pale skin, (smile:0.4), cozy, natural skin, soft lighting, (cinematic, film grain:1.1)
 Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
-Steps: 25, Size: 896x1152, Seed: 3988633469, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
-
+}
+{
 Positive prompt: 1990s, closeup portrait photo of 25 y.o afro american man, Carl Johnson, white tank top, short hair, natural skin, looks away, los angeles street, Grove Street Families gang, (cinematic shot, film grain:1.1)
 Negative prompt: afro, (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
-Steps: 25, Size: 896x1152, Seed: 775832263, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
- 
+}
+{
 Positive prompt: instagram photo, closeup face photo of 23 y.o Chloe, pale skin, cozy, natural skin, soft lighting, (cinematic, film grain:1.1)
 Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
-Steps: 25, Size: 1024x1024, Seed: 1331257999, Model: RealVisXL_V2.0, Version: v1.6.0, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: 74dda471cc
+}
+
 
 Positive prompt: 
 
 ''',
 
 'sd':'''
+{
 Positive prompt: RAW photo, face portrait photo of beautiful 26 y.o woman, cute face, wearing black dress, happy face, hard shadows, cinematic shot, dramatic lighting
-Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
-Steps: 25, VAE: vae-ft-mse-840000-ema-pruned.safetensors, Size: 640x960, Seed: 3898569358, Model: realisticVisionV51, Version: v1.6.0, Sampler: DPM++ SDE Karras, VAE hash: 551eac7037, CFG scale: 7, Model hash: ef76aa2332
 
+Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
+}
+{
 Positive prompt: instagram photo, closeup face photo of 18 y.o swedish woman in dress, beautiful face, makeup, night city street, bokeh, motion blur
-Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
-Steps: 25, Size: 640x960, Seed: 3755925407, Model: Realistic_Vision_V5.1, Version: v1.5.1, Sampler: DPM++ SDE Karras, CFG scale: 7, Model hash: ef76aa2332, Hires upscale: 1.5, Hires upscaler: 4x-UltraSharp, Denoising strength: 0.35
 
+Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
+}
+{
 Positive prompt: masterpiece, best quality, 1girl, (colorful),(delicate eyes and face), volumatic light, ray tracing, bust shot ,extremely detailed CG unity 8k wallpaper,solo,smile,intricate skirt,((flying petal)),(Flowery meadow) sky, cloudy_sky, moonlight, moon, night, (dark theme:1.3), light, fantasy, windy, magic sparks, dark castle,white hair
+
 Negative prompt: paintings, sketches, fingers, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, ((monochrome)), ((grayscale)), skin spots, acnes, skin blemishes, age spot, (outdoor:1.6), backlight,(ugly:1.331), (duplicate:1.331), (morbid:1.21), (mutilated:1.21), (tranny:1.331), mutated hands, (poorly drawn hands:1.5), blurry, (bad anatomy:1.21), (bad proportions:1.331), extra limbs, (disfigured:1.331), (more than 2 nipples:1.331), (missing arms:1.331), (extra legs:1.331), (fused fingers:1.61051), (too many fingers:1.61051), (unclear eyes:1.331), lowers, bad hands, missing fingers, extra digit, (futa:1.1),bad hands, missing fingers, bad-hands-5
-Steps: 20, Size: 512x832, Seed: 1931785963, (futa: 1.1),bad hands, missing fingers, bad-hands-5", (ugly: 1.331), Model: MAADBD2fp16, (morbid: 1.21), (tranny: 1.331), mutated hands, Version: v1.3.2, Sampler: DPM++ 2M Karras, (outdoor: 1.6), backlight, CFG scale: 8, Clip skip: 2, (duplicate: 1.331), (mutilated: 1.21), Model hash: cca17b08da, (disfigured: 1.331), (extra legs: 1.331), Hires steps: 20, (bad anatomy: 1.21), (low quality: 2), (missing arms: 1.331), (unclear eyes: 1.331), lowers, bad hands, missing fingers, extra digit, Hires upscale: 2, (fused fingers: 1.61051), (worst quality: 2), Hires upscaler: Latent, (normal quality: 2), lowres, normal quality, ((monochrome)), ((grayscale)), skin spots, acnes, skin blemishes, age spot, (bad proportions: 1.331), extra limbs, (too many fingers: 1.61051), Denoising strength: 0.5, (poorly drawn hands: 1.5), blurry, (more than 2 nipples: 1.331), Wildcard negative prompt: "paintings, sketches, fingers
-
+}
+{
 Positive prompt: <lora:LowRA:0.6> (8k, RAW photo, highest quality), beautiful girl, close up, dress, (detailed eyes:0.8), defiance512, (looking at the camera:1.4), (highest quality), (best shadow), intricate details, interior, ginger hair:1.3, dark studio, muted colors, freckles   <lora:epiNoiseoffset_v2Pynoise:1.2>
-Negative prompt: CyberRealistic_Negative
-Steps: 60, Size: 512x768, Seed: 1453132631, Model: CyberRealistic_V3.3, "LowRA: 0dfc93870ba3, Version: v1.5.1, Sampler: Heun, CFG scale: 5, Model hash: 7a4dbba12f, Hires steps: 20, "defiance512: 84e0f50dc97b", Hires upscale: 1.6, Hires upscaler: 4x_NMKD-Siax_200k, Denoising strength: 0.35, epiNoiseoffset_v2Pynoise: da15901cdf16"
 
+Negative prompt: CyberRealistic_Negative
+}
+{
 Positive prompt: gritty raw street photography, plain clean earthy young female hacker, matrixpunk cybercostume, sitting in a busy crowded street diner, (hyperrealism:1.2), (8K UHD:1.2), (photorealistic:1.2), shot with Canon EOS 5D Mark IV, detailed face, detailed hair
-Negative prompt: CyberRealistic_Negative
-Steps: 40, Size: 512x768, Seed: 2144945445, Model: CyberRealistic_V3.3, Version: v1.5.1, Sampler: DPM++ 2M Karras, CFG scale: 5, Model hash: 7a4dbba12f, Hires steps: 20, Hires upscale: 1.55, Hires upscaler: 4x_NMKD-Siax_200k, Denoising strength: 0.35, "CyberRealistic_Negative: 1a1044f67673"
 
+Negative prompt: CyberRealistic_Negative}
+}
+{
 Positive prompt: (raw photo), (peasant) older woman and young woman, lined up, (detailed facial features, detailed eyes), (blouse, long sleeves:1.2), headscarf, (village house interior), short haircut, (village:1.2), by Grant Wood
+
 Negative prompt: CyberRealistic_Negative, Asian-Less-Neg
-Steps: 60, Size: 512x768, Seed: 2016597306, Model: CyberRealistic_V3.3, Version: v1.5.1, Sampler: Heun, CFG scale: 5.5, Model hash: 7a4dbba12f, Hires upscale: 1.55, Asian-Less-Neg: 22d2f003e76f", Hires upscaler: 4x_NMKD-Siax_200k, Denoising strength: 0.45, "CyberRealistic_Negative: 1a1044f67673
-
+}
+{
 Positive prompt: (Abstract:1.3) photo of a futuristic girl, with pink hair, interacting with holographic interfaces, full body framing, in a sci-fi inspired setting, under neon lighting, on a RED digital cinema camera, with a bokeh filter, (in the style of Hayao Miyazaki:1.3)
+
 Negative prompt: CyberRealistic_Negative,  Asian-Less-Neg
-Steps: 80, ENSD: 31337, Size: 512x768, Seed: 2334207234, Model: CyberRealistic_V3.3, Version: v1.5.1, Sampler: Euler a, CFG scale: 5.5, Model hash: 7a4dbba12f, Hires steps: 20, Hires upscale: 1.65, Asian-Less-Neg: 22d2f003e76f", Hires upscaler: 4x_foolhardy_Remacri, Denoising strength: 0.45, "CyberRealistic_Negative: 1a1044f67673
-
+}
+{
 Positive prompt: Street photography photo of a stylish French girl, with short hair, capturing her reflection in a storefront while window-shopping, upper body framing, on a quaint Parisian street, with neon lighting from shop signs, shot from a high angle, on a Sony A7111, with a (bokeh effect:1.3),(in the style of Garry Winograd:1.4)
-Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
-Steps: 40, Size: 512x768, Seed: 2342414053, Model: CyberRealistic_V3.3-FP32, Version: v1.5.1, Sampler: DPM++ SDE Karras, CFG scale: 5.5, Model hash: 560fc437c5, Hires steps: 20, (five fingers: 1.3), lovely hands, detail hands, delicate fingers, detail fingers, girl's hand, nice hands, perfect hands", (good anatomy: 1.2), Hires upscale: 1.5, Hires upscaler: 4x_NMKD-Siax_200k, ADetailer model: face_yolov8n.pt, ADetailer version: 23.7.11, GoodHands-vanilla: 1>, masterpiece, best quality, "GoodHands-vanilla: c05ed279295e", Denoising strength: 0.45, ADetailer mask blur: 4, ADetailer model 2nd: hand_yolov8n.pt, ADetailer confidence: 0.3, ADetailer dilate/erode: 4, ADetailer mask blur 2nd: 4, ADetailer confidence 2nd: 0.3, ADetailer inpaint padding: 32, ADetailer dilate/erode 2nd: 4, ADetailer denoising strength: 0.4, ADetailer inpaint only masked: True, ADetailer inpaint padding 2nd: 32, ADetailer denoising strength 2nd: 0.4, ADetailer inpaint only masked 2nd: True
 
+Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
+}
+{
 Positive prompt: A photo of a woman in a public bathroom captures the allure of a tall, skinny figure with short hair, wearing a sexy black dress with an open back, standing in front of graffiti-covered walls; dark room under a neon sign, her red lips add a touch of intrigue
+
 Negative prompt: CyberRealistic_Negative
-Steps: 40, Size: 512x768, Seed: 3722238882, Model: CyberRealistic_V3.3, Version: v1.5.1, Sampler: DPM++ 2M Karras, CFG scale: 5, Model hash: 7a4dbba12f, Hires steps: 20, Hires upscale: 1.5, Hires upscaler: 4x_NMKD-Siax_200k, ADetailer model: face_yolov8n.pt, ADetailer version: 23.7.11, Denoising strength: 0.45, ADetailer mask blur: 4, ADetailer confidence: 0.3, ADetailer dilate/erode: 4, "CyberRealistic_Negative: 1a1044f67673", ADetailer inpaint padding: 32, ADetailer denoising strength: 0.4, ADetailer inpaint only masked: True
-
-
+}
+{
 Positive prompt: RAW photo,full body shot,of 19yo girl inside a medieval norway rural settlement,attractive,gorgeous,slim,fit,athletic, updo,(high detailed skin:1.2), 16k uhd, dslr, warm filling light, high quality, Canon EOS 90D <lora:more_details:0.9>
+
 Negative prompt: (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, amputation
-Steps: 40, Size: 512x768, Seed: 2024928495, Model: CyberRealistic_V3.3, Version: v1.5.1, Sampler: DPM++ 2M SDE Karras, CFG scale: 6.5, Model hash: 7a4dbba12f, Hires steps: 20, "more_details: 3b8aa1d351ef", Hires upscale: 1.55, Hires upscaler: 4x_foolhardy_Remacri, ADetailer model: face_yolov8n.pt, ADetailer version: 23.7.11, Denoising strength: 0.35, ADetailer mask blur: 4, ADetailer confidence: 0.3, ADetailer dilate/erode: 4, ADetailer inpaint padding: 32, ADetailer denoising strength: 0.4, ADetailer inpaint only masked: True
-
+}
+{
 Positive prompt: 
-
+}
+{
 Positive prompt: 
-
+}
+{
+Positive prompt: 
+}
+{
+Positive prompt: 
+}
+{
+Positive prompt: 
+}
 '''}
