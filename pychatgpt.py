@@ -169,7 +169,8 @@ def send_message(message,
                  temperature = 1,
                  system='',
                  persona='',
-                 printuser = False
+                 printuser = False,
+                 printtoken = True
                  ):
     global conversation_gpt
     global total_tokens
@@ -261,5 +262,5 @@ def send_message(message,
         print(reply)
         #answer = response.choices[0].message.content
         total_tokens = response.usage.total_tokens
-        print('prompt tokens:', total_tokens)
+        if printtoken: print('prompt tokens:', total_tokens)
 
