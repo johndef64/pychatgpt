@@ -113,6 +113,7 @@ def ask_gpt(prompt,
 
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
+reply = ''
 persona = ''
 keep_persona = True
 
@@ -173,6 +174,7 @@ def send_message(message,
     global conversation_gpt
     global total_tokens
     global token_limit
+    global reply
 
     if model == 'gpt-3.5-turbo-16k':
         token_limit = 16384 - (maxtoken*1.3)
@@ -253,9 +255,10 @@ def send_message(message,
 
         # Print the assistant's response
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-
+        reply = response.choices[0].message.content
+        
         if printuser: print('user:',print_mess,'\n...')
-        print(response.choices[0].message.content)
+        print(reply)
         #answer = response.choices[0].message.content
         total_tokens = response.usage.total_tokens
         print('prompt tokens:', total_tokens)
