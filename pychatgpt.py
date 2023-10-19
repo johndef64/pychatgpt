@@ -126,6 +126,9 @@ def expand_conversation_gpt(message):
 def expand_conversation_assistant(message):
     conversation_gpt.append({"role": "assistant", "content": message})
     
+def expand_conversation_system(message):
+    conversation_gpt.append({"role": "system", "content": message})
+    
 def build_messages(conversation):
     messages = []
     for message in conversation:
@@ -167,6 +170,7 @@ def send_message(message,
                  language='eng',
                  maxtoken = 800,
                  temperature = 1,
+                 stream = True,
                  system='',
                  persona='',
                  printuser = False,
