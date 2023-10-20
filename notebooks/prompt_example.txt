@@ -1,10 +1,5 @@
 {'sdxl':'''
-{
-Positive prompt: futuristic Neon cyberpunk synthwave cybernetic , a look of severe determination , + / A fat purple haired woman on vacation enjoying the local party scene in NAIROBI at midnight
-}
-{
-Positive prompt: cinematic color grading lighting vintage realistic film grain scratches celluloid analog cool shadows warm highlights soft focus actor directed cinematography technicolor , confused, looking around scared , + / A lanky blonde haired man on vacation enjoying the local party scene in Brisbane at dawn
-}
+
 {
 Positive prompt: front shot, portrait photo of a 25 y.o american woman, looks away, natural skin, skin moles, cozy interior, (cinematic, film grain:1.1)
 Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
@@ -25,7 +20,12 @@ Negative prompt: afro, (worst quality, low quality, illustration, 3d, 2d, painti
 Positive prompt: instagram photo, closeup face photo of 23 y.o Chloe, pale skin, cozy, natural skin, soft lighting, (cinematic, film grain:1.1)
 Negative prompt: (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth
 }
-
+{
+Positive prompt: futuristic Neon cyberpunk synthwave cybernetic , a look of severe determination , + / A fat purple haired woman on vacation enjoying the local party scene in NAIROBI at midnight
+}
+{
+Positive prompt: cinematic color grading lighting vintage realistic film grain scratches celluloid analog cool shadows warm highlights soft focus actor directed cinematography technicolor , confused, looking around scared , + / A lanky blonde haired man on vacation enjoying the local party scene in Brisbane at dawn
+}
 
 Positive prompt: 
 
