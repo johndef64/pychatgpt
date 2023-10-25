@@ -37,8 +37,6 @@ def check_and_install_module(module_name):
     try:
         # Check if the module is already installed
         importlib.import_module(module_name)
-        #import module_name
-        #print(f"The module '{module_name}' is already installed.")
     except ImportError:
         # If the module is not installed, try installing it
         x = simple_bool(
@@ -83,7 +81,7 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
 
 
-# ask function ----------------------------
+# ask function ================================
 #https://platform.openai.com/account/rate-limits
 #https://platform.openai.com/account/usage
 def ask_gpt(prompt,
@@ -109,25 +107,31 @@ def ask_gpt(prompt,
     if printuser: print('user:',print_mess,'\n')
     return print(completion.choices[0].message.content)
 
-# conversation function -----------------------------
 
+# conversation function ================================
+
+model = ''
+models = ['gpt-3.5-turbo',     #0
+          'gpt-3.5-turbo-16k', #1
+          'gpt-4'              #2
+         ]    
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
 reply = ''
 persona = ''
 keep_persona = True
 
+def choose_model():
+    global model
+    model = models[int(input('choose model:\n'+str(pd.Series(models))))]
+    print('*Using',model, 'model*')
+
 if not 'conversation_gpt' in locals():
     conversation_gpt = []
 
-def expand_conversation_gpt(message):
-    conversation_gpt.append({"role": "user", "content": message})
-
-def expand_conversation_assistant(message):
-    conversation_gpt.append({"role": "assistant", "content": message})
-    
-def expand_conversation_system(message):
-    conversation_gpt.append({"role": "system", "content": message})
+def expand_conversation(message, role="user"):
+        print('default setting (role = "user") to change role replace with "assistant" or "system"')
+        conversation_gpt.append({"role": role, "content": message})
     
 def build_messages(conversation):
     messages = []
@@ -165,6 +169,11 @@ def load_file(path=os.getcwd(), contains=''):
         file.close()
     return my_file
 
+def clearchat():
+    conversation_gpt = []
+    total_tokens = 0 
+    print('*chat cleared*\n')
+
 def send_message(message,
                  model='gpt-3.5-turbo-16k',
                  language='eng',
@@ -173,6 +182,7 @@ def send_message(message,
                  stream = True,
                  system='',
                  persona='',
+                 printreply = True,
                  printuser = False,
                  printtoken = True
                  ):
@@ -193,6 +203,7 @@ def send_message(message,
 
     if message == 'clearchat':
         conversation_gpt = []
+        total_tokens = 0 
         print('*chat cleared*\n')
 
     if system != '':
@@ -200,9 +211,7 @@ def send_message(message,
                                  "content": system})
         persona = ''
 
-    persona_dict = {'system': "You are " + persona + ". Think, feel and answer accordingly.",
-                    'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
-                    'sistema': "Tu sei " + persona + ". Pensa, ragiona e rispondi di conseguenza.",
+    persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
                     'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'}
     if persona != '':
         if language == 'eng':
@@ -231,40 +240,42 @@ def send_message(message,
         if keep_persona and system != '':
             conversation_gpt.append({"role": "system", "content": system})
 
-    if message != 'clearchat':
-        expand_conversation_gpt(message)
-        messages = build_messages(conversation_gpt)
-        response = openai.ChatCompletion.create(
-            model = model,
-            messages = messages,
-            temperature = temperature,
-            max_tokens = maxtoken,  # set max token
-            top_p = 1,
-            frequency_penalty = 0,
-            presence_penalty = 0
-        )
-        # Add the assistant's reply to the conversation
-        with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
-            file.write('---------------------------')
-            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-            if persona != '' and persona.find(',') != -1:
-                comma_ind = persona.find(',')
-                persona_p = persona[:comma_ind]
-            elif persona != '' and persona.find(',') == -1:
-                persona_p = persona
-            elif persona == '':
-                persona_p = model
-            file.write('\n\n'+persona_p+':\n' + response.choices[0].message.content + '\n\n')
+    # send message
+    expand_conversation(message)
+    messages = build_messages(conversation_gpt)
+    response = openai.ChatCompletion.create(
+        model = model,
+        messages = messages,
+        temperature = temperature,
+        max_tokens = maxtoken,  # set max token
+        top_p = 1,
+        frequency_penalty = 0,
+        presence_penalty = 0
+    )
+    
+    # Add the assistant's reply to the conversation log
+    with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
+        file.write('---------------------------')
+        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+        if persona != '' and persona.find(',') != -1:
+            comma_ind = persona.find(',')
+            persona_p = persona[:comma_ind]
+        elif persona != '' and persona.find(',') == -1:
+            persona_p = persona
+        elif persona == '':
+            persona_p = model
+        file.write('\n\n'+persona_p+':\n' + response.choices[0].message.content + '\n\n')
+    
+    # expand conversation
+    conversation_gpt.append({"role": "assistant", "content": response.choices[0].message.content})
 
-        conversation_gpt.append({"role": "assistant", "content": response.choices[0].message.content})
+    # Print the assistant's response
+    print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+    reply = response.choices[0].message.content
 
-        # Print the assistant's response
-        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-        reply = response.choices[0].message.content
-        
-        if printuser: print('user:',print_mess,'\n...')
-        print(reply)
-        #answer = response.choices[0].message.content
-        total_tokens = response.usage.total_tokens
-        if printtoken: print('prompt tokens:', total_tokens)
+    if printuser: print('user:',print_mess,'\n...')
+    if printreply: print(reply)
+    #answer = response.choices[0].message.content
+    total_tokens = response.usage.total_tokens
+    if printtoken: print('prompt tokens:', total_tokens)
 
