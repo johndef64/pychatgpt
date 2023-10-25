@@ -6,7 +6,8 @@
 
 
 ## Installation
-In a Conda envoiroment, add `pychatgpt.py` to the folder `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`; else simply add it in your working directory.
+
+Simply add `pychatgpt.py` to your working directory. Otherwise, to implement your Conda envoiroment, add it in the folder `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`.
 
 To use this module, you need to have an **OpenAI API key**. You have to provide your API key when requested once and it will be stored automatically in a file called `openai_api_key.txt` in your working directory.
 
