@@ -21,8 +21,7 @@ This function takes a prompt as input and generates a response from the GPT chos
 You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 
 2. `op.send_message(message,*parameters*)`:  
-This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.
-
+This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.  
 Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
         op.send_message(message,*parameters*)
