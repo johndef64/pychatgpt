@@ -130,7 +130,7 @@ if not 'conversation_gpt' in locals():
     conversation_gpt = []
 
 def expand_conversation(message, role="user"):
-        print('default setting (role = "user") to change role replace with "assistant" or "system"')
+        #print('default setting (role = "user") to change role replace with "assistant" or "system"')
         conversation_gpt.append({"role": role, "content": message})
     
 def build_messages(conversation):
