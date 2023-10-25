@@ -24,15 +24,16 @@ You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `conversation_log.txt` file.  
 Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
-        op.send_message(message,*parameters*)
-        - model= 'gpt-3.5-turbo-16k'
-        - maxtoken = 800,
-        - temperature = 1,
-        - system='',
-        - persona='',
-        - printreply = True,
-        - printuser = False,
-        - printtoken = True
+        op.send_message(message,
+                        model= 'gpt-3.5-turbo-16k',
+                        maxtoken = 800,
+                        temperature = 1,
+                        system='',
+                        persona='',
+                        printreply = True,
+                        printuser = False,
+                        printtoken = True
+                        )
 
 
 
