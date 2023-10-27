@@ -310,7 +310,7 @@ def send_message(message,
                 time.sleep(0.005)
                 print(content, end='')
 
-    time.sleep(2)
+    time.sleep(1.6)
     if printuser: 
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...') 
