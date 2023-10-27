@@ -2,7 +2,6 @@ import os
 import ast
 import glob
 import json
-import time
 import importlib
 import pandas as pd
 from datetime import datetime
@@ -50,17 +49,7 @@ def check_and_install_module(module_name):
             exit()
 
 check_and_install_module("openai")
-check_and_install_module("tiktoken")
 import openai
-import tiktoken
-
-class Tokenizer:
-    def __init__(self, encoder="gpt-4"):
-        self.tokenizer = tiktoken.encoding_for_model(encoder)
-
-    def tokens(self, text):  
-        return len(self.tokenizer.encode(text))
-
 
 current_dir = os.getcwd()
 api_key = None
@@ -185,7 +174,6 @@ def clearchat():
     total_tokens = 0 
     print('*chat cleared*\n')
 
-#----------------------------------------------------
 def send_message(message,
                  model='gpt-3.5-turbo-16k',
                  language='eng',
@@ -213,6 +201,7 @@ def send_message(message,
         token_limit = 32768 - (maxtoken*1.3)
         #https://platform.openai.com/docs/models/gpt-4
 
+    # load instructions--------------------
     if system != '':
         conversation_gpt.append({"role": "system",
                                  "content": system})
@@ -248,62 +237,42 @@ def send_message(message,
         if keep_persona and system != '':
             conversation_gpt.append({"role": "system", "content": system})
 
-    # send message----------------------------
+    # send message-----------------------------
     expand_conversation(message)
     messages = build_messages(conversation_gpt)
-    
     response = openai.ChatCompletion.create(
         model = model,
         messages = messages,
         temperature = temperature,
-        stream=True,
         max_tokens = maxtoken,  # set max token
         top_p = 1,
         frequency_penalty = 0,
         presence_penalty = 0
     )
-      
-    collected_chunks = []
-    collected_messages = []
-    for chunk in response:
-        content = chunk["choices"][0].get("delta", {}).get("content")
-        
-        collected_chunks.append(chunk)  # save the event response
-        chunk_message = chunk['choices'][0]['delta']  # extract the message
-        collected_messages.append(chunk_message) 
-        full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
-                
-        if printuser: 
-            print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-            print('user:',print_mess,'\n...')
-        
-        # stream reply 
-        # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
-        if printreply:
-            if content is not None:
-                print(content, end='')
+       
+    # expand conversation----------------------
+    conversation_gpt.append({"role": "assistant", "content": response.choices[0].message.content})
 
-        #expand conversation
-        conversation_gpt.append({"role": "assistant", "content":full_reply_content})
+    # Print the assistant's response-----------
+    print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+    reply = response.choices[0].message.content
 
-        
-        # Add the assistant's reply to the conversation log
-        with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
-            file.write('---------------------------')
-            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-            if persona != '' and persona.find(',') != -1:
-                comma_ind = persona.find(',')
-                persona_p = persona[:comma_ind]
-            elif persona != '' and persona.find(',') == -1:
-                persona_p = persona
-            elif persona == '':
-                persona_p = model
-            file.write('\n\n'+persona_p+':\n' + full_reply_content + '\n\n')
-               
-        count = Tokenizer()
-        # assemble AI `reply` as you would need to do to add to chat history
-        tokens = count.tokens(message) + count.tokens(full_reply_content)
-        total_tokens += tokens
+    if printuser: print('user:',print_mess,'\n...')
+    if printreply: print(reply)
+    total_tokens = response.usage.total_tokens
+    if printtoken: print('prompt tokens:', total_tokens)
     
-    time.sleep(1)
-    if printtoken: print('\n => prompt tokens:', total_tokens)
+    
+   # Add the assistant's reply to the conversation log
+    with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
+        file.write('---------------------------')
+        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+        if persona != '' and persona.find(',') != -1:
+            comma_ind = persona.find(',')
+            persona_p = persona[:comma_ind]
+        elif persona != '' and persona.find(',') == -1:
+            persona_p = persona
+        elif persona == '':
+            persona_p = model
+        file.write('\n\n'+persona_p+':\n' + response.choices[0].message.content + '\n\n')    # 
+
