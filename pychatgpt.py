@@ -72,7 +72,16 @@ def change_key():
 
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
         openai.api_key = str(api_key)
-
+        
+model = 'gpt-3.5-turbo-16k'
+models = ['gpt-3.5-turbo',     #0
+          'gpt-3.5-turbo-16k', #1
+          'gpt-4'              #2
+         ]  
+def choose_model():
+    global model
+    model = models[int(input('choose model:\n'+str(pd.Series(models))))]
+    print('*Using',model, 'model*')
 
 #inizialize log:
 if not os.path.isfile(current_dir + '/conversation_log.txt'):
@@ -85,7 +94,7 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
 #https://platform.openai.com/account/rate-limits
 #https://platform.openai.com/account/usage
 def ask_gpt(prompt,
-            model = "gpt-3.5-turbo",
+            model = model,
             system= 'you are an helpful assistant',
             printuser = False
             ):
@@ -109,22 +118,12 @@ def ask_gpt(prompt,
 
 
 # conversation function ================================
-
-model = ''
-models = ['gpt-3.5-turbo',     #0
-          'gpt-3.5-turbo-16k', #1
-          'gpt-4'              #2
-         ]    
+ 
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
 reply = ''
 persona = ''
 keep_persona = True
-
-def choose_model():
-    global model
-    model = models[int(input('choose model:\n'+str(pd.Series(models))))]
-    print('*Using',model, 'model*')
 
 if not 'conversation_gpt' in locals():
     conversation_gpt = []
@@ -175,7 +174,7 @@ def clearchat():
     print('*chat cleared*\n')
 
 def send_message(message,
-                 model='gpt-3.5-turbo-16k',
+                 model=model,
                  language='eng',
                  maxtoken = 800,
                  temperature = 1,

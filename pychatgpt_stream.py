@@ -81,7 +81,7 @@ def change_key():
 
 # def base functions:------------------
 
-model = ''
+model = 'gpt-3.5-turbo-16k'
 models = ['gpt-3.5-turbo',     #0
           'gpt-3.5-turbo-16k', #1
           'gpt-4'              #2
@@ -112,7 +112,7 @@ if not os.path.isfile(current_dir + '/conversation_log.txt'):
 #https://platform.openai.com/account/rate-limits
 #https://platform.openai.com/account/usage
 def ask_gpt(prompt,
-            model = "gpt-3.5-turbo",
+            model = model,
             system= 'you are an helpful assistant',
             printuser = False,
             printreply = True
@@ -216,7 +216,7 @@ def clearchat():
 full_reply_content = ''
 #----------------------------------------------------
 def send_message(message,
-                 model='gpt-3.5-turbo-16k',
+                 model=model,
                  language='eng',
                  maxtoken = 800,
                  temperature = 1,
