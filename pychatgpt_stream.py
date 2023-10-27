@@ -54,14 +54,8 @@ check_and_install_module("tiktoken")
 import openai
 import tiktoken
 
-class Tokenizer:
-    def __init__(self, encoder="gpt-4"):
-        self.tokenizer = tiktoken.encoding_for_model(encoder)
 
-    def tokens(self, text):  
-        return len(self.tokenizer.encode(text))
-
-
+# set openAI key-----------------------
 current_dir = os.getcwd()
 api_key = None
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
@@ -85,57 +79,91 @@ def change_key():
         openai.api_key = str(api_key)
 
 
-#inizialize log:
+# def base functions:------------------
+
+model = ''
+models = ['gpt-3.5-turbo',     #0
+          'gpt-3.5-turbo-16k', #1
+          'gpt-4'              #2
+         ]
+
+def choose_model():
+    global model
+    model = models[int(input('choose model:\n'+str(pd.Series(models))))]
+    print('*Using',model, 'model*')
+
+class Tokenizer:
+    def __init__(self, encoder="gpt-4"):
+        self.tokenizer = tiktoken.encoding_for_model(encoder)
+
+    def tokens(self, text):  
+        return len(self.tokenizer.encode(text))
+        
+        
+
+#inizialize log:-----------------------------------
 if not os.path.isfile(current_dir + '/conversation_log.txt'):
     with open(current_dir + '/conversation_log.txt', 'w', encoding= 'utf-8') as file:
         file.write('Auto-GPT\n\nConversation LOG:\n')
         print(str('\nconversation_log.txt created at ' + os.getcwd()))
 
 
-# ask function ================================
+# ask function =====================================
 #https://platform.openai.com/account/rate-limits
 #https://platform.openai.com/account/usage
 def ask_gpt(prompt,
             model = "gpt-3.5-turbo",
             system= 'you are an helpful assistant',
-            printuser = False
+            printuser = False,
+            printreply = True
             ):
-    completion = openai.ChatCompletion.create(
+    
+    response = openai.ChatCompletion.create(
         #https://platform.openai.com/docs/models/gpt-4
         model= model,
+        stream=True,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": prompt}
         ])
+    
+    
+    collected_chunks = []
+    collected_messages = []
+    for chunk in response:
+        content = chunk["choices"][0].get("delta", {}).get("content")
+        
+        collected_chunks.append(chunk)  # save the event response
+        chunk_message = chunk['choices'][0]['delta']  # extract the message
+        collected_messages.append(chunk_message) 
+        full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
+
+        if printreply:
+            if content is not None:
+                time.sleep(0.01)
+                print(content, end='')
+
+    time.sleep(2)
+    if printuser: 
+        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+        print('user:',print_mess,'\n...') 
+    
+    
+    # Add the assistant's reply to the conversation log-------
     with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
         file.write('---------------------------')
-        if add != '':
-            file.write('\nSystem: \n"' + system+'"\n')
         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + prompt)
-        file.write('\n\nGPT:\n' + completion.choices[0].message.content + '\n\n')
-
-    print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
-    if printuser: print('user:',print_mess,'\n')
-    return print(completion.choices[0].message.content)
+        file.write('\n\n'+model+': '+ full_reply_content + '\n\n')
 
 
+        
 # conversation function ================================
-
-model = ''
-models = ['gpt-3.5-turbo',     #0
-          'gpt-3.5-turbo-16k', #1
-          'gpt-4'              #2
-         ]    
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
 reply = ''
 persona = ''
 keep_persona = True
 
-def choose_model():
-    global model
-    model = models[int(input('choose model:\n'+str(pd.Series(models))))]
-    print('*Using',model, 'model*')
 
 if not 'conversation_gpt' in locals():
     conversation_gpt = []
