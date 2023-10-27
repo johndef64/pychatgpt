@@ -264,7 +264,9 @@ def send_message(message,
         frequency_penalty = 0,
         presence_penalty = 0
     )
-      
+    
+    # stream reply ---------------------------------------------
+    # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
     collected_chunks = []
     collected_messages = []
     for chunk in response:
@@ -274,38 +276,37 @@ def send_message(message,
         chunk_message = chunk['choices'][0]['delta']  # extract the message
         collected_messages.append(chunk_message) 
         full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
-                
-        if printuser: 
-            print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-            print('user:',print_mess,'\n...')
-        
-        # stream reply 
-        # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
+
         if printreply:
             if content is not None:
                 time.sleep(0.01)
                 print(content, end='')
 
-        #expand conversation
-        conversation_gpt.append({"role": "assistant", "content":full_reply_content})
-
-        
-        # Add the assistant's reply to the conversation log
-        with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
-            file.write('---------------------------')
-            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-            if persona != '' and persona.find(',') != -1:
-                comma_ind = persona.find(',')
-                persona_p = persona[:comma_ind]
-            elif persona != '' and persona.find(',') == -1:
-                persona_p = persona
-            elif persona == '':
-                persona_p = model
-            file.write('\n\n'+persona_p+':\n' + full_reply_content + '\n\n')
-               
-        
+    time.sleep(2)
+    if printuser: 
+        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+        print('user:',print_mess,'\n...') 
+    
+    #expand conversation--------------------------------
+    conversation_gpt.append({"role": "assistant", "content":full_reply_content})
+    
     count = Tokenizer()
     tokens = count.tokens(message) + count.tokens(full_reply_content) 
-    time.sleep(1.7)
+    
     total_tokens += tokens
     if printtoken: print('\n => prompt tokens:', total_tokens)
+    
+    
+    # Add the assistant's reply to the conversation log-------------
+    with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
+        file.write('---------------------------')
+        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+        if persona != '' and persona.find(',') != -1:
+            comma_ind = persona.find(',')
+            persona_p = persona[:comma_ind]
+        elif persona != '' and persona.find(',') == -1:
+            persona_p = persona
+        elif persona == '':
+            persona_p = model
+        file.write('\n\n'+persona_p+':\n' + full_reply_content + '\n\n')
+    
