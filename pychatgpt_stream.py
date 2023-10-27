@@ -140,7 +140,7 @@ def ask_gpt(prompt,
 
         if printreply:
             if content is not None:
-                time.sleep(0.01)
+                time.sleep(0.005)
                 print(content, end='')
 
     time.sleep(2)
@@ -307,7 +307,7 @@ def send_message(message,
 
         if printreply:
             if content is not None:
-                time.sleep(0.01)
+                time.sleep(0.005)
                 print(content, end='')
 
     time.sleep(2)
