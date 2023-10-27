@@ -263,7 +263,7 @@ def send_message(message,
     if printtoken: print('prompt tokens:', total_tokens)
     
     
-   # Add the assistant's reply to the conversation log
+   # Add the assistant's reply to the conversation log------
     with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
         file.write('---------------------------')
         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
