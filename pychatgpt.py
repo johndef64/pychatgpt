@@ -169,6 +169,7 @@ def load_file(path=os.getcwd(), contains=''):
     return my_file
 
 def clearchat():
+    global conversation_gpt
     conversation_gpt = []
     total_tokens = 0 
     print('*chat cleared*\n')
