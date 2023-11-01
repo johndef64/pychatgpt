@@ -136,7 +136,7 @@ def ask_gpt(prompt,
         collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk['choices'][0]['delta']  # extract the message
         collected_messages.append(chunk_message) 
-        full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
+        reply = ''.join([m.get('content', '') for m in collected_messages])
 
         if printreply:
             if content is not None:
@@ -153,7 +153,7 @@ def ask_gpt(prompt,
     with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
         file.write('---------------------------')
         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + prompt)
-        file.write('\n\n'+model+': '+ full_reply_content + '\n\n')
+        file.write('\n\n'+model+': '+ reply + '\n\n')
 
 
         
@@ -203,7 +203,7 @@ def load_conversation(contains= '', path='conversations/'):
 def load_file(path=os.getcwd(), contains=''):
     files_df = display_allfile_as_pd(path)
     filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
-    with open(path+'\\'+filename,'r') as file:
+    with open(path+'\\'+filename,'r', encoding='utf-8') as file:
         my_file = file.read()#ast.literal_eval(file.read())
         file.close()
     return my_file
@@ -215,7 +215,7 @@ def clearchat():
     total_tokens = 0 
     print('*chat cleared*\n')
     
-full_reply_content = ''
+reply = ''
 #----------------------------------------------------
 def send_message(message,
                  model=model,
@@ -230,7 +230,7 @@ def send_message(message,
                  printtoken = True
                  ):
     global conversation_gpt
-    global full_reply_content
+    global reply
     global total_tokens
     global token_limit
     global reply
@@ -305,7 +305,7 @@ def send_message(message,
         collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk['choices'][0]['delta']  # extract the message
         collected_messages.append(chunk_message) 
-        full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
+        reply = ''.join([m.get('content', '') for m in collected_messages])
 
         if printreply:
             if content is not None:
@@ -318,10 +318,10 @@ def send_message(message,
         print('user:',print_mess,'\n...') 
     
     #expand conversation--------------------------------
-    conversation_gpt.append({"role": "assistant", "content":full_reply_content})
+    conversation_gpt.append({"role": "assistant", "content":reply})
     
     count = Tokenizer()
-    tokens = count.tokens(message) + count.tokens(full_reply_content) 
+    tokens = count.tokens(message) + count.tokens(reply) 
     
     total_tokens += tokens
     if printtoken: print('\n => prompt tokens:', total_tokens)
@@ -338,5 +338,5 @@ def send_message(message,
             persona_p = persona
         elif persona == '':
             persona_p = model
-        file.write('\n\n'+persona_p+':\n' + full_reply_content + '\n\n')
+        file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
     
