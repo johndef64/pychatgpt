@@ -127,6 +127,9 @@ def ask_gpt(prompt,
             {"role": "user", "content": prompt}
         ])
     
+    if printuser: 
+        print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
+        print('user:',print_mess,'\n...') 
     
     collected_chunks = []
     collected_messages = []
@@ -144,10 +147,6 @@ def ask_gpt(prompt,
                 print(content, end='')
 
     time.sleep(2)
-    if printuser: 
-        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess,'\n...') 
-    
     
     # Add the assistant's reply to the conversation log-------
     with open('conversation_log.txt', 'a', encoding= 'utf-8') as file:
