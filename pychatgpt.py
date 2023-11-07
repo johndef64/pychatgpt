@@ -121,7 +121,7 @@ def get_chat():
     if not os.path.exists(path):
         os.mkdir(path)
 
-    file = files[int(input(str(pd.DataFrame(files))+'    '+'index:'))]
+    file = files[int(input('select chat:\n'+str(pd.Series(files))))]   
     url = handle + file
     get_gitfile(url, dir=os.getcwd()+'/chats')
 
