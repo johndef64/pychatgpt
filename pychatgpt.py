@@ -168,10 +168,10 @@ def ask_gpt(prompt,
 
         if printreply:
             if content is not None:
-                time.sleep(0.001)
+                time.sleep(0.0005)
                 print(content, end='')
 
-    time.sleep(1.5)
+    time.sleep(1.2)
     
     # Add the assistant's reply to the chat log-------
     with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
@@ -333,10 +333,10 @@ def send_message(message,
 
         if printreply:
             if content is not None:
-                time.sleep(0.001)
+                time.sleep(0.0005)
                 print(content, end='')
 
-    time.sleep(1.5)
+    time.sleep(1.2)
     if printuser: 
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...') 
