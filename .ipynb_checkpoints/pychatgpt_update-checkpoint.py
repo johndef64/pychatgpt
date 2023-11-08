@@ -1,6 +1,3 @@
-#openai 1.1.1.1
-#https://pypi.org/project/openai/
-
 import os
 import ast
 import glob
@@ -84,7 +81,7 @@ def change_key():
             file.write(input('insert here your openai api key:'))
 
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-        client = OpenAI(api_key=str(api_key))
+        openai.api_key = str(api_key)
 
 
 # def base functions:------------------
@@ -93,7 +90,8 @@ model = 'gpt-3.5-turbo-16k'
 models = ['gpt-3.5-turbo',     #0
           'gpt-3.5-turbo-16k', #1
           'gpt-4'              #2
-          ]
+         ]
+reply = ''
 
 def choose_model():
     global model
@@ -104,7 +102,7 @@ class Tokenizer:
     def __init__(self, encoder="gpt-4"):
         self.tokenizer = tiktoken.encoding_for_model(encoder)
 
-    def tokens(self, text):
+    def tokens(self, text):  
         return len(self.tokenizer.encode(text))
 
 def get_gitfile(url, flag='', dir = os.getcwd()):
@@ -128,46 +126,73 @@ def get_chat():
     if not os.path.exists(path):
         os.mkdir(path)
 
-    file = files[int(input('select chat:\n'+str(pd.Series(files))))]
+    file = files[int(input('select chat:\n'+str(pd.Series(files))))]   
     url = handle + file
     get_gitfile(url, dir=os.getcwd()+'/chats')
 
 
+#inizialize log:-----------------------------------
+if not os.path.isfile(current_dir + '/chat_log.txt'):
+    with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
+        file.write('Auto-GPT\n\nchat LOG:\n')
+        print(str('\nchat_log.txt created at ' + os.getcwd()))
 
-# ask function ================================
+
+# ask function =====================================
 #https://platform.openai.com/account/rate-limits
 #https://platform.openai.com/account/usage
 def ask_gpt(prompt,
             model = model,
             system= 'you are an helpful assistant',
-            printuser = False
+            printuser = False,
+            printreply = True
             ):
-    completion = client.chat.completions.create(
+    global reply
+    #response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         #https://platform.openai.com/docs/models/gpt-4
         model= model,
+        stream=True,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": prompt}
         ])
+    
+    if printuser: 
+        print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
+        print('user:',print_mess,'\n...') 
+    
+    collected_chunks = []
+    collected_messages = []
+    for chunk in response:
+        #content = chunk["choices"][0].get("delta", {}).get("content")     
+        collected_chunks.append(chunk)  # save the event response
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+        collected_messages.append(chunk_message) 
+        #reply = ''.join([m.get('content', '') for m in collected_messages])
+        reply = ''.join(collected_messages).strip()
+
+        if printreply:
+            if chunk_message is not None:
+                time.sleep(0.001)
+                print(chunk_message, end='')
+
+    time.sleep(1.2)
+    
+    # Add the assistant's reply to the chat log-------
     with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
         file.write('---------------------------')
-        if add != '':
-            file.write('\nSystem: \n"' + system+'"\n')
         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + prompt)
-        file.write('\n\nGPT:\n' + completion.choices[0].message.content + '\n\n')
-
-    print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
-    if printuser: print('user:',print_mess,'\n')
-    return print(completion.choices[0].message.content)
+        file.write('\n\n'+model+': '+ reply + '\n\n')
 
 
+        
 # chat function ================================
- 
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
-reply = ''
 persona = ''
 keep_persona = True
+
 
 if not 'chat_gpt' in locals():
     chat_gpt = []
@@ -207,7 +232,7 @@ def load_chat(contains= '', path='chats/'):
 def load_file(path=os.getcwd(), contains=''):
     files_df = display_allfile_as_pd(path)
     filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
-    with open(path+'\\'+filename,'r') as file:
+    with open(path+'\\'+filename,'r', encoding='utf-8') as file:
         my_file = file.read()#ast.literal_eval(file.read())
         file.close()
     return my_file
@@ -218,7 +243,9 @@ def clearchat():
     chat_gpt = []
     total_tokens = 0 
     print('*chat cleared*\n')
-
+    
+reply = ''
+#----------------------------------------------------
 def send_message(message,
                  model=model,
                  language='eng',
@@ -232,6 +259,7 @@ def send_message(message,
                  printtoken = True
                  ):
     global chat_gpt
+    global reply
     global total_tokens
     global token_limit
     global reply
@@ -246,7 +274,6 @@ def send_message(message,
         token_limit = 32768 - (maxtoken*1.3)
         #https://platform.openai.com/docs/models/gpt-4
 
-    # load instructions--------------------
     if system != '':
         chat_gpt.append({"role": "system",
                                  "content": system})
@@ -282,33 +309,55 @@ def send_message(message,
         if keep_persona and system != '':
             chat_gpt.append({"role": "system", "content": system})
 
-    # send message-----------------------------
+    # send message----------------------------
     expand_chat(message)
     messages = build_messages(chat_gpt)
+    
+    #response = openai.ChatCompletion.create(
     response = client.chat.completions.create(
         model = model,
         messages = messages,
         temperature = temperature,
+        stream=True,
         max_tokens = maxtoken,  # set max token
         top_p = 1,
         frequency_penalty = 0,
         presence_penalty = 0
     )
-       
-    # expand chat----------------------
-    chat_gpt.append({"role": "assistant", "content": response.choices[0].message.content})
+    
+    # stream reply ---------------------------------------------
+    # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
+    collected_chunks = []
+    collected_messages = []
+    for chunk in response:
+        #content = chunk["choices"][0].get("delta", {}).get("content")     
+        collected_chunks.append(chunk)  # save the event response
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+        collected_messages.append(chunk_message) 
+        #reply = ''.join([m.get('content', '') for m in collected_messages])
+        reply = ''.join(collected_messages).strip()
 
-    # Print the assistant's response-----------
-    print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-    reply = response.choices[0].message.content
-
-    if printuser: print('user:',print_mess,'\n...')
-    if printreply: print(reply)
-    total_tokens = response.usage.total_tokens
-    if printtoken: print('prompt tokens:', total_tokens)
+        if printreply:
+            if chunk_message is not None:
+                time.sleep(0.001)
+                print(chunk_message, end='')
+                
+    time.sleep(1.2)
+    if printuser: 
+        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+        print('user:',print_mess,'\n...') 
+    
+    #expand chat--------------------------------
+    chat_gpt.append({"role": "assistant", "content":reply})
+    
+    count = Tokenizer()
+    tokens = count.tokens(message) + count.tokens(reply) 
+    
+    total_tokens += tokens
+    if printtoken: print('\n => prompt tokens:', total_tokens)
     
     
-   # Add the assistant's reply to the chat log------
+    # Add the assistant's reply to the chat log-------------
     with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
         file.write('---------------------------')
         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
@@ -319,5 +368,5 @@ def send_message(message,
             persona_p = persona
         elif persona == '':
             persona_p = model
-        file.write('\n\n'+persona_p+':\n' + response.choices[0].message.content + '\n\n')    # 
-
+        file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+    

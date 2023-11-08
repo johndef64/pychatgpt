@@ -1,7 +1,6 @@
 #openai 1.1.1.1
 #https://pypi.org/project/openai/
 
-
 import os
 import ast
 import glob
