@@ -49,27 +49,13 @@ def check_and_install_module(module_name):
         else:
             exit()
 
-#check_and_install_module("openai")
-import subprocess
-print('this pychatgpt version requires openai package older verion (openai==0.27.7)')
-
-try:
-    importlib.import_module('openai')
-except ImportError:
-    if simple_bool('Do you want to install it ?'):
-        command = "pip install openai==0.27.7"
-        subprocess.call(command, shell=True)
-        print(f"openai 0.27.7 was installed correctly.")
-    else:
-        print('openai 0.27.7 not installed')
-time.sleep(0.5)
-
+check_and_install_module("openai")
 check_and_install_module("tiktoken")
 check_and_install_module("pandas")
-import openai
+#import openai
+from openai import OpenAI
 import tiktoken
 import pandas as pd
-
 
 # set openAI key-----------------------
 current_dir = os.getcwd()
@@ -79,7 +65,10 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         file.write(input('insert here your openai api key:'))
 
 api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-openai.api_key = str(api_key)
+#openai.api_key = str(api_key)
+#client.api_key = str(api_key)
+#os.environ['OPENAI_API_KEY'] = str(api_key)
+client = OpenAI(api_key=str(api_key))
 add = "You are a helpful assistant."
 
 current_dir = os.getcwd()
@@ -102,6 +91,7 @@ models = ['gpt-3.5-turbo',     #0
           'gpt-3.5-turbo-16k', #1
           'gpt-4'              #2
          ]
+reply = ''
 
 def choose_model():
     global model
@@ -157,8 +147,9 @@ def ask_gpt(prompt,
             printuser = False,
             printreply = True
             ):
-    
-    response = openai.ChatCompletion.create(
+    global reply
+    #response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         #https://platform.openai.com/docs/models/gpt-4
         model= model,
         stream=True,
@@ -174,17 +165,17 @@ def ask_gpt(prompt,
     collected_chunks = []
     collected_messages = []
     for chunk in response:
-        content = chunk["choices"][0].get("delta", {}).get("content")
-        
+        #content = chunk["choices"][0].get("delta", {}).get("content")     
         collected_chunks.append(chunk)  # save the event response
-        chunk_message = chunk['choices'][0]['delta']  # extract the message
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message) 
-        reply = ''.join([m.get('content', '') for m in collected_messages])
+        #reply = ''.join([m.get('content', '') for m in collected_messages])
+        reply = ''.join(collected_messages).strip()
 
         if printreply:
-            if content is not None:
-                time.sleep(0.0005)
-                print(content, end='')
+            if chunk_message is not None:
+                time.sleep(0.001)
+                print(chunk_message, end='')
 
     time.sleep(1.2)
     
@@ -199,7 +190,6 @@ def ask_gpt(prompt,
 # chat function ================================
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
-reply = ''
 persona = ''
 keep_persona = True
 
@@ -323,7 +313,8 @@ def send_message(message,
     expand_chat(message)
     messages = build_messages(chat_gpt)
     
-    response = openai.ChatCompletion.create(
+    #response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model = model,
         messages = messages,
         temperature = temperature,
@@ -339,19 +330,19 @@ def send_message(message,
     collected_chunks = []
     collected_messages = []
     for chunk in response:
-        content = chunk["choices"][0].get("delta", {}).get("content")
-        
+        #content = chunk["choices"][0].get("delta", {}).get("content")     
         collected_chunks.append(chunk)  # save the event response
-        chunk_message = chunk['choices'][0]['delta']  # extract the message
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message) 
-        reply = ''.join([m.get('content', '') for m in collected_messages])
+        #reply = ''.join([m.get('content', '') for m in collected_messages])
+        reply = ''.join(collected_messages).strip()
 
         if printreply:
-            if content is not None:
-                time.sleep(0.0005)
-                print(content, end='')
-
-    time.sleep(1.2)
+            if chunk_message is not None:
+                time.sleep(0.001)
+                print(chunk_message, end='')
+                
+    time.sleep(1)
     if printuser: 
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...') 

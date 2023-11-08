@@ -1,7 +1,12 @@
+#openai 1.1.1.1
+#https://pypi.org/project/openai/
+
 import os
 import ast
 import glob
 import json
+import time
+import requests
 import importlib
 from datetime import datetime
 
@@ -47,22 +52,15 @@ def check_and_install_module(module_name):
         else:
             exit()
 
-
-import subprocess
-try:
-    importlib.import_module('openai')
-except ImportError:
-    if simple_bool('Do you want to install it ?'):
-        command = "pip install openai==0.27.7"
-        subprocess.call(command, shell=True)
-        print(f"openai 0.27.7 was installed correctly.")
-    else:
-        print('openai 0.27.7 not installed')
-    
+check_and_install_module("openai")
+check_and_install_module("tiktoken")
 check_and_install_module("pandas")
-import openai
+#import openai
+from openai import OpenAI
+import tiktoken
 import pandas as pd
 
+# set openAI key-----------------------
 current_dir = os.getcwd()
 api_key = None
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
@@ -70,7 +68,10 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         file.write(input('insert here your openai api key:'))
 
 api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-openai.api_key = str(api_key)
+#openai.api_key = str(api_key)
+#client.api_key = str(api_key)
+#os.environ['OPENAI_API_KEY'] = str(api_key)
+client = OpenAI(api_key=str(api_key))
 add = "You are a helpful assistant."
 
 current_dir = os.getcwd()
@@ -83,23 +84,54 @@ def change_key():
             file.write(input('insert here your openai api key:'))
 
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-        openai.api_key = str(api_key)
-        
+        client = OpenAI(api_key=str(api_key))
+
+
+# def base functions:------------------
+
 model = 'gpt-3.5-turbo-16k'
 models = ['gpt-3.5-turbo',     #0
           'gpt-3.5-turbo-16k', #1
           'gpt-4'              #2
-         ]  
+          ]
+
 def choose_model():
     global model
     model = models[int(input('choose model:\n'+str(pd.Series(models))))]
     print('*Using',model, 'model*')
 
-#inizialize log:
-if not os.path.isfile(current_dir + '/chat_log.txt'):
-    with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
-        file.write('Auto-GPT\n\nchat LOG:\n')
-        print(str('\nchat_log.txt created at ' + os.getcwd()))
+class Tokenizer:
+    def __init__(self, encoder="gpt-4"):
+        self.tokenizer = tiktoken.encoding_for_model(encoder)
+
+    def tokens(self, text):
+        return len(self.tokenizer.encode(text))
+
+def get_gitfile(url, flag='', dir = os.getcwd()):
+    url = url.replace('blob','raw')
+    response = requests.get(url)
+    file_name = flag + url.rsplit('/',1)[1]
+    file_path = os.path.join(dir, file_name)
+    if response.status_code == 200:
+        with open(file_path, 'wb') as file:
+            file.write(response.content)
+        print(f"File downloaded successfully. Saved as {file_name}")
+    else:
+        print("Unable to download the file.")
+
+def get_chat():
+    handle = "https://github.com/johndef64/pychatgpt/blob/main/chats/"
+    response = requests.get(handle)
+    data = response.json()
+    files = [item['name'] for item in data['payload']['tree']['items']]
+    path = os.getcwd() + '/chats'
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+    file = files[int(input('select chat:\n'+str(pd.Series(files))))]
+    url = handle + file
+    get_gitfile(url, dir=os.getcwd()+'/chats')
+
 
 
 # ask function ================================
@@ -110,7 +142,7 @@ def ask_gpt(prompt,
             system= 'you are an helpful assistant',
             printuser = False
             ):
-    completion = openai.ChatCompletion.create(
+    completion = client.chat.completions.create(
         #https://platform.openai.com/docs/models/gpt-4
         model= model,
         messages=[
@@ -253,7 +285,7 @@ def send_message(message,
     # send message-----------------------------
     expand_chat(message)
     messages = build_messages(chat_gpt)
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model = model,
         messages = messages,
         temperature = temperature,
