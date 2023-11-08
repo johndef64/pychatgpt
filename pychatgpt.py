@@ -5,7 +5,6 @@ import json
 import time
 import requests
 import importlib
-import pandas as pd
 from datetime import datetime
 
 def simple_bool(message):
@@ -52,9 +51,10 @@ def check_and_install_module(module_name):
 
 check_and_install_module("openai")
 check_and_install_module("tiktoken")
+check_and_install_module("pandas")
 import openai
 import tiktoken
-
+import pandas as pd
 
 # set openAI key-----------------------
 current_dir = os.getcwd()
