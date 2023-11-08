@@ -342,7 +342,7 @@ def send_message(message,
                 time.sleep(0.001)
                 print(chunk_message, end='')
                 
-    time.sleep(0.5)
+    time.sleep(1)
     if printuser: 
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...') 
