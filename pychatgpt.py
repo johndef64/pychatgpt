@@ -49,12 +49,14 @@ def check_and_install_module(module_name):
         else:
             exit()
 
-check_and_install_module("openai")
+#check_and_install_module("openai")
+!pip install openai==0.27.7
 check_and_install_module("tiktoken")
 check_and_install_module("pandas")
 import openai
 import tiktoken
 import pandas as pd
+
 
 # set openAI key-----------------------
 current_dir = os.getcwd()
