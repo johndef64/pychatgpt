@@ -3,6 +3,8 @@
 
 `pychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
 
+=> *Now compatible with version of openai=1.1.2*
+
 
 
 ## Installation
@@ -53,11 +55,14 @@ The code in this module assumes that the conversation history is stored in a glo
 
 Using `op.send_message`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
 
-## Openai-based applications
-Some other python applications executable in Terminal that take advantage of openai modulo features
+## Openai-based applications 
+Some other python applications executable in Terminal that take advantage of openai modulo features 
+(based on openai==0.27.7 older version):
 - auto-gpt
 - gpt-cli
 - rec-whisper-paste
+
+
 
 ## Author
 Written by: JohnDef64 
