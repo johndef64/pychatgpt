@@ -50,7 +50,7 @@ def check_and_install_module(module_name):
             exit()
 
 #check_and_install_module("openai")
-!pip install openai==0.27.7
+#!pip install openai==0.27.7
 check_and_install_module("tiktoken")
 check_and_install_module("pandas")
 import openai
