@@ -49,14 +49,15 @@ def check_and_install_module(module_name):
 
 
 import subprocess
-if simple_bool('this pychatgpt version requires openai package older verion (openai==0.27.7), Do you want to install/replace ?')
-    command = "pip uninstall openai"
-    subprocess.call(command, shell=True)
-    command = "pip install openai==0.27.7"
-    subprocess.call(command, shell=True)
-    time.sleep(0.5)
-else:
-    print('pychatgpt not usable')
+try:
+    importlib.import_module('openai')
+except ImportError:
+    if simple_bool('Do you want to install it ?'):
+        command = "pip install openai==0.27.7"
+        subprocess.call(command, shell=True)
+        print(f"openai 0.27.7 was installed correctly.")
+    else:
+        print('openai 0.27.7 not installed')
     
 check_and_install_module("pandas")
 import openai

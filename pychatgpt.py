@@ -62,7 +62,6 @@ except ImportError:
         print(f"openai 0.27.7 was installed correctly.")
     else:
         print('openai 0.27.7 not installed')
-
 time.sleep(0.5)
 
 check_and_install_module("tiktoken")
