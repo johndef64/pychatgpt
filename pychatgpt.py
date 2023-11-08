@@ -50,7 +50,10 @@ def check_and_install_module(module_name):
             exit()
 
 #check_and_install_module("openai")
-#!pip install openai==0.27.7
+import subprocess
+command = "pip install openai==0.27.7"
+subprocess.call(command, shell=True)
+time.sleep(0.5)
 check_and_install_module("tiktoken")
 check_and_install_module("pandas")
 import openai
