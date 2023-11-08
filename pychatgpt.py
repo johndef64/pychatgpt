@@ -144,6 +144,7 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
 def ask_gpt(prompt,
             model = model,
             system= 'you are an helpful assistant',
+            lag = 0.05,
             printuser = False,
             printreply = True
             ):
@@ -174,7 +175,7 @@ def ask_gpt(prompt,
 
         if printreply:
             if chunk_message is not None:
-                time.sleep(0.001)
+                time.sleep(lag)
                 print(chunk_message, end='')
 
     time.sleep(1.2)
@@ -251,7 +252,7 @@ def send_message(message,
                  language='eng',
                  maxtoken = 800,
                  temperature = 1,
-                 stream = True,
+                 lag = 0.05,
                  system='',
                  persona='',
                  printreply = True,
@@ -339,7 +340,7 @@ def send_message(message,
 
         if printreply:
             if chunk_message is not None:
-                time.sleep(0.001)
+                time.sleep(lag)
                 print(chunk_message, end='')
                 
     time.sleep(1)

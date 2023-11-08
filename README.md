@@ -30,6 +30,7 @@ Use `op.send_message(message)` keeping the default *parameters* or change them a
                         model= 'gpt-3.5-turbo-16k',
                         maxtoken = 800,
                         temperature = 1,
+                        lag = 0.05
                         system='',
                         persona='',
                         printreply = True,
