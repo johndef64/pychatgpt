@@ -147,7 +147,7 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
 def ask_gpt(prompt,
             model = model,
             system= 'you are an helpful assistant',
-            lag = 0.05,
+            lag = 0.08,
             printuser = False,
             printreply = True
             ):
@@ -260,7 +260,7 @@ def send_message(message,
                  language='eng',
                  maxtoken = 800,
                  temperature = 1,
-                 lag = 0.05,
+                 lag = 0.08,
                  system='',
                  persona='',
                  printreply = True,
