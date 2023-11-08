@@ -3,7 +3,6 @@ import ast
 import glob
 import json
 import importlib
-import pandas as pd
 from datetime import datetime
 
 def simple_bool(message):
@@ -48,8 +47,20 @@ def check_and_install_module(module_name):
         else:
             exit()
 
-check_and_install_module("openai")
+
+import subprocess
+if simple_bool('this pychatgpt version requires openai package older verion (openai==0.27.7), Do you want to install/replace ?')
+    command = "pip uninstall openai"
+    subprocess.call(command, shell=True)
+    command = "pip install openai==0.27.7"
+    subprocess.call(command, shell=True)
+    time.sleep(0.5)
+else:
+    print('pychatgpt not usable')
+    
+check_and_install_module("pandas")
 import openai
+import pandas as pd
 
 current_dir = os.getcwd()
 api_key = None
