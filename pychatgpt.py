@@ -7,10 +7,12 @@ import requests
 import importlib
 from datetime import datetime
 
+
 def simple_bool(message):
     choose = input(message+" (y/n): ").lower()
     your_bool = choose in ["y", "yes"]
     return your_bool
+
 
 def display_file_as_pd(ext, path=os.getcwd(), contains=''):
     file_pattern = os.path.join(path, "*."+ext)
@@ -23,6 +25,7 @@ def display_file_as_pd(ext, path=os.getcwd(), contains=''):
     file = files_df[files_df.str.contains(contains)]
     return file
 
+
 def display_allfile_as_pd(path=os.getcwd(), contains=''):
     file_pattern = os.path.join(path, "*")
     files = glob.glob(file_pattern)
@@ -33,6 +36,7 @@ def display_allfile_as_pd(path=os.getcwd(), contains=''):
     files_df = pd.Series(files_name)
     file = files_df[files_df.str.contains(contains)]
     return file
+
 
 def check_and_install_module(module_name):
     try:
@@ -49,10 +53,11 @@ def check_and_install_module(module_name):
         else:
             exit()
 
+
 check_and_install_module("openai")
 check_and_install_module("tiktoken")
 check_and_install_module("pandas")
-#import openai
+
 from openai import OpenAI
 import tiktoken
 import pandas as pd
@@ -65,23 +70,18 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         file.write(input('insert here your openai api key:'))
 
 api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-#openai.api_key = str(api_key)
-#client.api_key = str(api_key)
-#os.environ['OPENAI_API_KEY'] = str(api_key)
 client = OpenAI(api_key=str(api_key))
-add = "You are a helpful assistant."
 
-current_dir = os.getcwd()
 
 def change_key():
-    change_key = simple_bool('change API key?')
-    if change_key:
-        api_key = None
+    global client
+    global api_key
+    if simple_bool('change API key?'):
+        api_key = ''
         with open(current_dir + '/openai_api_key.txt', 'w') as file:
             file.write(input('insert here your openai api key:'))
-
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-        openai.api_key = str(api_key)
+        client = OpenAI(api_key=str(api_key))
 
 
 # def base functions:------------------
@@ -93,10 +93,12 @@ models = ['gpt-3.5-turbo',     #0
          ]
 reply = ''
 
+
 def choose_model():
     global model
     model = models[int(input('choose model:\n'+str(pd.Series(models))))]
     print('*Using',model, 'model*')
+
 
 class Tokenizer:
     def __init__(self, encoder="gpt-4"):
@@ -104,6 +106,7 @@ class Tokenizer:
 
     def tokens(self, text):  
         return len(self.tokenizer.encode(text))
+
 
 def get_gitfile(url, flag='', dir = os.getcwd()):
     url = url.replace('blob','raw')
@@ -116,6 +119,7 @@ def get_gitfile(url, flag='', dir = os.getcwd()):
         print(f"File downloaded successfully. Saved as {file_name}")
     else:
         print("Unable to download the file.")
+
 
 def get_chat():
     handle = "https://github.com/johndef64/pychatgpt/blob/main/chats/"
@@ -131,7 +135,7 @@ def get_chat():
     get_gitfile(url, dir=os.getcwd()+'/chats')
 
 
-#inizialize log:-----------------------------------
+# inizialize log:-----------------------------------
 if not os.path.isfile(current_dir + '/chat_log.txt'):
     with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
         file.write('Auto-GPT\n\nchat LOG:\n')
@@ -139,8 +143,7 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
 
 
 # ask function =====================================
-#https://platform.openai.com/account/rate-limits
-#https://platform.openai.com/account/usage
+
 def ask_gpt(prompt,
             model = model,
             system= 'you are an helpful assistant',
@@ -149,10 +152,9 @@ def ask_gpt(prompt,
             printreply = True
             ):
     global reply
-    #response = openai.ChatCompletion.create(
     response = client.chat.completions.create(
-        #https://platform.openai.com/docs/models/gpt-4
-        model= model,
+        # https://platform.openai.com/docs/models/gpt-4
+        model=model,
         stream=True,
         messages=[
             {"role": "system", "content": system},
@@ -166,11 +168,9 @@ def ask_gpt(prompt,
     collected_chunks = []
     collected_messages = []
     for chunk in response:
-        #content = chunk["choices"][0].get("delta", {}).get("content")     
         collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message) 
-        #reply = ''.join([m.get('content', '') for m in collected_messages])
+        collected_messages.append(chunk_message)
         reply = ''.join(collected_messages).strip()
 
         if printreply:
@@ -178,7 +178,7 @@ def ask_gpt(prompt,
                 time.sleep(lag)
                 print(chunk_message, end='')
 
-    time.sleep(1.2)
+    time.sleep(1)
     
     # Add the assistant's reply to the chat log-------
     with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
@@ -187,7 +187,6 @@ def ask_gpt(prompt,
         file.write('\n\n'+model+': '+ reply + '\n\n')
 
 
-        
 # chat function ================================
 total_tokens = 0 # iniziale token count
 token_limit = 0 # iniziale token limit
@@ -198,15 +197,18 @@ keep_persona = True
 if not 'chat_gpt' in locals():
     chat_gpt = []
 
+
 def expand_chat(message, role="user"):
         #print('default setting (role = "user") to change role replace with "assistant" or "system"')
         chat_gpt.append({"role": role, "content": message})
-    
+
+
 def build_messages(chat):
     messages = []
     for message in chat:
         messages.append({"role": message["role"], "content": message["content"]})
     return messages
+
 
 def save_chat(path='chats/'):
     filename = input('chat name:')
@@ -217,6 +219,7 @@ def save_chat(path='chats/'):
     with open(path+filename+'.json', 'w', encoding= 'utf-8') as file:
         file.write(formatted_json)
         file.close()
+
 
 def load_chat(contains= '', path='chats/'):
     global chat_gpt
@@ -229,7 +232,8 @@ def load_chat(contains= '', path='chats/'):
         chat_gpt = ast.literal_eval(file.read())
         file.close()
     print('*chat',filename,'loaded*')
-        
+
+
 def load_file(path=os.getcwd(), contains=''):
     files_df = display_allfile_as_pd(path)
     filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
@@ -238,15 +242,19 @@ def load_file(path=os.getcwd(), contains=''):
         file.close()
     return my_file
 
+
 def clearchat():
     global chat_gpt
     global total_tokens
     chat_gpt = []
     total_tokens = 0 
     print('*chat cleared*\n')
-    
+
+
 reply = ''
-#----------------------------------------------------
+# ----------------------------------------------------
+
+
 def send_message(message,
                  model=model,
                  language='eng',
@@ -273,12 +281,11 @@ def send_message(message,
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-        #https://platform.openai.com/docs/models/gpt-4
+        # https://platform.openai.com/docs/models/gpt-4
 
     if system != '':
         chat_gpt.append({"role": "system",
                                  "content": system})
-        persona = ''
 
     persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
                     'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'}
@@ -286,14 +293,14 @@ def send_message(message,
         if language == 'eng':
             chat_gpt.append({"role": "system",
                                      "content": persona_dict['character']})
-        if language== 'ita':
+        if language == 'ita':
             chat_gpt.append({"role": "system",
                                      "content": persona_dict['personaggio']})
     
     # check token limit---------------------
     if total_tokens > token_limit:
         print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
-
+        cut_length = 0
         if model == 'gpt-3.5-turbo-16k':
             cut_length = len(chat_gpt) // 10
         if model == 'gpt-4':
@@ -313,8 +320,7 @@ def send_message(message,
     # send message----------------------------
     expand_chat(message)
     messages = build_messages(chat_gpt)
-    
-    #response = openai.ChatCompletion.create(
+
     response = client.chat.completions.create(
         model = model,
         messages = messages,
@@ -331,11 +337,9 @@ def send_message(message,
     collected_chunks = []
     collected_messages = []
     for chunk in response:
-        #content = chunk["choices"][0].get("delta", {}).get("content")     
         collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message) 
-        #reply = ''.join([m.get('content', '') for m in collected_messages])
+        collected_messages.append(chunk_message)
         reply = ''.join(collected_messages).strip()
 
         if printreply:
@@ -348,7 +352,7 @@ def send_message(message,
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...') 
     
-    #expand chat--------------------------------
+    # expand chat--------------------------------
     chat_gpt.append({"role": "assistant", "content":reply})
     
     count = Tokenizer()
@@ -370,4 +374,10 @@ def send_message(message,
         elif persona == '':
             persona_p = model
         file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
-    
+
+
+# INFO:
+# https://platform.openai.com/account/rate-limits
+# https://platform.openai.com/account/usage
+# https://platform.openai.com/docs/guides/text-generation/chat-completions-api
+# https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
