@@ -234,9 +234,12 @@ def load_chat(contains= '', path='chats/'):
     print('*chat',filename,'loaded*')
 
 
-def load_file(path=os.getcwd(), contains=''):
-    files_df = display_allfile_as_pd(path)
-    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+def load_file(path=os.getcwd(), contains='', file=''):
+    if file == '':
+        files_df = display_allfile_as_pd(path)
+        filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+    else:
+        filename = file
     with open(path+'\\'+filename,'r', encoding='utf-8') as file:
         my_file = file.read()#ast.literal_eval(file.read())
         file.close()
