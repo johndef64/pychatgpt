@@ -240,7 +240,7 @@ def load_file(path=os.getcwd(), contains='', file=''):
         filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
     else:
         filename = file
-    with open(path+'\\'+filename,'r', encoding='utf-8') as file:
+    with open(os.path.join(path, filename),'r', encoding='utf-8') as file:
         my_file = file.read()#ast.literal_eval(file.read())
         file.close()
     return my_file
