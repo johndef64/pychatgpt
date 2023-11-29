@@ -31,7 +31,7 @@ def display_allfile_as_pd(path=os.getcwd(), contains=''):
     files = glob.glob(file_pattern)
     files_name = []
     for file in files:
-        file_name = os.path.basename(file)
+        file_name = os.path.basename(file) #
         files_name.append(file_name)
     files_df = pd.Series(files_name)
     file = files_df[files_df.str.contains(contains)]
