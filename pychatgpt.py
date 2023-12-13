@@ -264,11 +264,12 @@ def send_message(message,
                  maxtoken = 800,
                  temperature = 1,
                  lag = 0.00,
-                 system='',
-                 persona='',
+                 system = '',
+                 persona = '',
                  printreply = True,
                  printuser = False,
-                 printtoken = True
+                 printtoken = True,
+                 savechat = True
                  ):
     global chat_gpt
     global reply
@@ -366,17 +367,18 @@ def send_message(message,
     
     
     # Add the assistant's reply to the chat log-------------
-    with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
-        file.write('---------------------------')
-        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-        if persona != '' and persona.find(',') != -1:
-            comma_ind = persona.find(',')
-            persona_p = persona[:comma_ind]
-        elif persona != '' and persona.find(',') == -1:
-            persona_p = persona
-        elif persona == '':
-            persona_p = model
-        file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+    if savechat:
+        with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
+            file.write('---------------------------')
+            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+            if persona != '' and persona.find(',') != -1:
+                comma_ind = persona.find(',')
+                persona_p = persona[:comma_ind]
+            elif persona != '' and persona.find(',') == -1:
+                persona_p = persona
+            elif persona == '':
+                persona_p = model
+            file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
 
 # INFO:
