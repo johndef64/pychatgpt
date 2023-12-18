@@ -149,7 +149,8 @@ def ask_gpt(prompt,
             system= 'you are an helpful assistant',
             lag = 0.00,
             printuser = False,
-            printreply = True
+            printreply = True,
+            savechat = True
             ):
     global reply
     response = client.chat.completions.create(
@@ -181,10 +182,11 @@ def ask_gpt(prompt,
     time.sleep(1)
     
     # Add the assistant's reply to the chat log-------
-    with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
-        file.write('---------------------------')
-        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + prompt)
-        file.write('\n\n'+model+': '+ reply + '\n\n')
+    if savechat:
+        with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
+            file.write('---------------------------')
+            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + prompt)
+            file.write('\n\n'+model+': '+ reply + '\n\n')
 
 
 # chat function ================================
