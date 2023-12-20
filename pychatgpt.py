@@ -14,27 +14,17 @@ def simple_bool(message):
     return your_bool
 
 
-def display_file_as_pd(ext, path=os.getcwd(), contains=''):
-    file_pattern = os.path.join(path, "*."+ext)
+def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
+    file_pattern = os.path.join(path, "*." + ext) if ext else os.path.join(path, "*")
     files = glob.glob(file_pattern)
     files_name = []
     for file in files:
         file_name = os.path.basename(file)
         files_name.append(file_name)
+
     files_df = pd.Series(files_name)
     file = files_df[files_df.str.contains(contains)]
-    return file
 
-
-def display_allfile_as_pd(path=os.getcwd(), contains=''):
-    file_pattern = os.path.join(path, "*")
-    files = glob.glob(file_pattern)
-    files_name = []
-    for file in files:
-        file_name = os.path.basename(file) #
-        files_name.append(file_name)
-    files_df = pd.Series(files_name)
-    file = files_df[files_df.str.contains(contains)]
     return file
 
 
@@ -225,7 +215,7 @@ def save_chat(path='chats/'):
 
 def load_chat(contains= '', path='chats/'):
     global chat_gpt
-    files_df = display_file_as_pd('json',contains=contains,path=path)
+    files_df = display_files_as_pd(path, ext='json',contains=contains)
     files_df = files_df.sort_values().reset_index(drop=True)
     files_df_rep = files_df.str.replace('.json','',regex =True)
     files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
@@ -236,9 +226,9 @@ def load_chat(contains= '', path='chats/'):
     print('*chat',filename,'loaded*')
 
 
-def load_file(path=os.getcwd(), contains='', file=''):
+def load_file(path=os.getcwd(), ext='', contains='', file=''):
     if file == '':
-        files_df = display_allfile_as_pd(path)
+        files_df = display_files_as_pd(path, ext=ext, contains=contains)
         filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
     else:
         filename = file
