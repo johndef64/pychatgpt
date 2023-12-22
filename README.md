@@ -35,7 +35,8 @@ Use `op.send_message(message)` keeping the default *parameters* or change them a
                         persona='',
                         printreply = True,
                         printuser = False,
-                        printtoken = True
+                        printtoken = True,
+                        savechat = True
                         )
 
 
