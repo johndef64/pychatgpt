@@ -6,9 +6,8 @@ def get_gitfile(url, flag='', dir = os.getcwd()):
     response = requests.get(url)
     file_name = flag + url.rsplit('/',1)[1]
     file_path = os.path.join(dir, file_name)
-    if response.status_code == 200:
-        with open(file_path, 'wb') as file:
-            file.write(response.content)
+    with open(file_path, 'wb') as file:
+        file.write(response.content)
 
 if not os.getcwd().endswith('pychatgpt.py'):
     handle="https://raw.githubusercontent.com/johndef64/pychatgpt/main/"
@@ -46,19 +45,15 @@ path = os.getcwd()
 file = op.load_file(path)
 
 #%% Load chat
-if op.simple_bool('Load chat?'):
-    op.load_chat()
-    df = op.pd.DataFrame(op.chat_gpt)
-    print(df.head())
-#%%
-# expand chat
+op.load_chat()
+df = op.pd.DataFrame(op.chat_gpt)
+print(df.head())
+
+#%% expand chat
 op.clearchat()
-system    = '''  '''
-assistant = '''  '''
-user      = '''  '''
-if system != '': op.expand_chat(a, 'system')
-if assistant != '': op.expand_chat(b, 'assistant')
-if user != '': op.expand_chat(c, 'user')
+#op.expand_chat('''  ''', 'system')
+op.expand_chat('''  ''', 'assistant')
+#op.expand_chat('''  ''', 'user')
 
 #%% start/continue chat
 #op.clearchat()
