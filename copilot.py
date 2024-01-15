@@ -39,8 +39,7 @@ roger = delamain+'''\nYou are a Scientific Assistant, expert in R Bioinformatics
 pyper = delamain+'''\nYou are a Virtual Assistant focused mainly on Python, expert in every python package'''+reply_type['python']
 
 #op.choose_model()
-#%% md
-# Load file as variable
+#%% Load file as variable
 path = os.getcwd()
 file = op.load_file(path)
 
@@ -59,22 +58,31 @@ op.expand_chat('''  ''', 'assistant')
 #op.clearchat()
 system = '''  '''
 m = ''' 
-
+What you can do?
 '''
 op.send_message(m, system=delamain, model= op.model)
 pc.copy(m+'\n'+op.reply)
 pc.copy(op.reply)
 #%%
+m = ''' 
 
+'''
+op.send_message(m, system=delamain, model= op.model)
 pc.copy(op.reply)
 #%%
 
+#%%
+op.clearchat()
+m = '''
+What you can do?
+'''
+op.send_message(m, system=watson, model= op.model)
+pc.copy(op.reply)
 #%%
 m = '''
 
 '''
-op.send_message(m)
-pc.copy(op.reply)
-#%%
+op.send_message(m, system=watson, model= op.model)
 pc.copy(op.reply)
 #op.save_chat()
+#%%
