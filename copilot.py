@@ -18,8 +18,8 @@ if not os.getcwd().endswith('pychatgpt.py'):
         get_gitfile(url)
 
 import pychatgpt as op
+op.check_and_install_module('pyperclip')
 import pyperclip as pc
-print(os.getcwd())
 
 #op.choose_model()
 
