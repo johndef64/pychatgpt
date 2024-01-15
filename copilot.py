@@ -53,12 +53,12 @@ if op.simple_bool('Load chat?'):
 #%%
 # expand chat
 op.clearchat()
-a= '''  ''' #'system'
-b= '''  ''' #'assistant'
-c= '''  ''' #'user'
-if a != '': op.expand_chat(a, 'system')
-if b != '': op.expand_chat(b, 'assistant')
-if c != '': op.expand_chat(c, 'user')
+system    = '''  '''
+assistant = '''  '''
+user      = '''  '''
+if system != '': op.expand_chat(a, 'system')
+if assistant != '': op.expand_chat(b, 'assistant')
+if user != '': op.expand_chat(c, 'user')
 
 #%% start/continue chat
 #op.clearchat()
