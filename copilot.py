@@ -77,19 +77,12 @@ op.expand_chat('''  ''', 'assistant')
 #op.expand_chat('''  ''', 'user')
 
 #%% start/continue chat
-#op.clearchat()
+op.clearchat()
 system = '''  '''
-m = r"""
-
-"""
 op.expand_chat('''
-The ReactomeFIViz app is designed to find pathways and network patterns related to cancer and other types of diseases. This app accesses the Reactome pathways stored in the database, help you to do pathway enrichment analysis for a set of genes, visualize hit pathways using manually laid-out pathway diagrams directly in Cytoscape, and investigate functional relationships among genes in hit pathways. The app can also access the Reactome Functional Interaction (FI) network, a highly reliable, manually curated pathway-based protein functional interaction network covering over 60% of human proteins, and allows you to construct a FI sub-network based on a set of genes, query the FI data source for the underlying evidence for the interaction, build and analyze network modules of highly-interacting groups of genes, perform functional enrichment analysis to annotate the modules, expand the network by finding genes related to the experimental data set, display pathway diagrams, and overlay with a variety of information sources such as cancer gene index annotations. 
-
-Fetch FI annotations: query detailed information on selected FIs. Three FI related edge attribues will be created: FI Annotation, FI Direction, and FI Score. Edges will be displayed based on FI direction attribute values. In the following screenshot, "->" for activating/catalyzing, "-|" for inhibition, "-" for FIs extracted from complexes or inputs, and "---" for predicted FIs. See the "VizMapper" tab, Edge Source Arrow Shape and Edge Target Arrow Shape values for details.
-
-Analyze network functions: pathway or GO term ennrichment analysis for the displayed network. You can choose to filter enrichment results by a FDR cutoff value. Also you can choose to display nodes in the network panel for a selected row or rows by checking "Hide nodes in not selected rows". The letter in parentheses after each pathway gene set name corresponds to the source of the pathway annotations: C - CellMap, R – Reactome, K – KEGG, N – NCI PID, P - Panther, and B – BioCarta. The following screenshot shows results from a pathway enrichment analysis.''','user')
+''','user')
 m='''
-please, summarize this informations in a bullet point
+
 '''
 op.send_message(m, system=assistants['crick'], model= op.model)
 pc.copy(m+'\n'+op.reply)
