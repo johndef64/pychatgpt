@@ -59,11 +59,11 @@ Using `op.send_message`, the code checks if the total number of tokens exceeds t
 
 ## Openai-based applications 
 Some other python applications executable in Terminal that take advantage of openai modulo features:
-- auto-gpt
-- gpt-cli
-- rec-whisper-paste
+- auto-gpt (updated)
+- gpt-cli*
+- rec-whisper-paste*
 
-=> *still based on openai==0.27.7*
+\* *still based on openai==0.27.7*
 
 
 
