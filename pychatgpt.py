@@ -411,19 +411,22 @@ def send_message(message,
                 persona_p = model
             file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
-def send_to(m, sys):
-    send_message(m,system=assistants[sys])
+
+def chatgpt(m, maxtoken = 800, model=model):
+    send_message(m,system='base',maxtoken = maxtoken,model=model)
     pc.copy(reply)
-def chatgpt(m):
-        send_to(m,'base')
-def creator(m):
-    send_to(m,'creator')
-def delamain(m):
-    send_to(m,'delamain')
-def crick(m):
-    send_to(m,'crick')
-def watson(m):
-    send_to(m,'watson')
+def creator(m, maxtoken = 800, model=model):
+    send_message(m,system='creator',maxtoken = maxtoken,model=model)
+    pc.copy(reply)
+def delamain(m, maxtoken = 800, model=model):
+    send_message(m,system='delamain',maxtoken = maxtoken,model=model)
+    pc.copy(reply)
+def crick(m, maxtoken = 800, model=model):
+    send_message(m,system='crick',maxtoken = maxtoken,model=model)
+    pc.copy(reply)
+def watson(m, maxtoken = 800, model=model):
+    send_message(m,system='watson',maxtoken = maxtoken,model=model)
+    pc.copy(reply)
 
 # INFO:
 # https://platform.openai.com/account/rate-limits
