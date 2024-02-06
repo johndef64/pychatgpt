@@ -428,6 +428,20 @@ def watson(m, maxtoken = 800, model=model):
     send_message(m,system='watson',maxtoken = maxtoken,model=model)
     pc.copy(reply)
 
+def send_to(m, sys, max, mod):
+    send_message(m,system=assistants[sys], maxtoken=max, model=mod)
+    pc.copy(reply)
+def chatgpt(m, max = 1000, mod=model):
+    send_to(m,'base',max,mod)
+def creator(m, max = 1000, mod=model):
+    send_to(m,'creator',max,mod)
+def delamain(m, max = 1000, mod=model):
+    send_to(m,'delamain', max,mod)
+def crick(m, max = 1000, mod=model):
+    send_to(m,'crick',max,mod)
+def watson(m, max = 1000, mod=model):
+    send_to(m,'watson',max,mod)
+
 # INFO:
 # https://platform.openai.com/account/rate-limits
 # https://platform.openai.com/account/usage
