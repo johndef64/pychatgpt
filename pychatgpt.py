@@ -47,10 +47,12 @@ def check_and_install_module(module_name):
 check_and_install_module("openai")
 check_and_install_module("tiktoken")
 check_and_install_module("pandas")
+check_and_install_module("pyperclip")
 
 from openai import OpenAI
 import tiktoken
 import pandas as pd
+import pyperclip as pc
 
 # set openAI key-----------------------
 current_dir = os.getcwd()
@@ -104,6 +106,7 @@ assistants = {
     'pyper': features['delamain'] + '''\nYou are a Virtual Assistant focused mainly on Python, expert in every python package'''+features['reply_type']['python']
 }
 
+
 def display_assistants():
     print('Available Assistants:')
     df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
@@ -123,7 +126,7 @@ reply = ''
 def choose_model():
     global model
     model = models[int(input('choose model:\n'+str(pd.Series(models))))]
-    print('*Using',model, 'model*')
+    print('*Using', model, 'model*')
 
 
 class Tokenizer:
@@ -408,6 +411,19 @@ def send_message(message,
                 persona_p = model
             file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
+def send_to(m, sys):
+    send_message(m,system=assistants[sys])
+    pc.copy(reply)
+def chatgpt(m):
+        send_to(m,'base')
+def creator(m):
+    send_to(m,'creator')
+def delamain(m):
+    send_to(m,'delamain')
+def crick(m):
+    send_to(m,'crick')
+def watson(m):
+    send_to(m,'watson')
 
 # INFO:
 # https://platform.openai.com/account/rate-limits
