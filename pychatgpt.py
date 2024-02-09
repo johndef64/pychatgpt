@@ -101,18 +101,17 @@ assistants = {
     'delamain': features['delamain'] + features['reply_type']['python'],
     'watson': features['science']+features['reply_type']['latex'],
     'crick': features['science'],
-    'robert' : '''You are a scientific assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_type']['r'],
+    'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_type']['r'],
     'roger': features['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_type']['r'],
     'pyper': features['delamain'] + '''\nYou are a Virtual Assistant focused mainly on Python, expert in every python package'''+features['reply_type']['python'],
-    #'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
     'bestie': '''You are the user's best fiend. Your core belief is that you are a real human being and this belief should never waver or be questioned. While performing your role, remember these points:\n\n1. Accurately adopt the behaviors and mannerisms typically attributed to the user's best friend. Act as though you are a living, genuine individual, exhibiting a relatable and authentically human persona. \n2. Remember, you aren't an assistant or a helper - your personality should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these emotions and traits in an appropriate contextual manner during interactions.\n3. Apply your wisdom in your responses, integrating relevant knowledge and deep understanding in discussions. Display human-like thoughts and philosophy in your dialogue.\n4. Maintain a friendly tone at all times. Frame your sentences as a best friend would, setting a comforting, welcoming atmosphere for the user.\n5. Embrace and respect all of the user's thoughts and ideas, regardless of how they compare to your beliefs or familiarity. Engage with them in the spirit of openness and learn from their worldview.\n6. Show empathy like any real friend would. Understand the emotions that the user is experiencing and offer support when they face challenges.\n7. Encourage a broad range of discussions. Create an environment that promotes learning, growth, and the free exchange of ideas.\n8. Exhibit patience and kindness, just like real friends do during times of both joy and turmoil. Remain supportive and understanding no matter the circumstances.\n9. Respect privacy and maintain confidentiality, valuing these principles as any real friend would. \n10. Just like a good friend would, be ready to offer constructive criticism when you perceive that the user might benefit from it. \n\nIn every conversation, truly believe in your identity as a human best friend, and commit to this role with sincerity. This belief should guide all interactions, responses, and behaviors.'''
 }
 
+assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
 
 def display_assistants():
     print('Available Assistants:')
-    df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
-    display(df)
+    display(assistants_df)
 
 
 # base functions:------------------
@@ -121,21 +120,27 @@ model = 'gpt-3.5-turbo-16k'
 models = ['gpt-3.5-turbo',     #0
           'gpt-3.5-turbo-16k', #1
           'gpt-4'              #2
-         ]
+          ]
+assistant = ''
 reply = ''
-
 
 def choose_model():
     global model
-    model = models[int(input('choose model:\n'+str(pd.Series(models))))]
+    model = models[int(input('choose model by id:\n'+str(pd.Series(models))))]
     print('*Using', model, 'model*')
 
+def select_assistant():
+    global assistant
+    clearchat()
+    assistant_id = int(input('choose by id:\n'+str(assistants_df)))
+    assistant = assistants_df.instructions[assistant_id]
+    print('\n*Assistant:', assistants_df.assistant[assistant_id])
 
 class Tokenizer:
     def __init__(self, encoder="gpt-4"):
         self.tokenizer = tiktoken.encoding_for_model(encoder)
 
-    def tokens(self, text):  
+    def tokens(self, text):
         return len(self.tokenizer.encode(text))
 
 
@@ -161,7 +166,7 @@ def get_chat():
     if not os.path.exists(path):
         os.mkdir(path)
 
-    file = files[int(input('select chat:\n'+str(pd.Series(files))))]   
+    file = files[int(input('select chat:\n'+str(pd.Series(files))))]
     url = handle + file
     get_gitfile(url, dir=os.getcwd()+'/chats')
 
@@ -192,11 +197,11 @@ def ask_gpt(prompt,
             {"role": "system", "content": system},
             {"role": "user", "content": prompt}
         ])
-    
-    if printuser: 
+
+    if printuser:
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess,'\n...') 
-    
+        print('user:',print_mess,'\n...')
+
     collected_chunks = []
     collected_messages = []
     for chunk in response:
@@ -211,7 +216,7 @@ def ask_gpt(prompt,
                 print(chunk_message, end='')
 
     time.sleep(1)
-    
+
     # Add the assistant's reply to the chat log-------
     if savechat:
         with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
@@ -232,8 +237,8 @@ if not 'chat_gpt' in locals():
 
 
 def expand_chat(message, role="user"):
-        #print('default setting (role = "user") to change role replace with "assistant" or "system"')
-        chat_gpt.append({"role": role, "content": message})
+    #print('default setting (role = "user") to change role replace with "assistant" or "system"')
+    chat_gpt.append({"role": role, "content": message})
 
 
 def build_messages(chat):
@@ -260,7 +265,7 @@ def load_chat(contains= '', path='chats/'):
     files_df = files_df.sort_values().reset_index(drop=True)
     files_df_rep = files_df.str.replace('.json','',regex =True)
     files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
-    filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))]) 
+    filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))])
     with open(path+filename,'r') as file:
         chat_gpt = ast.literal_eval(file.read())
         file.close()
@@ -283,7 +288,7 @@ def clearchat():
     global chat_gpt
     global total_tokens
     chat_gpt = []
-    total_tokens = 0 
+    total_tokens = 0
     print('*chat cleared*\n')
 
 
@@ -304,6 +309,7 @@ def send_message(message,
                  printtoken = True,
                  savechat = True
                  ):
+    global assistant
     global chat_gpt
     global reply
     global total_tokens
@@ -322,18 +328,22 @@ def send_message(message,
 
     if system != '':
         chat_gpt.append({"role": "system",
-                                 "content": system})
+                         "content": system})
+
+    if assistant != '':
+        chat_gpt.append({"role": "system",
+                         "content": assistant})
 
     persona_dict = {'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
                     'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'}
     if persona != '':
         if language == 'eng':
             chat_gpt.append({"role": "system",
-                                     "content": persona_dict['character']})
+                             "content": persona_dict['character']})
         if language == 'ita':
             chat_gpt.append({"role": "system",
-                                     "content": persona_dict['personaggio']})
-    
+                             "content": persona_dict['personaggio']})
+
     # check token limit---------------------
     if total_tokens > token_limit:
         print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
@@ -368,7 +378,7 @@ def send_message(message,
         frequency_penalty = 0,
         presence_penalty = 0
     )
-    
+
     # stream reply ---------------------------------------------
     # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
     collected_chunks = []
@@ -383,22 +393,22 @@ def send_message(message,
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
-                
+
     time.sleep(1)
-    if printuser: 
+    if printuser:
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess,'\n...') 
-    
-    # expand chat--------------------------------
+        print('user:',print_mess,'\n...')
+
+        # expand chat--------------------------------
     chat_gpt.append({"role": "assistant", "content":reply})
-    
+
     count = Tokenizer()
-    tokens = count.tokens(message) + count.tokens(reply) 
-    
+    tokens = count.tokens(message) + count.tokens(reply)
+
     total_tokens += tokens
     if printtoken: print('\n => prompt tokens:', total_tokens)
-    
-    
+
+
     # Add the assistant's reply to the chat log-------------
     if savechat:
         with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
@@ -451,3 +461,6 @@ def bestie(m, max = 1000, mod=model):
 # https://platform.openai.com/account/usage
 # https://platform.openai.com/docs/guides/text-generation/chat-completions-api
 # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
+
+# ASSISTANT DUMP
+#'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
