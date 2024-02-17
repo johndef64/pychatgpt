@@ -1,5 +1,6 @@
 import os
 import importlib
+import requests
 
 def simple_bool(message):
     choose = input(message+" (y/n): ").lower()
@@ -29,22 +30,31 @@ check_and_install_module('pyautogui')
 check_and_install_module('wave')
 
 # Note: you need to be using OpenAI Python v0.27.0 for the code below to work
-import openai
 
-current_dir = os.getcwd()
-api_key = None
-if not os.path.isfile(current_dir + '/openai_api_key.txt'):
-    with open(current_dir + '/openai_api_key.txt', 'w') as file:
-        file.write(input('insert here your openai api key:'))
+def get_gitfile(url, flag='', dir = os.getcwd()):
+    url = url.replace('blob','raw')
+    response = requests.get(url)
+    file_name = flag + url.rsplit('/',1)[1]
+    file_path = os.path.join(dir, file_name)
+    with open(file_path, 'wb') as file:
+        file.write(response.content)
 
-api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
-openai.api_key = str(api_key)
+if not os.path.exists('pychatgpt.py'):
+    handle="https://raw.githubusercontent.com/johndef64/pychatgpt/main/"
+    files = ["pychatgpt.py"]
+    for file in files:
+        url = handle+file
+        get_gitfile(url)
+os.getcwd().endswith('pychatgpt.py')
+os.path.exists('pychatgpt.py')
+
+import pychatgpt as op
 
 #----------------------------------------------
 
 import time
 import pandas as pd
-import pyperclip
+import pyperclip as pc
 import pyautogui
 import keyboard
 import pyaudio
@@ -59,6 +69,9 @@ for index in range(audio.get_device_count()):
     info = audio.get_device_info_by_index(index)
     list.append(f"Device {index}: {info['name']}")
 mics = pd.DataFrame(list)
+
+translate = simple_bool('Transcribe (n) or Translate (y)?')
+
 input_device_id = input("/Select your microphone from the following list:\n"+mics.to_string(index=False))
 
 chunk = 1024  # Number of frames per buffer
@@ -69,7 +82,7 @@ rate = 44100  # Sampling rate in Hz
 
 print("\nTo start record press Alt+A")
 while True:
-    
+
     if keyboard.is_pressed('Alt+A'):
         stream = audio.open(format=sample_format,
                             channels=channels,
@@ -81,7 +94,7 @@ while True:
         frames = []
         print("Recording...")
         print("press alt+S to stop")
-        
+
 
         while True:
             if keyboard.is_pressed('alt+S'):  # if key 'ctrl + c' is pressed
@@ -102,11 +115,15 @@ while True:
         wf.writeframes(b''.join(frames))
         wf.close()
 
-        audio_file= open("recorded_audio.wav", "rb")
-        transcript = openai.Audio.transcribe("whisper-1", audio_file)
-        text_value = transcript['text']
-        pyperclip.copy(text_value)
-        #pyperclip.paste()
+        #audio_file= open("recorded_audio.wav", "rb")
+        if translate:
+            op.whisper_translate("recorded_audio.wav", 'text',False)
+        else:
+            op.whisper("recorded_audio.wav", 'text',False)
+        pc.copy(op.transcript)
+        #pc.paste()
         pyautogui.hotkey('ctrl', 'v')
-        print('\n',text_value,'\n')
+        print('\n',op.transcript,'\n')
         print("\nTo start record press Alt+A")
+
+
