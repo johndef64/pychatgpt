@@ -70,7 +70,7 @@ for index in range(audio.get_device_count()):
     list.append(f"Device {index}: {info['name']}")
 mics = pd.DataFrame(list)
 
-translate = simple_bool('Transcribe (n) or Translate (y)?')
+translate = simple_bool('Transcribe (n) or Translate (y)?\n')
 
 input_device_id = input("/Select your microphone from the following list:\n"+mics.to_string(index=False))
 
@@ -79,11 +79,12 @@ sample_format = pyaudio.paInt16  # 16 bits per sample
 channels = 1  # Mono audio
 rate = 44100  # Sampling rate in Hz
 
-
-print("\nTo start record press Alt+A")
+start = 'Alt+Q'
+stop = 'Alt+W'
+print("\nTo start record press "+start)
 while True:
 
-    if keyboard.is_pressed('Alt+A'):
+    if keyboard.is_pressed(start):
         stream = audio.open(format=sample_format,
                             channels=channels,
                             rate=rate,
@@ -93,11 +94,11 @@ while True:
 
         frames = []
         print("Recording...")
-        print("press alt+S to stop")
+        print("press "+stop+" to stop")
 
 
         while True:
-            if keyboard.is_pressed('alt+S'):  # if key 'ctrl + c' is pressed
+            if keyboard.is_pressed(stop):  # if key 'ctrl + c' is pressed
                break  # finish the loop
             else:
                 data = stream.read(chunk)
@@ -121,9 +122,8 @@ while True:
         else:
             op.whisper("recorded_audio.wav", 'text',False)
         pc.copy(op.transcript)
-        #pc.paste()
         pyautogui.hotkey('ctrl', 'v')
-        print('\n',op.transcript,'\n')
-        print("\nTo start record press Alt+A")
+
+        print("\nTo start record press "+start)
 
 
