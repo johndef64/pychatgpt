@@ -122,6 +122,7 @@ models = ['gpt-3.5-turbo',     #0
           'gpt-4'              #2
           ]
 assistant = ''
+transcript = ''
 reply = ''
 
 def choose_model():
@@ -423,6 +424,33 @@ def send_message(message,
                 persona_p = model
             file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
+def get_file_paths(path):
+    file_paths = []
+    files = [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))]
+    for file in files:
+        file_paths.append(file)
+    return file_paths
+
+def whisper(path, response_format = "text", print_transcriprion = True):
+    global transcript
+    audio_file = open(path, "rb")
+    transcript = client.audio.transcriptions.create(
+        model="whisper-1",
+        file=audio_file,
+        response_format = response_format )
+    if print_transcriprion:
+        print(transcript)
+
+# response_format =  json, text, srt, verbose_json, vtt
+def whisper_translate(path, response_format = "text", print_transcriprion = True):
+    global transcript
+    audio_file = open(path, "rb")
+    transcript = client.audio.translations.create(
+        model="whisper-1",
+        file = audio_file,
+        response_format = response_format )
+    if print_transcriprion:
+        print(transcript)
 
 def chatgpt(m, maxtoken = 800, model=model):
     send_message(m,system='base',maxtoken = maxtoken,model=model)
