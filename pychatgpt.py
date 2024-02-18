@@ -435,9 +435,9 @@ def whisper(path, response_format = "text", print_transcriprion = True):
     global transcript
     audio_file = open(path, "rb")
     transcript = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_file,
-        response_format = response_format )
+        model = "whisper-1",
+        file = audio_file,
+        response_format = response_format)
     if print_transcriprion:
         print(transcript)
 
@@ -446,9 +446,9 @@ def whisper_translate(path, response_format = "text", print_transcriprion = True
     global transcript
     audio_file = open(path, "rb")
     transcript = client.audio.translations.create(
-        model="whisper-1",
+        model = "whisper-1",
         file = audio_file,
-        response_format = response_format )
+        response_format = response_format)
     if print_transcriprion:
         print(transcript)
 
