@@ -52,7 +52,6 @@ import pychatgpt as op
 
 #----------------------------------------------
 
-import time
 import pandas as pd
 import pyperclip as pc
 import pyautogui
@@ -64,20 +63,23 @@ import time
 input_device_id = 0
 audio = pyaudio.PyAudio()
 
+
+# Parameters
+chunk = 1024  # Number of frames per buffer
+sample_format = pyaudio.paInt16  # 16 bits per sample
+channels = 1  # Mono audio
+rate = 44100  # Sampling rate in Hz
+
+# Choose input device
 list = []
 for index in range(audio.get_device_count()):
     info = audio.get_device_info_by_index(index)
     list.append(f"Device {index}: {info['name']}")
 mics = pd.DataFrame(list)
+#input_device_id = input("/Select your microphone from the following list:\n"+mics.to_string(index=False))
 
+# Choose whisper mode
 translate = simple_bool('Transcribe (n) or Translate (y)?\n')
-
-input_device_id = input("/Select your microphone from the following list:\n"+mics.to_string(index=False))
-
-chunk = 1024  # Number of frames per buffer
-sample_format = pyaudio.paInt16  # 16 bits per sample
-channels = 1  # Mono audio
-rate = 44100  # Sampling rate in Hz
 
 start = 'Alt+Q'
 stop = 'Alt+W'
@@ -90,16 +92,15 @@ while True:
                             rate=rate,
                             frames_per_buffer=chunk,
                             input=True,
-                            input_device_index=int(input_device_id))
-
+                            #input_device_index=int(input_device_id)
+                            )
         frames = []
         print("Recording...")
         print("press "+stop+" to stop")
 
-
         while True:
             if keyboard.is_pressed(stop):  # if key 'ctrl + c' is pressed
-               break  # finish the loop
+                break  # finish the loop
             else:
                 data = stream.read(chunk)
                 frames.append(data)
@@ -116,14 +117,15 @@ while True:
         wf.writeframes(b''.join(frames))
         wf.close()
 
+        # Wav to Whisper
         #audio_file= open("recorded_audio.wav", "rb")
         if translate:
             op.whisper_translate("recorded_audio.wav", 'text',False)
         else:
             op.whisper("recorded_audio.wav", 'text',False)
         pc.copy(op.transcript)
+        print(op.transcript)
         pyautogui.hotkey('ctrl', 'v')
 
         print("\nTo start record press "+start)
-
 
