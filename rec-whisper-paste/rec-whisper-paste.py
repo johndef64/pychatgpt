@@ -52,17 +52,23 @@ import pychatgpt as op
 
 #----------------------------------------------
 
-import pandas as pd
+from datetime import datetime
 import pyperclip as pc
+import pandas as pd
 import pyautogui
 import keyboard
 import pyaudio
 import wave
 import time
 
-input_device_id = 0
+input_device_id = 1
 audio = pyaudio.PyAudio()
 
+# inizialize log:-----------------------------------
+if not os.path.isfile('whisper_log.txt'):
+    with open('whisper_log.txt', 'w', encoding= 'utf-8') as file:
+        file.write('Rec-Whisper\n\nTranscription LOG:\n')
+        print(str('\nwhisper_log.txt created at ' + os.getcwd()))
 
 # Parameters
 chunk = 1024  # Number of frames per buffer
@@ -108,8 +114,9 @@ while True:
         print("Finished recording.")
 
 
-        # Save the audio data to a WAV file
-        filename = "recorded_audio.wav"
+        # Save the audio data as audio file (wav, mp3)
+        audio_format = 'mp3'
+        filename = "recorded_audio."+audio_format
         wf = wave.open(filename, 'wb')
         wf.setnchannels(channels)
         wf.setsampwidth(audio.get_sample_size(sample_format))
@@ -117,15 +124,21 @@ while True:
         wf.writeframes(b''.join(frames))
         wf.close()
 
-        # Wav to Whisper
-        #audio_file= open("recorded_audio.wav", "rb")
+        # audio file to Whisper
+        #audio_file = open("recorded_audio."+audio_format, "rb")
         if translate:
-            op.whisper_translate("recorded_audio.wav", 'text',False)
+            op.whisper_translate("recorded_audio."+audio_format, 'text',False)
         else:
-            op.whisper("recorded_audio.wav", 'text',False)
+            op.whisper("recorded_audio.mp3", 'text',False)
         pc.copy(op.transcript)
         print(op.transcript)
         pyautogui.hotkey('ctrl', 'v')
 
+        with open('whisper_log.txt', 'a', encoding= 'utf-8') as file:
+            file.write('---------------------------')
+            file.write('\n'+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n')
+            file.write(op.transcript+ '\n')
         print("\nTo start record press "+start)
 
+
+#%%
