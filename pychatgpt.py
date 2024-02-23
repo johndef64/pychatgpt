@@ -68,6 +68,7 @@ import pygame
 sys.stdout = sys.__stdout__
 sys.stderr = sys.__stderr__
 
+
 # set openAI key -----------------------
 current_dir = os.getcwd()
 api_key = None
