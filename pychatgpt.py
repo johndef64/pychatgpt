@@ -103,14 +103,14 @@ def play_audio(file_name):
     file.close()
 
 
-def record_audio(file_name, duration): # duration: in seconds
-    print('recording audio for',str(duration),'seconds')
+def record_audio(duration=5, filename="audio.mp3"): # duration: in seconds
+    print('start recording for',str(duration),'seconds')
     sample_rate = 44100
     channels = 2
     recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=channels)
     sd.wait() # wait until recording is finished
     print('recording ended')
-    sf.write(file_name, recording, sample_rate) #save audio file
+    sf.write(filename, recording, sample_rate) #save audio file
 
 
 # In-Build Assistants -----------------------
@@ -345,15 +345,16 @@ reply = ''
 def send_message(message,
                  model=model,
                  language='eng',
-                 maxtoken = 800,
-                 temperature = 1,
-                 lag = 0.00,
-                 system = '',
-                 persona = '',
-                 printreply = True,
-                 printuser = False,
-                 printtoken = True,
-                 savechat = True
+                 maxtoken=800,
+                 temperature=1,
+                 lag=0.00,
+                 system='',
+                 persona='',
+                 printreply=True,
+                 printuser=False,
+                 printtoken=True,
+                 savechat=True,
+                 to_clipboard=False
                  ):
     global assistant
     global chat_gpt
@@ -471,6 +472,9 @@ def send_message(message,
                 persona_p = model
             file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
+    if to_clipboard:
+        pc.copy(reply)
+
 
 
 ####### Audio Models #######
@@ -480,33 +484,37 @@ def send_message(message,
 # TTS HD	$0.030 / 1K characters
 
 ####### Whisper #######
-def whisper(path, response_format = "text", print_transcriprion = True):
+def whisper(filepath,
+            translate = False,
+            response_format = "text",
+            print_transcriprion = True):
     global transcript
-    audio_file = open(path, "rb")
-    transcript = client.audio.transcriptions.create(
-        model = "whisper-1",
-        file = audio_file,
-        response_format = response_format)
+    audio_file = open(filepath, "rb")
+    if not translate:
+        transcript = client.audio.transcriptions.create(
+            model = "whisper-1",
+            file = audio_file,
+            response_format = response_format)
+    else:
+        transcript = client.audio.translations.create(
+            model = "whisper-1",
+            file = audio_file,
+            response_format = response_format)
     if print_transcriprion:
         print(transcript)
 
 # response_format =  json, text, srt, verbose_json, vtt
-def whisper_translate(path, response_format = "text", print_transcriprion = True):
-    global transcript
-    audio_file = open(path, "rb")
-    transcript = client.audio.translations.create(
-        model = "whisper-1",
-        file = audio_file,
-        response_format = response_format)
-    if print_transcriprion:
-        print(transcript)
 
 
 ####### text-to-speech #######
 
-#m = "Today is a wonderful day to build something people love!"
 voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
-def text2speech(input, voice="alloy",filename="speech.mp3", model= "tts-1", speed=1):
+def text2speech(input,
+                voice="alloy",
+                filename="speech.mp3",
+                model="tts-1",
+                speed=1,
+                play=False):
     if os.path.exists(filename):
         os.remove(filename)
     response = client.audio.speech.create(
@@ -516,51 +524,57 @@ def text2speech(input, voice="alloy",filename="speech.mp3", model= "tts-1", spee
         speed=speed
     )
     response.stream_to_file(filename)
+    if play:
+        play_audio(filename)
+        play_audio("silence.mp3")
+
+def speech2speech(duration=5, filename="audio.mp3", translate=False):
+    record_audio(duration=duration, filename=filename)
+    whisper(filename, translate=translate)
+    text2speech(transcript, voice='nova',filename="speech2speech.mp3", play=True)
 
 
 ####### Assistants #######
 def send_to(m, sys, max, mod):
-    send_message(m,system=assistants[sys], maxtoken=max, model=mod)
-    pc.copy(reply)
+    send_message(m,system=assistants[sys], maxtoken=max, model=mod, to_clipboard=True)
 
 def chatgpt(m, max = 1000, mod=model):
-    send_to(m,'base',max,mod)
+    send_message(m,system=assistants['base'], maxtoken=max, model=mod, to_clipboard=True)
 def creator(m, max = 1000, mod=model):
-    send_to(m,'creator',max,mod)
+    send_message(m,system=assistants['creator'], maxtoken=max, model=mod, to_clipboard=True)
 def delamain(m, max = 1000, mod=model):
-    send_to(m,'delamain', max,mod)
+    send_message(m,system=assistants['delamain'], maxtoken=max, model=mod, to_clipboard=True)
 def crick(m, max = 1000, mod=model):
-    send_to(m,'crick',max,mod)
+    send_message(m,system=assistants['crick'], maxtoken=max, model=mod, to_clipboard=True)
 def watson(m, max = 1000, mod=model):
-    send_to(m,'watson',max,mod)
+    send_message(m,system=assistants['watson'], maxtoken=max, model=mod, to_clipboard=True)
 def venter(m, max = 1000, mod=model):
-    send_to(m,'venter',max,mod)
+    send_message(m,system=assistants['venter'], maxtoken=max, model=mod, to_clipboard=True)
 def roger(m, max = 1000, mod=model):
     expand_chat('Return always just the R code in your output!','system')
-    send_to(m,'roger',max,mod)
+    send_message(m,system=assistants['roger'], maxtoken=max, model=mod, to_clipboard=True)
 def robert(m, max = 1000, mod=model):
-    send_to(m,'robert',max,mod)
+    send_message(m,system=assistants['robert'], maxtoken=max, model=mod, to_clipboard=True)
 def bestie(m, max = 1000, mod=model):
-    send_to(m,'bestie',max,mod)
+    send_message(m,system=assistants['bestie'], maxtoken=max, model=mod, to_clipboard=True)
 def julia(m, max = 1000, mod=model):
-    send_to(m,'julia',max,mod)
+    send_message(m,system=assistants['julia'], maxtoken=max, model=mod, to_clipboard=True)
 def english(m, max = 1000, mod=model):
-    send_to(m,'english',max,mod)
+    send_message(m,system=assistants['english'], maxtoken=max, model=mod, to_clipboard=True)
 def japanese(m, max = 1000, mod=model):
-    send_to(m,'japanese',max,mod)
+    send_message(m,system=assistants['japanese'], maxtoken=max, model=mod, to_clipboard=True)
 
 ###### Talk With ######
-def talk_with(who, mod=model,voice='nova'):
-    record_audio("input.mp3", 5)
-    whisper("input.mp3")
-    print(transcript)
-    send_to(transcript, who, max=1000, mod=mod)
+def talk_with(assistant, duration=5, mod=model, voice='nova', max=1000, printall=False):
+    record_audio(duration, "input.mp3")
+    whisper("input.mp3", print_transcriprion=printall)
+    send_message(transcript,system=assistants[assistant], maxtoken=max, model=mod, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice)
     text2speech(' ', filename='silence.mp3') if not os.path.exists('silence.mp3') else None
     play_audio("output.mp3")
     play_audio("silence.mp3")
 
-#talk_with('julia')
+#talk_with('julia',10)
 
 
 ######### INFO #########
