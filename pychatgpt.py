@@ -90,7 +90,7 @@ def change_key():
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
         client = OpenAI(api_key=str(api_key))
 
-# audio functions
+###### audio functions  #####
 def play_audio(file_name):
     pygame.mixer.init()
     pygame.mixer.music.load(file_name)
@@ -113,7 +113,27 @@ def record_audio(duration=5, filename="audio.mp3"): # duration: in seconds
     sf.write(filename, recording, sample_rate) #save audio file
 
 
-# In-Build Assistants -----------------------
+###### global variables ######
+
+model = 'gpt-3.5-turbo-16k'
+models = ['gpt-3.5-turbo',     #0
+          'gpt-3.5-turbo-16k', #1
+          'gpt-4'              #2
+          ]
+assistant = ''
+transcript = ''
+persona = ''
+reply = ''
+
+total_tokens = 0 # iniziale token count
+token_limit = 0 # iniziale token limit
+keep_persona = True
+
+if not 'chat_gpt' in locals():
+    chat_gpt = []
+
+
+###### In-Build Assistants ######
 
 features = {
     'reply_type' : {
@@ -158,17 +178,23 @@ def display_assistants():
     print('Available Assistants:')
     display(assistants_df)
 
+def add_persona(char, language='eng'):
+    global persona
+    persona = char
+    persona_dict = {
+        'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
+        'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'
+    }
+    if language == 'eng':
+        chat_gpt.append({"role": "system",
+                         "content": persona_dict['character']})
+    if language == 'ita':
+        chat_gpt.append({"role": "system",
+                         "content": persona_dict['personaggio']})
 
-# base functions:------------------
 
-model = 'gpt-3.5-turbo-16k'
-models = ['gpt-3.5-turbo',     #0
-          'gpt-3.5-turbo-16k', #1
-          'gpt-4'              #2
-          ]
-assistant = ''
-transcript = ''
-reply = ''
+
+###### base functions ######
 
 def choose_model():
     global model
@@ -224,8 +250,7 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
         print(str('\nchat_log.txt created at ' + os.getcwd()))
 
 
-# ask function =====================================
-
+###### ask functions ######
 def ask_gpt(prompt,
             model = model,
             system= 'you are an helpful assistant',
@@ -267,20 +292,11 @@ def ask_gpt(prompt,
     if savechat:
         with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
             file.write('---------------------------')
-            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + prompt)
+            file.write('\nUser: ' + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '\n' + prompt)
             file.write('\n\n'+model+': '+ reply + '\n\n')
 
 
 # chat function ================================
-total_tokens = 0 # iniziale token count
-token_limit = 0 # iniziale token limit
-persona = ''
-keep_persona = True
-
-
-if not 'chat_gpt' in locals():
-    chat_gpt = []
-
 
 def expand_chat(message, role="user"):
     #print('default setting (role = "user") to change role replace with "assistant" or "system"')
@@ -338,18 +354,15 @@ def clearchat():
     print('*chat cleared*\n')
 
 
-reply = ''
 # ----------------------------------------------------
 
 
 def send_message(message,
                  model=model,
-                 language='eng',
                  maxtoken=800,
                  temperature=1,
                  lag=0.00,
                  system='',
-                 persona='',
                  printreply=True,
                  printuser=False,
                  printtoken=True,
@@ -357,6 +370,7 @@ def send_message(message,
                  to_clipboard=False
                  ):
     global assistant
+    global persona
     global chat_gpt
     global reply
     global total_tokens
@@ -381,17 +395,6 @@ def send_message(message,
         chat_gpt.append({"role": "system",
                          "content": assistant})
 
-    persona_dict = {
-        'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
-        'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'
-    }
-    if persona != '':
-        if language == 'eng':
-            chat_gpt.append({"role": "system",
-                             "content": persona_dict['character']})
-        if language == 'ita':
-            chat_gpt.append({"role": "system",
-                             "content": persona_dict['personaggio']})
 
     # check token limit---------------------
     if total_tokens > token_limit:
@@ -406,10 +409,7 @@ def send_message(message,
         chat_gpt = chat_gpt[cut_length:]
 
         if keep_persona and persona != '':
-            if language == 'ita':
-                chat_gpt.append({"role": "system", "content": persona_dict['personaggio']})
-            elif language == 'eng':
-                chat_gpt.append({"role": "system", "content": persona_dict['character']})
+            add_persona(persona)
         if keep_persona and system != '':
             chat_gpt.append({"role": "system", "content": system})
 
@@ -565,17 +565,21 @@ def japanese(m, max = 1000, mod=model):
     send_message(m,system=assistants['japanese'], maxtoken=max, model=mod, to_clipboard=True)
 
 ###### Talk With ######
-def talk_with(assistant, duration=5, mod=model, voice='nova', max=1000, printall=False):
+def talk_with(who, duration=5, mod=model, voice='nova', max=1000, printall=False):
     record_audio(duration, "input.mp3")
     whisper("input.mp3", print_transcriprion=printall)
-    send_message(transcript,system=assistants[assistant], maxtoken=max, model=mod, printreply=printall, printtoken=False)
+    if assistant in assistants:
+        system = assistants[who]
+    else:
+        system = who
+    send_message(transcript,system=system, maxtoken=max, model=mod, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice)
     text2speech(' ', filename='silence.mp3') if not os.path.exists('silence.mp3') else None
     play_audio("output.mp3")
     play_audio("silence.mp3")
 
-#talk_with('julia',10)
 
+#talk_with('chatgpt',8)
 
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits
@@ -586,3 +590,5 @@ def talk_with(assistant, duration=5, mod=model, voice='nova', max=1000, printall
 ######### ASSISTANT DUMP #########
 #'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
 
+
+#%%
