@@ -528,10 +528,13 @@ def text2speech(input,
         play_audio(filename)
         play_audio("silence.mp3")
 
-def speech2speech(duration=5, filename="audio.mp3", translate=False):
-    record_audio(duration=duration, filename=filename)
+if "silence.mp3" not in os.listdir():
+    text2speech('',filename="silence.mp3")
+
+def speech2speech(duration=5, filename="speech2speech.mp3", translate=False):
+    record_audio(duration=duration, filename="audio.mp3")
     whisper(filename, translate=translate)
-    text2speech(transcript, voice='nova',filename="speech2speech.mp3", play=True)
+    text2speech(transcript, voice='nova',filename=filename, play=True)
 
 
 ####### Assistants #######
