@@ -529,7 +529,7 @@ def text2speech(input,
         play_audio("silence.mp3")
 
 if "silence.mp3" not in os.listdir():
-    text2speech('',filename="silence.mp3")
+    text2speech(' ',filename="silence.mp3")
 
 def speech2speech(duration=5, filename="speech2speech.mp3", translate=False):
     record_audio(duration=duration, filename="audio.mp3")
@@ -574,7 +574,8 @@ def talk_with(who, duration=5, mod=model, voice='nova', max=1000, printall=False
     if who in assistants:
         system = assistants[who]
     else:
-        system = who
+        add_persona(who)
+        system = ''
     send_message(transcript,system=system, maxtoken=max, model=mod, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice)
     text2speech(' ', filename='silence.mp3') if not os.path.exists('silence.mp3') else None
