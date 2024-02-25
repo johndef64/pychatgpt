@@ -69,6 +69,7 @@ sys.stdout = sys.__stdout__
 sys.stderr = sys.__stderr__
 
 
+
 # set openAI key -----------------------
 current_dir = os.getcwd()
 api_key = None
@@ -509,7 +510,7 @@ def whisper(filepath,
 ####### text-to-speech #######
 
 voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
-def text2speech(input,
+def text2speech(text,
                 voice="alloy",
                 filename="speech.mp3",
                 model="tts-1",
@@ -520,7 +521,7 @@ def text2speech(input,
     response = client.audio.speech.create(
         model=model, # tts-1 or tts-1-hd
         voice=voice,
-        input=input,
+        input=text,
         speed=speed
     )
     response.stream_to_file(filename)
@@ -530,6 +531,7 @@ def text2speech(input,
 
 if "silence.mp3" not in os.listdir():
     text2speech(' ',filename="silence.mp3")
+#text2speech(' ', filename='silence.mp3') if not os.path.exists('silence.mp3') else None
 
 def speech2speech(duration=5, filename="speech2speech.mp3", translate=False):
     record_audio(duration=duration, filename="audio.mp3")
@@ -567,8 +569,10 @@ def english(m, max = 1000, mod=model):
 def japanese(m, max = 1000, mod=model):
     send_message(m,system=assistants['japanese'], maxtoken=max, model=mod, to_clipboard=True)
 
+
 ###### Talk With ######
-def talk_with(who, duration=5, mod=model, voice='nova', max=1000, printall=False):
+
+def talk_with(who, duration=5, voice='nova', mod=model, max=1000, printall=False):
     record_audio(duration, "input.mp3")
     whisper("input.mp3", print_transcriprion=printall)
     if who in assistants:
@@ -577,13 +581,17 @@ def talk_with(who, duration=5, mod=model, voice='nova', max=1000, printall=False
         add_persona(who)
         system = ''
     send_message(transcript,system=system, maxtoken=max, model=mod, printreply=printall, printtoken=False)
-    text2speech(reply,filename="output.mp3", voice=voice)
-    text2speech(' ', filename='silence.mp3') if not os.path.exists('silence.mp3') else None
-    play_audio("output.mp3")
-    play_audio("silence.mp3")
+    text2speech(reply,filename="output.mp3", voice=voice, play=True)
 
-#talk_with('julia',8)
 
+#%%
+### trial ###
+#clearchat()
+#talk_with('julia',8,'nova')
+#talk_with('Adolf Hitler',8, 'onyx')
+#talk_with('Son Goku (Dragonball)',8, 'fable')
+
+#%%
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits
 # https://platform.openai.com/account/usage
@@ -592,7 +600,5 @@ def talk_with(who, duration=5, mod=model, voice='nova', max=1000, printall=False
 
 ######### ASSISTANT DUMP #########
 #'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
-
-
 
 #%%
