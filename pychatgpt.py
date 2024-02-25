@@ -7,7 +7,7 @@ import time
 import requests
 import importlib
 from datetime import datetime
-
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 def simple_bool(message):
     choose = input(message+" (y/n): ").lower()
@@ -60,13 +60,7 @@ import pandas as pd
 import pyperclip as pc
 import sounddevice as sd
 import soundfile as sf
-# Suppress output and warnings
-sys.stdout = open(os.devnull, 'w')
-sys.stderr = open(os.devnull, 'w')
 import pygame
-# Restore output and warnings
-sys.stdout = sys.__stdout__
-sys.stderr = sys.__stderr__
 
 
 
