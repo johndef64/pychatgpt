@@ -566,7 +566,7 @@ def japanese(m, max = 1000, mod=model):
 
 ###### Talk With ######
 
-def talk_with(who, duration=5, voice='nova', language='eng', mod=model, max=1000, printall=False):
+def talk_with(who, duration=5, voice='nova', language='eng', mod='gpt-4', max=1000, printall=False):
     record_audio(duration, "input.mp3")
     whisper("input.mp3", print_transcriprion=printall)
     if who in assistants:
@@ -577,7 +577,7 @@ def talk_with(who, duration=5, voice='nova', language='eng', mod=model, max=1000
     send_message(transcript,system=system, maxtoken=max, model=mod, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice, play=True)
 
-def chat_with(message, who, voice='nova', language='eng', mod=model, max=1000, printall=False):
+def chat_with(message, who, voice='nova', language='eng', mod='gpt-4', max=1000, printall=False):
     if who in assistants:
         system = assistants[who]
     else:
