@@ -577,6 +577,14 @@ def talk_with(who, duration=5, voice='nova', language='eng', mod=model, max=1000
     send_message(transcript,system=system, maxtoken=max, model=mod, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice, play=True)
 
+def chat_with(message, who, voice='nova', language='eng', mod=model, max=1000, printall=False):
+    if who in assistants:
+        system = assistants[who]
+    else:
+        add_persona(who, language)
+        system = ''
+    send_message(message,system=system, maxtoken=max, model=mod, printreply=printall, printtoken=False)
+    text2speech(reply,filename="output.mp3", voice=voice, play=True)
 
 #%%
 ### trial ###
