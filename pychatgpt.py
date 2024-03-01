@@ -66,7 +66,7 @@ def check_and_install_requirements(requirements):
         if x:
             for module in missing_requirements:
                 subprocess.check_call(["pip", "install", module])
-                print(f"{module}' was installed correctly.\n")
+                print(f"{module}' was installed correctly.")
         else:
             exit()
 
@@ -89,8 +89,7 @@ def is_package_installed(package_name):
 if platform.system() == "Linux":
     if not is_package_installed("libportaudio2"):
         cmd = ["apt-get", "install", "libportaudio2"]
-        subprocess.check_call(cmd)
-        #!sudo apt-get install libportaudio2
+        subprocess.check_call(cmd)  #!sudo apt-get install libportaudio2
     else:
         pass
 
@@ -101,7 +100,7 @@ import pygame
 
 
 
-# set openAI key -----------------------
+###### set openAI key  ######
 current_dir = os.getcwd()
 api_key = None
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
