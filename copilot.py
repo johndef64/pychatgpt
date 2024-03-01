@@ -13,10 +13,7 @@ if not os.path.exists('pychatgpt.py'):
 clip = False if 'google.colab' in sys.modules else True
 
 import pychatgpt as op
-
-# Copilot Assistants:
 op.display_assistants()
-#op.choose_model()
 
 #%% Load file as variable
 path = os.getcwd()
