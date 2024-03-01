@@ -77,7 +77,7 @@ import tiktoken
 import pandas as pd
 
 if platform.system() == "Linux":
-    # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" and "xclip" on system and reboot Python IDLE3, import pyperclip.
+    # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
     subprocess.check_call(["sudo","apt", "install", "xsel"])
     #subprocess.check_call(["sudo","apt", "install", "xclip"])
 else:
