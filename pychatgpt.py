@@ -75,6 +75,12 @@ check_and_install_requirements(requirements)
 from openai import OpenAI
 import tiktoken
 import pandas as pd
+
+if platform.system() == "Linux":
+    subprocess.check_call(["apt", "install", "xsel"])
+    subprocess.check_call(["apt", "install", "xclip"])
+else:
+    pass
 import pyperclip as pc
 
 
@@ -88,8 +94,7 @@ def is_package_installed(package_name):
 
 if platform.system() == "Linux":
     if not is_package_installed("libportaudio2"):
-        cmd = ["apt-get", "install", "libportaudio2"]
-        subprocess.check_call(cmd)  #!sudo apt-get install libportaudio2
+        subprocess.check_call(["apt-get", "install", "libportaudio2"])  #!sudo apt-get install libportaudio2
     else:
         pass
 
