@@ -77,8 +77,9 @@ import tiktoken
 import pandas as pd
 
 if platform.system() == "Linux":
-    subprocess.check_call(["apt", "install", "xsel"])
-    subprocess.check_call(["apt", "install", "xclip"])
+    # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" and "xclip" on system and reboot Python IDLE3, import pyperclip.
+    subprocess.check_call(["sudo","apt", "install", "xsel"])
+    #subprocess.check_call(["sudo","apt", "install", "xclip"])
 else:
     pass
 import pyperclip as pc
@@ -94,7 +95,7 @@ def is_package_installed(package_name):
 
 if platform.system() == "Linux":
     if not is_package_installed("libportaudio2"):
-        subprocess.check_call(["apt-get", "install", "libportaudio2"])  #!sudo apt-get install libportaudio2
+        subprocess.check_call(["sudo","apt-get", "install", "libportaudio2"])  #!sudo apt-get install libportaudio2
     else:
         pass
 
