@@ -623,6 +623,8 @@ def english(m, max = 1000, gpt=model):
     send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clipboard=True)
 def japanese(m, max = 1000, gpt=model):
     send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=True)
+def japanese_teacher(m, max = 1000, gpt=model):
+    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=True)
 
 
 ###### Talk With ######
