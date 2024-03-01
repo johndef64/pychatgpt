@@ -9,9 +9,9 @@ import importlib
 from datetime import datetime
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
-def simple_bool(message):
-    choose = input(message+" (y/n): ").lower()
-    your_bool = choose in ["y", "yes"]
+def simple_bool(message, y='y', n ='n'):
+    choose = input(message+" ("+y+"/"+n+"): ").lower()
+    your_bool = choose in [y]
     return your_bool
 
 
@@ -50,14 +50,33 @@ def check_and_install_module(module_name):
         else:
             exit()
 
-requirements  = ["openai","tiktoken","pandas","pyperclip","pygame","sounddevice","soundfile"]
-for package in requirements:
-    check_and_install_module(package)
+def check_and_install_requirements(requirements):
+    missing_requirements = []
+    for module in requirements:
+        try:
+            # Check if the module is already installed
+            importlib.import_module(module)
+        except ImportError:
+            missing_requirements.append(module)
 
+    x = simple_bool(str(missing_requirements)+" are missing.\nWould you like to install them all?")
+    if x:
+        for module in missing_requirements:
+            import subprocess
+            subprocess.check_call(["pip", "install", module])
+            print(f"The module '{module}' was installed correctly.\n")
+    else:
+        exit()
+
+requirements  = ["openai","tiktoken","pandas","pyperclip"]
+check_and_install_requirements(requirements)
 from openai import OpenAI
 import tiktoken
 import pandas as pd
 import pyperclip as pc
+
+audio_requirements = ["pygame","sounddevice","soundfile"]
+check_and_install_requirements(audio_requirements)
 import sounddevice as sd
 import soundfile as sf
 import pygame
