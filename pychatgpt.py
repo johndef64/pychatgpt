@@ -597,40 +597,40 @@ def speech2speech(duration=5, filename="speech2speech.mp3", translate=False):
 
 
 ####### Assistants #######
-def send_to(m, sys, max = 1000, gpt=model):
-    send_message(m,system=assistants[sys], maxtoken=max, model=gpt, to_clipboard=True)
+def send_to(m, sys,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants[sys], maxtoken=max, model=gpt, to_clipboard=clip)
 
-def chatgpt(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clipboard=True)
-def creator(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['creator'], maxtoken=max, model=gpt, to_clipboard=True)
-def delamain(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clipboard=True)
-def crick(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clipboard=True)
-def watson(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clipboard=True)
-def newton(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clipboard=True)
-def galileo(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['galileo'], maxtoken=max, model=gpt, to_clipboard=True)
-def leonardo(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clipboard=True)
-def roger(m, max = 1000, gpt=model):
+def chatgpt(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clipboard=clip)
+def creator(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['creator'], maxtoken=max, model=gpt, to_clipboard=clip)
+def delamain(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clipboard=clip)
+def crick(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clipboard=clip)
+def watson(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clipboard=clip)
+def newton(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clipboard=clip)
+def galileo(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['galileo'], maxtoken=max, model=gpt, to_clipboard=clip)
+def leonardo(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clipboard=clip)
+def roger(m,  gpt=model, max = 1000, clip=True):
     expand_chat('Return always just the R code in your output!','system')
-    send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clipboard=True)
-def robert(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=True)
-def bestie(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clipboard=True)
-def julia(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['julia'], maxtoken=max, model=gpt, to_clipboard=True)
-def english(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clipboard=True)
-def japanese(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=True)
-def japanese_teacher(m, max = 1000, gpt=model):
-    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=True)
+    send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clipboard=clip)
+def robert(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=clip)
+def bestie(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clipboard=clip)
+def julia(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['julia'], maxtoken=max, model=gpt, to_clipboard=clip)
+def english(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clipboard=clip)
+def japanese(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=clip)
+def japanese_teacher(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
 
 
 ###### Talk With ######
