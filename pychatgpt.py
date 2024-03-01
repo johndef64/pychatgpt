@@ -4,8 +4,10 @@ import ast
 import glob
 import json
 import time
+import platform
 import requests
 import importlib
+import subprocess
 from datetime import datetime
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
@@ -44,7 +46,6 @@ def check_and_install_module(module_name):
         x = simple_bool(
             "\n" + module_name + "  module is not installed.\nwould you like to install it?")
         if x:
-            import subprocess
             subprocess.check_call(["pip", "install", module_name])
             print(f"The module '{module_name}' was installed correctly.")
         else:
@@ -58,15 +59,16 @@ def check_and_install_requirements(requirements):
             importlib.import_module(module)
         except ImportError:
             missing_requirements.append(module)
-
-    x = simple_bool(str(missing_requirements)+" are missing.\nWould you like to install them all?")
-    if x:
-        for module in missing_requirements:
-            import subprocess
-            subprocess.check_call(["pip", "install", module])
-            print(f"The module '{module}' was installed correctly.\n")
+    if len(missing_requirements) == 0:
+        pass
     else:
-        exit()
+        x = simple_bool(str(missing_requirements)+" are missing.\nWould you like to install them all?")
+        if x:
+            for module in missing_requirements:
+                subprocess.check_call(["pip", "install", module])
+                print(f"{module}' was installed correctly.\n")
+        else:
+            exit()
 
 requirements  = ["openai","tiktoken","pandas","pyperclip"]
 check_and_install_requirements(requirements)
@@ -75,7 +77,23 @@ import tiktoken
 import pandas as pd
 import pyperclip as pc
 
+
 audio_requirements = ["pygame","sounddevice","soundfile"]
+def is_package_installed(package_name):
+    try:
+        output = subprocess.check_output("dpkg -l | grep " + package_name, shell=True)
+        return bool(output)
+    except subprocess.CalledProcessError:
+        return False
+
+if platform.system() == "Linux":
+    if not is_package_installed("libportaudio2"):
+        cmd = ["apt-get", "install", "libportaudio2"]
+        subprocess.check_call(cmd)
+        #!sudo apt-get install libportaudio2
+    else:
+        pass
+
 check_and_install_requirements(audio_requirements)
 import sounddevice as sd
 import soundfile as sf
