@@ -59,8 +59,7 @@ op.roger(m, 'gpt-4', 1000, clip)
 #%%
 op.clearchat()
 m = ''' 
-
-'''
+I have to go!'''
 op.bestie(m, 'gpt-4', 1000, clip)
 op.text2speech(op.reply,'onyx', play=True)
 #%%

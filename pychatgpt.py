@@ -597,8 +597,12 @@ def speech2speech(duration=5, filename="speech2speech.mp3", translate=False):
 
 
 ####### Assistants #######
-def send_to(m, sys,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants[sys], maxtoken=max, model=gpt, to_clipboard=clip)
+def send_to(m, who,  gpt=model, max = 1000, clip=True):
+    if who in assistants:
+        sys = assistants[who]
+    else:
+        sys = who
+    send_message(m,system=sys, maxtoken=max, model=gpt, to_clipboard=clip)
 
 def chatgpt(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clipboard=clip)
