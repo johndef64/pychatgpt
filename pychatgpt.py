@@ -454,6 +454,8 @@ def send_message(message,
         chat_gpt.append({"role": "system",
                          "content": assistant})
 
+    if message.startswith("@"):
+        clearchat()
 
     # check token limit---------------------
     if total_tokens > token_limit:
