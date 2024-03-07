@@ -593,10 +593,10 @@ if "silence.mp3" not in os.listdir():
     text2speech(' ',filename="silence.mp3")
 #text2speech(' ', filename='silence.mp3') if not os.path.exists('silence.mp3') else None
 
-def speech2speech(duration=5, filename="speech2speech.mp3", translate=False):
+def speech2speech(duration=5, voice='nova', filename="speech2speech.mp3", translate=False):
     record_audio(duration=duration, filename="audio.mp3")
     whisper(filename, translate=translate)
-    text2speech(transcript, voice='nova',filename=filename, play=True)
+    text2speech(transcript, voice=voice,filename=filename, play=True)
 
 
 ####### Assistants #######
