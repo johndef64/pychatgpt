@@ -76,7 +76,7 @@ op.chat_gpt
 
 op.whisper('audio.mp3', translate = True, response_format = "text", print_transcriprion = True)
 #%%
-# Openai Voices
+# Text to Speech
 
 op.voices
 # ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
@@ -89,14 +89,16 @@ m='''
 '''
 op.text2speech(m,'alloy',play=True)
 #%%
-op.speech2speech(15,'onyx', play=True, translate=True)
 
+op.speech2speech(15,'onyx', play=True, translate=True)
 #%%
 m = '''@ 
 What's up bro?!'''
 op.bestie(m, 'gpt-4', 1000, clip)
 op.text2speech(op.reply,'onyx', play=True)
 #%%
+
+# Chat with...
 m = '''@ 
 What's up bro?!'''
 op.chat_with(m,'bestie','onyx')
@@ -106,22 +108,22 @@ write an introduction to machine learning as if it were the first lecture in my 
 '''
 op.chat_with(m,'leonardo','onyx', printall=True)
 #%%
-import pychatgpt as op
-m='''@ 
+ly='''@ 
 Please, write the lyrics of a song in your style.
 '''
 #m='@Hi, who are you?'
-op.chat_with(m,'Nergal (Behemoth Frontman)','onyx', printall=True)
 #%%
-m='''@ 
-Please, write the lyrics of a song in your style.
-'''
-op.chat_with(m,'Dua Lipa','nova', printall=True)
+op.chat_with(ly,'Nergal (Behemoth Frontman)','onyx', printall=True)
 #%%
-# Talk with
+op.chat_with(ly,'Dua Lipa','nova', printall=True)
+#%%
 
+# Talk with ...
 op.clearchat()
 op.talk_with(m,8,'bestie','onyx', printall=True)
+#%%
+op.clearchat()
+op.talk_with(m,8,'julia','nova', printall=True)
 #%%
 
 # Notes
