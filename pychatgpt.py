@@ -448,6 +448,7 @@ def send_message(message,
 
     if message.startswith("@"):
         clearchat()
+        message = message.lstrip("@")
 
     if system != '':
         chat_gpt.append({"role": "system",
