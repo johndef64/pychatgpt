@@ -79,6 +79,45 @@ op.chatgpt(m, 'gpt-4', 1000, clip)
 #%%
 op.chat_gpt
 #%%
+# Whisper
+
+op.whisper('audio.mp3', translate = True, response_format = "text", print_transcriprion = True)
+#%%
+# Openai Voices
+
+op.voices
+# ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+#%%
+for i in op.voices:
+    op.text2speech('''One does not simply walk into Mordor''',i,play=True)
+#%%
+m='''
+
+'''
+op.text2speech(m,'alloy',play=True)
+#%%
+op.speech2speech(15,'onyx', play=True, translate=True)
+
+#%%
+m='''@ 
+scrivi un introduzione al machine learning come se fosse la prima lezione del mio corso
+'''
+op.chat_with(m,'leonardo','onyx', printall=True)
+#%%
+import pychatgpt as op
+m='''@ 
+Please, write the lyrics of a song in your style
+'''
+#m='@Hi, who are you?'
+op.chat_with(m,'Nergal (Behemoth Frontman)','onyx', printall=True)
+#op.chat_with(m,'Dua Lipa','nova', printall=True)
+#%%
+op.chat_gpt
+#%%
+
+op.talk_with(m,'bestie','onyx', printall=True)
+#%%
+
 # Notes
 '''
 Translation: 今日、私は海に行きます。 明日、海に行くつもりです。昨日、海に行きました。

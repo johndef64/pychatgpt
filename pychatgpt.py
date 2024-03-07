@@ -446,6 +446,9 @@ def send_message(message,
         token_limit = 32768 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
+    if message.startswith("@"):
+        clearchat()
+
     if system != '':
         chat_gpt.append({"role": "system",
                          "content": system})
@@ -454,8 +457,9 @@ def send_message(message,
         chat_gpt.append({"role": "system",
                          "content": assistant})
 
-    if message.startswith("@"):
-        clearchat()
+    if persona != '':
+        add_persona(persona)
+
 
     # check token limit---------------------
     if total_tokens > token_limit:
