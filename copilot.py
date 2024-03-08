@@ -126,9 +126,9 @@ op.clearchat()
 op.talk_with(m,8,'julia','nova', printall=True)
 #%%
 # Japanese Learner
-
+import pychatgpt as op
 m= '''@Hello, I am a biologist studying computer science.'''
-op.japanese_learner(m, 3)
+op.japanese_learner(m, 1)
 #%%
 
 # Notes

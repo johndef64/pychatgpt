@@ -405,12 +405,13 @@ def load_file(path=os.getcwd(), ext='', contains='', file=''):
     return my_file
 
 
-def clearchat():
+def clearchat(silent=False):
     global chat_gpt
     global total_tokens
     chat_gpt = []
     total_tokens = 0
-    print('*chat cleared*\n')
+    if not silent:
+        print('*chat cleared*\n')
 
 
 # ----------------------------------------------------
@@ -447,7 +448,7 @@ def send_message(message,
         # https://platform.openai.com/docs/models/gpt-4
 
     if message.startswith("@"):
-        clearchat()
+        clearchat(silent=True)
         message = message.lstrip("@")
 
     if system != '':
@@ -645,7 +646,7 @@ def english(m,  gpt=model, max = 1000, clip=True):
 def japanese(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=clip)
 def japanese_teacher(m,  gpt=model, max = 1000, clip=True):
-    print('Text: '+m)
+    print('Text: '+m.lstrip("@"))
     send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
 
 
