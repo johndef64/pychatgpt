@@ -126,6 +126,21 @@ op.clearchat()
 op.talk_with(m,8,'julia','nova', printall=True)
 #%%
 
+op.play_audio("silence.mp3")
+m= '''@Hello, I am a biologist studying computer science.'''
+op.japanese_teacher(m)
+print('')
+jap = op.reply.split('\n')[0].split(':')[1].strip()
+op.text2speech(jap,voice='nova', play=True)
+op.time.sleep(len(jap)/6)
+op.play_audio("speech.mp3")
+op.time.sleep(len(jap)/6)
+op.play_audio("speech.mp3")
+op.time.sleep(len(jap)/6)
+op.play_audio("speech.mp3")
+
+#%%
+
 # Notes
 '''
 Translation: 今日、私は海に行きます。 明日、海に行くつもりです。昨日、海に行きました。
