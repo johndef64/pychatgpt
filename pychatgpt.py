@@ -661,6 +661,7 @@ def talk_with(who, duration=5, voice='nova', language='eng', gpt='gpt-4', tts= '
     send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice, play=True, model=tts)
 
+
 def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1-hd',  max=1000, printall=False):
     if who in assistants:
         system = assistants[who]
@@ -670,6 +671,18 @@ def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts
     send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice, play=True, model=tts)
 
+
+def japanese_learner(m, repeat= 3, voice='nova', speed=1):
+    play_audio("silence.mp3")
+    japanese_teacher(m, 'gpt-4')
+    print('')
+    jap = reply.split('\n')[0].split(':')[1].strip()
+    text2speech(jap,voice=voice, speed = speed, play=True)
+    i = 0
+    while i in range(repeat-1):
+        time.sleep(len(jap)/6)
+        play_audio("speech.mp3")
+        i += 1
 
 #%%
 ### trial ###
