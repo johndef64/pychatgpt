@@ -645,6 +645,7 @@ def english(m,  gpt=model, max = 1000, clip=True):
 def japanese(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=clip)
 def japanese_teacher(m,  gpt=model, max = 1000, clip=True):
+    print('Text: '+m)
     send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
 
 
