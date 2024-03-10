@@ -11,7 +11,7 @@ if not os.path.exists('pychatgpt.py'):
     get_gitfile("https://raw.githubusercontent.com/johndef64/pychatgpt/main/pychatgpt.py")
 
 clip = False if 'google.colab' in sys.modules else True
-
+#%%
 import pychatgpt as op
 op.display_assistants()
 
@@ -117,13 +117,13 @@ op.chat_with(ly,'Nergal (Behemoth Frontman)','onyx', printall=True)
 #%%
 op.chat_with(ly,'Dua Lipa','nova', printall=True)
 #%%
-
+import pychatgpt as op
 # Talk with ...
 op.clearchat()
-op.talk_with(m,8,'bestie','onyx', printall=True)
+op.talk_with('bestie','onyx', printall=True)
 #%%
 op.clearchat()
-op.talk_with(m,8,'julia','nova', printall=True)
+op.talk_with_loop('julia','nova',printall=True)
 #%%
 # Japanese Learner
 import pychatgpt as op
