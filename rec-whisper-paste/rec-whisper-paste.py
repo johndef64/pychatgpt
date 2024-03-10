@@ -54,9 +54,9 @@ import pychatgpt as op
 
 from datetime import datetime
 import pyperclip as pc
+import keyboard as kb
 import pandas as pd
 import pyautogui
-import keyboard
 import pyaudio
 import wave
 import time
@@ -87,58 +87,74 @@ mics = pd.DataFrame(list)
 # Choose whisper mode
 translate = simple_bool('Transcribe (n) or Translate (y)?\n')
 
-start = 'Alt+Q'
-stop = 'Alt+W'
+
+
+def stream_on(chunk = 1024,  # Number of frames per buffer
+              sample_format = pyaudio.paInt16,  # 16 bits per sample
+              channels = 1, # Mono audio
+              rate = 44100):  # Sampling rate in Hz
+    stream = audio.open(format=sample_format,
+                        channels=channels,
+                        rate=rate,
+                        frames_per_buffer=chunk,
+                        input=True,
+                        #input_device_index=int(input_device_id)
+                        )
+    return stream
+
+def save_audio(frames,
+               filename= 'recorded_audio.mp3',
+               sample_format = pyaudio.paInt16,
+               channels = 1,
+               rate = 44100):
+    # Save the audio data as audio file (wav, mp3)
+    wf = wave.open(filename, 'wb')
+    wf.setnchannels(channels)
+    wf.setsampwidth(audio.get_sample_size(sample_format))
+    wf.setframerate(rate)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+def loop_audio(start='Alt+Q',
+               stop='Alt+W'):
+    while True:
+        if kb.is_pressed(start):
+            stream = stream_on(chunk = 1024)
+
+            frames = []
+            print("Recording...\npress "+stop+" to stop")
+
+            while True:
+                if kb.is_pressed(stop):
+                    print("Recording Stopped.")
+                    break
+                else:
+                    data = stream.read(1024)
+                    frames.append(data)
+
+            save_audio(frames, 'recorded_audio.mp3')
+            break
+
+
+
+start = 'space'
 print("\nTo start record press "+start)
 while True:
 
-    if keyboard.is_pressed(start):
-        stream = audio.open(format=sample_format,
-                            channels=channels,
-                            rate=rate,
-                            frames_per_buffer=chunk,
-                            input=True,
-                            #input_device_index=int(input_device_id)
-                            )
-        frames = []
-        print("Recording...")
-        print("press "+stop+" to stop")
+    loop_audio(start,'alt')
 
-        while True:
-            if keyboard.is_pressed(stop):  # if key 'ctrl + c' is pressed
-                break  # finish the loop
-            else:
-                data = stream.read(chunk)
-                frames.append(data)
+    # audio file to Whisper
+    op.whisper("recorded_audio.mp3", translate,'text',False)
 
-        print("Finished recording.")
+    pc.copy(op.transcript)
+    print(op.transcript)
+    pyautogui.hotkey('ctrl', 'v')
 
-
-        # Save the audio data as audio file (wav, mp3)
-        audio_format = 'mp3'
-        filename = "recorded_audio."+audio_format
-        wf = wave.open(filename, 'wb')
-        wf.setnchannels(channels)
-        wf.setsampwidth(audio.get_sample_size(sample_format))
-        wf.setframerate(rate)
-        wf.writeframes(b''.join(frames))
-        wf.close()
-
-        # audio file to Whisper
-        #audio_file = open("recorded_audio."+audio_format, "rb")
-        if translate:
-            op.whisper_translate("recorded_audio."+audio_format, 'text',False)
-        else:
-            op.whisper("recorded_audio.mp3", 'text',False)
-        pc.copy(op.transcript)
-        print(op.transcript)
-        pyautogui.hotkey('ctrl', 'v')
-
-        with open('whisper_log.txt', 'a', encoding= 'utf-8') as file:
-            file.write('---------------------------')
-            file.write('\n'+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n')
-            file.write(op.transcript+ '\n')
-        print("\nTo start record press "+start)
+    with open('whisper_log.txt', 'a', encoding= 'utf-8') as file:
+        file.write('---------------------------')
+        file.write('\n'+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n')
+        file.write(op.transcript+ '\n')
+    print("\nTo start record press "+start)
 
 
 #%%
