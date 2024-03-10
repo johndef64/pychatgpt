@@ -73,19 +73,20 @@ def check_and_install_requirements(requirements):
 requirements  = ["openai","tiktoken","pandas","pyperclip"]
 check_and_install_requirements(requirements)
 from openai import OpenAI
-import tiktoken
 import pandas as pd
+import tiktoken
 
 if platform.system() == "Linux":
     # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
     subprocess.check_call(["sudo","apt", "install", "xsel"])
     #subprocess.check_call(["sudo","apt", "install", "xclip"])
+
 else:
     pass
 import pyperclip as pc
 
 
-audio_requirements = ["pygame","sounddevice","soundfile"]
+audio_requirements = ["pygame","sounddevice","soundfile","keyboard"]
 def is_package_installed(package_name):
     try:
         output = subprocess.check_output("dpkg -l | grep " + package_name, shell=True)
@@ -96,12 +97,14 @@ def is_package_installed(package_name):
 if platform.system() == "Linux":
     if not is_package_installed("libportaudio2"):
         subprocess.check_call(["sudo","apt-get", "install", "libportaudio2"])  #!sudo apt-get install libportaudio2
+
     else:
         pass
 
 check_and_install_requirements(audio_requirements)
 import sounddevice as sd
 import soundfile as sf
+import keyboard as kb
 import pygame
 
 
@@ -148,6 +151,50 @@ def record_audio(duration=5, filename="audio.mp3"): # duration: in seconds
     sd.wait() # wait until recording is finished
     print('recording ended')
     sf.write(filename, recording, sample_rate) #save audio file
+
+def record_audio_press(filename='recorded_audio.wav',
+                       channels=1,
+                       rate=44100,
+                       subtype='PCM_16',
+                       stop= 'ctrl'):
+    print("Recording... Press "+stop+" to stop")
+
+    # start recording with the given sample rate and channels
+    myrecording = sd.rec(int(rate * 10), samplerate=rate, channels=channels)
+
+    while True:
+        # If 'Alt+W' is pressed stop the recording and break the loop
+        if kb.is_pressed(stop):
+            print("Recording Stopped.")
+            break
+
+    sd.wait()  # wait until recording is finished
+    sf.write(filename, myrecording, rate, subtype)
+
+def loop_audio(start='alt', stop='ctrl',exit='shift', filename='recorded_audio.wav', printinfo=True):
+    if printinfo:
+        print("Press "+start+" to start recording, "+exit+" to exit")
+    while True:
+        # If 'Alt+Q' is pressed start the recording
+        if kb.is_pressed(start):
+            record_audio_press(filename, stop=stop)
+            break
+        elif kb.is_pressed(exit):
+            break
+
+
+
+def while_kb_press(start='alt',stop='ctrl'):
+    while True:
+        if kb.is_pressed(start):
+            print("Press "+stop+" to stop")
+            while True:
+                if kb.is_pressed(stop):  # if key 'ctrl + c' is pressed
+                    break  # finish the loop
+                else:
+                    print('while...')
+                    time.sleep(2)
+            print("Finished loop.")
 
 
 ###### global variables ######
@@ -650,18 +697,7 @@ def japanese_teacher(m,  gpt=model, max = 1000, clip=True):
 
 ###### Talk With ######
 
-def talk_with(who, duration=5, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1-hd', max=1000, printall=False):
-    record_audio(duration, "input.mp3")
-    whisper("input.mp3", print_transcriprion=printall)
-    if who in assistants:
-        system = assistants[who]
-    else:
-        add_persona(who, language)
-        system = ''
-    send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
-    text2speech(reply,filename="output.mp3", voice=voice, play=True, model=tts)
-
-def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1-hd',  max=1000, printall=False):
+def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',  max=1000, printall=False):
     if who in assistants:
         system = assistants[who]
     else:
@@ -670,7 +706,30 @@ def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts
     send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
     text2speech(reply,filename="output.mp3", voice=voice, play=True, model=tts)
 
+def talk_with(who, duration=5, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=1000, printall=False):
+    #record_audio(duration, "input.mp3")
+    loop_audio(start='alt', stop='ctrl', filename='input.wav', printinfo=printall)
+    whisper("input.wav", print_transcriprion=printall)
+    if who in assistants:
+        system = assistants[who]
+    else:
+        add_persona(who, language)
+        system = ''
+    send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
+    text2speech(reply,filename="output.mp3", voice=voice, play=True, model=tts)
 
+def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
+    print('Press '+chat+' to chat, '+exit+' to exit.')
+    while True:
+        if kb.is_pressed(chat):
+            talk_with(who, voice=voice, language=language, gpt=gpt, tts= tts, max=max, printall=printall)
+            print('Press '+chat+' to chat, '+exit+' to exit.')
+        elif kb.is_pressed(exit):
+            print('Chat Stopped')
+            break
+            
+#%%
+#talk_with_loop('julia', tts= 'tts-1')
 #%%
 ### trial ###
 #clearchat()
@@ -689,3 +748,4 @@ def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts
 #'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
 
 #%%
+
