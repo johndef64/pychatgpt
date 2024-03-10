@@ -85,7 +85,7 @@ mics = pd.DataFrame(list)
 #input_device_id = input("/Select your microphone from the following list:\n"+mics.to_string(index=False))
 
 # Choose whisper mode
-translate = simple_bool('Transcribe (n) or Translate (y)?\n')
+translate = False#simple_bool('Transcribe (n) or Translate (y)?\n')
 
 
 
@@ -137,11 +137,11 @@ def loop_audio(start='Alt+Q',
 
 
 
-start = 'space'
+start = 'alt'
 print("\nTo start record press "+start)
 while True:
 
-    loop_audio(start,'alt')
+    loop_audio(start,'ctrl')
 
     # audio file to Whisper
     op.whisper("recorded_audio.mp3", translate,'text',False)
