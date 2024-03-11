@@ -70,11 +70,12 @@ def check_and_install_requirements(requirements):
         else:
             exit()
 
-requirements  = ["openai","tiktoken","pandas","pyperclip","pillow","gdown"]
+requirements  = ["openai","tiktoken","pandas","pyperclip","gdown"]
 check_and_install_requirements(requirements)
 from openai import OpenAI
 import pandas as pd
 import tiktoken
+
 
 if platform.system() == "Linux":
     # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
@@ -87,6 +88,7 @@ else:
 import pyperclip as pc
 
 
+### audio requirements
 audio_requirements = ["pygame","sounddevice","soundfile","keyboard"]
 def is_package_installed(package_name):
     try:
@@ -108,6 +110,21 @@ import sounddevice as sd
 import soundfile as sf
 import keyboard as kb
 import pygame
+
+
+### image requirements
+try:
+    import PIL
+except ImportError:
+    subprocess.check_call(['pip', 'install', 'pillow'])
+
+import gdown
+import base64
+from PIL import Image
+from io import BytesIO
+from datetime import datetime
+import matplotlib.pyplot as plt
+from PIL.PngImagePlugin import PngInfo
 
 
 
@@ -648,13 +665,6 @@ def send_image(message="What’s in this image?", url="https://upload.wikimedia.
                 print(chunk_message, end='')
 
 
-import base64
-from io import BytesIO
-from PIL import Image
-from PIL.PngImagePlugin import PngInfo
-import gdown
-import matplotlib.pyplot as plt
-from datetime import datetime
 
 # dalle_models= ['dall-e-2', dall-e-3]
 # sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
@@ -935,4 +945,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
 ######### ASSISTANT DUMP #########
 #'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
 
-#%%
+
+
+
