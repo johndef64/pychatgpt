@@ -70,7 +70,7 @@ def check_and_install_requirements(requirements):
         else:
             exit()
 
-requirements  = ["openai","tiktoken","pandas","pyperclip","pillow"]
+requirements  = ["openai","tiktoken","pandas","pyperclip","pillow","gdown"]
 check_and_install_requirements(requirements)
 from openai import OpenAI
 import pandas as pd
