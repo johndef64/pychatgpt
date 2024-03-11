@@ -198,10 +198,14 @@ def while_kb_press(start='alt',stop='ctrl'):
 ###### global variables ######
 
 model = 'gpt-3.5-turbo-16k'
-models = ['gpt-3.5-turbo',     #0
-          'gpt-3.5-turbo-16k', #1
-          'gpt-4'              #2
-          ]
+models = ['gpt-3.5-turbo',
+          'gpt-3.5-turbo-16k',
+          'gpt-3.5-turbo-0125',
+          'gpt-4',
+          'gpt-4-32k',
+          'gpt-4-0125-preview', #Returns a maximum of 4,096 output tokens.
+          'gpt-4-1106-preview' #Returns a maximum of 4,096 output tokens.
+          ] #https://openai.com/pricing
 assistant = ''
 transcript = ''
 persona = ''
@@ -501,14 +505,16 @@ def send_message(message,
     global token_limit
     global reply
 
-    if model == 'gpt-3.5-turbo-16k':
-        token_limit = 16384 - (maxtoken*1.3)
     if model == 'gpt-3.5-turbo':
         token_limit = 4096 - (maxtoken*1.3)
+    if model == 'gpt-3.5-turbo-16k' or model == 'gpt-3.5-turbo-0125':
+        token_limit = 16384 - (maxtoken*1.3)
     if model == 'gpt-4':
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
+    if model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview':
+        token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
     if message.startswith("@"):
