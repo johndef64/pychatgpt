@@ -668,12 +668,13 @@ def send_image(message="What’s in this image?", url="https://upload.wikimedia.
 
 # dalle_models= ['dall-e-2', dall-e-3]
 # sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
-def create_image(prompt= "a cute kitten" ,
+# response_format ['url', 'b64_json']
+def create_image(prompt= "a cute kitten",
                  model="dall-e-2",
                  size="256x256",
-                 response_format = 'url', #'b64_json'
-                 quality= "standard",
-                 timeflag=True):
+                 response_format='url',
+                 quality="standard",
+                 time_flag=True):
 
     if model == "dall-e-2":
         response = client.images.generate(
@@ -696,7 +697,7 @@ def create_image(prompt= "a cute kitten" ,
     image_url = response.data[0].url
     image_b64 = response.data[0].b64_json
 
-    if timeflag:
+    if time_flag:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         base_path= r''
         filename = os.path.join(base_path, timestamp+'.png')
