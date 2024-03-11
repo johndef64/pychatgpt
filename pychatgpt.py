@@ -70,7 +70,7 @@ def check_and_install_requirements(requirements):
         else:
             exit()
 
-requirements  = ["openai","tiktoken","pandas","pyperclip"]
+requirements  = ["openai","tiktoken","pandas","pyperclip","pillow"]
 check_and_install_requirements(requirements)
 from openai import OpenAI
 import pandas as pd
@@ -78,8 +78,8 @@ import tiktoken
 
 if platform.system() == "Linux":
     # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
-    subprocess.check_call(["sudo","apt", "install", "xsel"])
-    #subprocess.check_call(["sudo","apt", "install", "xclip"])
+    #subprocess.check_call(["sudo","apt", "install", "xsel"])
+    subprocess.check_call(["sudo","apt", "install", "xclip"])
 
 else:
     pass
@@ -646,23 +646,75 @@ def send_image(message="What’s in this image?", url="https://upload.wikimedia.
                 print(chunk_message, end='')
 
 
+import base64
+from io import BytesIO
+from PIL import Image
+from PIL.PngImagePlugin import PngInfo
+import gdown
+import matplotlib.pyplot as plt
+from datetime import datetime
+
 # dalle_models= ['dall-e-2', dall-e-3]
 # sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
-def create_image(prompt= "a latina woman, pale skin, red lipstick, heavy makeup, influencer " , model="dall-e-2", size="1024x1024"):
-    response = client.images.generate(
-        model=model,
-        prompt=prompt,
-        size=size,
-        #response_format='b64_json',
-        quality="standard",
-        n=1,
-    )
+def create_image(prompt= "a cute kitten" ,
+                 model="dall-e-2",
+                 size="256x256",
+                 response_format = 'url', #'b64_json'
+                 quality= "standard",
+                 timeflag=True):
+
+    if model == "dall-e-2":
+        response = client.images.generate(
+            model=model,
+            prompt=prompt,
+            response_format=response_format,
+            size=size,
+            n=1,
+        )
+    elif model == "dall-e-3":
+        response = client.images.generate(
+            model=model,
+            prompt=prompt,
+            response_format=response_format,
+            quality=quality,
+            size=size,
+            n=1,
+        )
 
     image_url = response.data[0].url
-    pc.copy(image_url)
-    print(image_url)
+    image_b64 = response.data[0].b64_json
 
-create_image()
+    if timeflag:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        base_path= r''
+        filename = os.path.join(base_path, timestamp+'.png')
+    else:
+        filename = 'image.png'
+
+    if response_format == 'b64_json':
+        # Decode the base64-encoded image data
+        decoded_image = base64.b64decode(image_b64)
+        # Create a PIL Image object from the decoded image data
+        image = Image.open(BytesIO(decoded_image))
+        image.save(filename)
+    elif response_format == 'url':
+        pc.copy(str(image_url))
+        print('url:',image_url)
+        gdown.download(image_url,filename, quiet=True)
+
+    # Create a PngInfo object and add the metadata
+    image = Image.open(filename)
+    metadata = PngInfo()
+    metadata.add_text("key", prompt)
+    image.save(filename, pnginfo=metadata)
+
+
+def display_image(filename, dpi=200):
+    image = Image.open(filename)
+    plt.figure(dpi=dpi)
+    plt.imshow(image)
+    plt.axis('off')
+    plt.show()
 
 '''
 Model	Quality	Resolution	Price
@@ -676,10 +728,12 @@ DALL·E 2		        1024×1024	            $0.020 / image
 '''
 
 ####### Audio Models #######
-# Model	Usage
-# Whisper	$0.006 / minute (rounded to the nearest second)
-# TTS	$0.015 / 1K characters
-# TTS HD	$0.030 / 1K characters
+'''
+Model	Usage
+Whisper	$0.006 / minute (rounded to the nearest second)
+TTS	    $0.015 / 1K characters
+TTS HD	$0.030 / 1K characters
+'''
 
 ####### Whisper #######
 def whisper(filepath,
@@ -702,7 +756,7 @@ def whisper(filepath,
         print(transcript)
     audio_file.close()
 
-# response_format =  json, text, srt, verbose_json, vtt
+# response_format =  ["json", "text", "srt", "verbose_json", "vtt"]
 
 
 ####### text-to-speech #######
