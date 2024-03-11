@@ -143,7 +143,7 @@ def play_audio(file_name):
     file.close()
 
 
-def record_audio(duration=5, filename="audio.mp3"): # duration: in seconds
+def record_audio(duration=5, filename="recorded_audio.mp3"): # duration: in seconds
     print('start recording for',str(duration),'seconds')
     sample_rate = 44100
     channels = 2
@@ -157,13 +157,11 @@ def record_audio_press(filename='recorded_audio.wav',
                        rate=44100,
                        subtype='PCM_16',
                        stop= 'ctrl'):
-    print("Recording... Press "+stop+" to stop")
-
     # start recording with the given sample rate and channels
+    print("Recording... Press "+stop+" to stop")
     myrecording = sd.rec(int(rate * 10), samplerate=rate, channels=channels)
-
     while True:
-        # If 'Alt+W' is pressed stop the recording and break the loop
+        # If  'Key'  is pressed stop the recording and break the loop
         if kb.is_pressed(stop):
             print("Recording Stopped.")
             break
@@ -175,7 +173,7 @@ def loop_audio(start='alt', stop='ctrl',exit='shift', filename='recorded_audio.w
     if printinfo:
         print("Press "+start+" to start recording, "+exit+" to exit")
     while True:
-        # If 'Alt+Q' is pressed start the recording
+        # If 'Key' is pressed start the recording
         if kb.is_pressed(start):
             record_audio_press(filename, stop=stop)
             break
