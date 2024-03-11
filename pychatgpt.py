@@ -692,6 +692,7 @@ def send_to(m, who,  gpt=model, max = 1000, clip=True):
         sys = who
     send_message(m,system=sys, maxtoken=max, model=gpt, to_clipboard=clip)
 
+# Assistants
 def chatgpt(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clipboard=clip)
 def creator(m,  gpt=model, max = 1000, clip=True):
@@ -713,6 +714,8 @@ def roger(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clipboard=clip)
 def robert(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=clip)
+    
+ # Characters
 def bestie(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clipboard=clip)
 def julia(m,  gpt=model, max = 1000, clip=True):
