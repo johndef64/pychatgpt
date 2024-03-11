@@ -204,7 +204,8 @@ models = ['gpt-3.5-turbo',
           'gpt-4',
           'gpt-4-32k',
           'gpt-4-0125-preview', #Returns a maximum of 4,096 output tokens.
-          'gpt-4-1106-preview' #Returns a maximum of 4,096 output tokens.
+          'gpt-4-1106-preview', #Returns a maximum of 4,096 output tokens.
+          'gpt-4-vision-preview'
           ] #https://openai.com/pricing
 assistant = ''
 transcript = ''
@@ -513,7 +514,7 @@ def send_message(message,
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview':
+    if model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
@@ -608,6 +609,71 @@ def send_message(message,
     if to_clipboard:
         pc.copy(reply)
 
+####### Image Models #######
+
+def send_image(message="What’s in this image?", url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg", maxtoken=1000, printreply=True, lag=0.00):
+    global reply
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": message},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": url,
+                        },
+                    },
+                ],
+            }
+        ],
+        max_tokens=maxtoken,
+        stream=True,
+    )
+    #reply = response.choices[0].message.content
+    collected_chunks = []
+    collected_messages = []
+    for chunk in response:
+        collected_chunks.append(chunk)  # save the event response
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+        collected_messages.append(chunk_message)
+        reply = ''.join(collected_messages).strip()
+        if printreply:
+            if chunk_message is not None:
+                time.sleep(lag)
+                print(chunk_message, end='')
+
+
+# dalle_models= ['dall-e-2', dall-e-3]
+# sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
+def create_image(prompt= "a latina woman, pale skin, red lipstick, heavy makeup, influencer " , model="dall-e-2", size="1024x1024"):
+    response = client.images.generate(
+        model=model,
+        prompt=prompt,
+        size=size,
+        #response_format='b64_json',
+        quality="standard",
+        n=1,
+    )
+
+    image_url = response.data[0].url
+    pc.copy(image_url)
+    print(image_url)
+
+create_image()
+
+'''
+Model	Quality	Resolution	Price
+DALL·E 3	Standard	1024×1024	            $0.040 / image
+            Standard	1024×1792, 1792×1024	$0.080 / image
+DALL·E 3	HD	        1024×1024	            $0.080 / image
+            HD	        1024×1792, 1792×1024	$0.120 / image
+DALL·E 2		        1024×1024	            $0.020 / image
+                        512×512	                $0.018 / image
+                        256×256	                $0.016 / image
+'''
 
 ####### Audio Models #######
 # Model	Usage
@@ -718,7 +784,7 @@ def roger(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clipboard=clip)
 def robert(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=clip)
-    
+
  # Characters
 def bestie(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clipboard=clip)
@@ -801,7 +867,8 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
 #talk_with('julia',8,'nova')
 #talk_with('Adolf Hitler',8, 'onyx')
 #talk_with('Son Goku (Dragonball)',8, 'fable')
-
+#send_image(url='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
+#send_image(url='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
 #%%
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits
