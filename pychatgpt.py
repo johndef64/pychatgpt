@@ -694,7 +694,7 @@ def display_image(filename, jupyter = False, plotlib=True, dpi=200):
 # response_format ['url', 'b64_json']
 def create_image(prompt= "a cute kitten",
                  model="dall-e-2",
-                 size="256x256",
+                 size='512x512',
                  response_format='url',
                  quality="standard",
                  time_flag=True,
@@ -709,6 +709,9 @@ def create_image(prompt= "a cute kitten",
             n=1,
         )
     elif model == "dall-e-3":
+        if size in ['256x256', '512x512']:
+            size = '1024x1024'
+
         response = client.images.generate(
             model=model,
             prompt=prompt,
@@ -750,7 +753,11 @@ def create_image(prompt= "a cute kitten",
 
 #create_image(response_format='b64_json')
 
-# def replicate():
+def replicate(url, styler='', model ='dall-e-2'):
+    send_image(url=url)
+    create_image(prompt=reply, response_format='b64_json', model=model, show_image=True)
+
+#replicate('https://avatars.githubusercontent.com/u/116732521?v=4')
 
 '''
 Model	Quality	Resolution	Price
