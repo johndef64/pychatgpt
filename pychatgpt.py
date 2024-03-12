@@ -548,17 +548,19 @@ def send_message(message,
     expand_chat(message)
 
     # add system instruction
-    sys_duplicate = []
-    for entry in chat_gpt:
-        x = system == entry.get('content')
-        sys_duplicate.append(x)
-        if x:
-            break
-
     if not reinforcement:
-        if system != '' and not any(sys_duplicate):
-            chat_gpt.append({"role": "system",
-                             "content": system})
+        sys_duplicate = []
+        for entry in chat_gpt:
+            x = system == entry.get('content')
+            sys_duplicate.append(x)
+            if x:
+                break
+    else:
+        sys_duplicate = [False]
+
+    if system != '' and not any(sys_duplicate):
+        chat_gpt.append({"role": "system",
+                         "content": system})
 
     if assistant != '' and not any(sys_duplicate):
         chat_gpt.append({"role": "system",
