@@ -448,8 +448,13 @@ def ask_gpt(prompt,
 # chat function ================================
 
 def expand_chat(message, role="user"):
-    #print('default setting (role = "user") to change role replace with "assistant" or "system"')
-    chat_gpt.append({"role": role, "content": message})
+    # default setting (role = "user") to change role replace with "assistant" or "system"
+    if message.startswith("@"):
+        clearchat()
+        message = message.lstrip("@")
+        chat_gpt.append({"role": role, "content": message})
+    else:
+        chat_gpt.append({"role": role, "content": message})
 
 
 def build_messages(chat):
@@ -538,10 +543,10 @@ def send_message(message,
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
-    if message.startswith("@"):
-        clearchat()
-        message = message.lstrip("@")
+    # expand chat (user):
+    expand_chat(message)
 
+    # add system instructions:
     sys_duplicate = []
     for entry in chat_gpt:
         x = system == entry.get('content')
@@ -579,8 +584,8 @@ def send_message(message,
             chat_gpt.append({"role": "system", "content": system})
 
     # send message----------------------------
-    expand_chat(message)
     messages = build_messages(chat_gpt)
+    print(messages)
 
     response = client.chat.completions.create(
         model = model,
@@ -613,7 +618,7 @@ def send_message(message,
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
-        # expand chat--------------------------------
+    # expand chat:
     chat_gpt.append({"role": "assistant", "content":reply})
 
     count = Tokenizer()
@@ -957,9 +962,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
-
-#%%
-
 
 #%%
 
