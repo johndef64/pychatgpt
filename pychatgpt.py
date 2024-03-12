@@ -125,6 +125,7 @@ from io import BytesIO
 from datetime import datetime
 import matplotlib.pyplot as plt
 from PIL.PngImagePlugin import PngInfo
+from IPython.display import display
 
 
 
@@ -641,21 +642,16 @@ def send_message(message,
 
 ####### Image Models #######
 
-def send_image(message="What’s in this image?", url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg", maxtoken=1000, printreply=True, lag=0.00):
+def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg", message="What’s in this image?", maxtoken=1000, printreply=True, lag=0.00):
     global reply
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
-        messages=[
+        messages = [
             {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": message},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": url,
-                        },
-                    },
+                    {"type": "image_url", "image_url": {"url": url}},
                 ],
             }
         ],
@@ -677,6 +673,22 @@ def send_image(message="What’s in this image?", url="https://upload.wikimedia.
 
 
 
+
+def display_image(filename, jupyter = False, plotlib=True, dpi=200):
+    if jupyter:
+        image = Image.open(filename)
+        display(image)
+    elif plotlib:
+        image = Image.open(filename)
+        plt.figure(dpi=dpi)
+        plt.imshow(image)
+        plt.axis('off')
+        plt.show()
+    else:
+        image = Image.open(filename)
+        image.show()
+
+
 # dalle_models= ['dall-e-2', dall-e-3]
 # sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
 # response_format ['url', 'b64_json']
@@ -685,7 +697,8 @@ def create_image(prompt= "a cute kitten",
                  size="256x256",
                  response_format='url',
                  quality="standard",
-                 time_flag=True):
+                 time_flag=True,
+                 show_image=True):
 
     if model == "dall-e-2":
         response = client.images.generate(
@@ -732,13 +745,12 @@ def create_image(prompt= "a cute kitten",
     metadata.add_text("key", prompt)
     image.save(filename, pnginfo=metadata)
 
+    if show_image:
+        display_image(filename)
 
-def display_image(filename, dpi=200):
-    image = Image.open(filename)
-    plt.figure(dpi=dpi)
-    plt.imshow(image)
-    plt.axis('off')
-    plt.show()
+#create_image(response_format='b64_json')
+
+# def replicate():
 
 '''
 Model	Quality	Resolution	Price
@@ -938,6 +950,9 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
+
+#%%
+
 
 #%%
 
