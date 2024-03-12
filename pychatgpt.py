@@ -541,23 +541,34 @@ def send_message(message,
         clearchat()
         message = message.lstrip("@")
 
-    if system != '':
+    sys_duplicate = []
+    for entry in chat_gpt:
+        x = system == entry.get('content')
+        sys_duplicate.append(x)
+        if x:
+            break
+
+    if system != '' and not any(sys_duplicate):
         chat_gpt.append({"role": "system",
                          "content": system})
-    if assistant != '':
+
+    if assistant != '' and not any(sys_duplicate):
         chat_gpt.append({"role": "system",
                          "content": assistant})
-
 
     # check token limit---------------------
     if total_tokens > token_limit:
         print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
         cut_length = 0
-        if model == 'gpt-3.5-turbo-16k':
+        if 36500 < token_limit < 128500:
+            cut_length = len(chat_gpt) // 75
+        if 16500 < token_limit < 36500:
+            cut_length = len(chat_gpt) // 18
+        if 8500 < token_limit < 16500:
             cut_length = len(chat_gpt) // 10
-        if model == 'gpt-4':
+        if 4500 < token_limit < 8500:
             cut_length = len(chat_gpt) // 6
-        if model == 'gpt-3.5-turbo':
+        if 0 < token_limit < 4500:
             cut_length = len(chat_gpt) // 3
         chat_gpt = chat_gpt[cut_length:]
 
@@ -879,7 +890,7 @@ def japanese_learner(m, repeat= 3, voice='nova', speed=1):
     text2speech(phrase,voice=voice, speed = speed, play=True)
     i = 0
     while i in range(repeat-1):
-        time.sleep(len(phrase)/6)
+        time.sleep(len(phrase)/3)
         play_audio("speech.mp3")
         i += 1
 
@@ -891,7 +902,7 @@ def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
     text2speech(phrase,voice=voice, speed = speed, play=True)
     i = 0
     while i in range(repeat-1):
-        time.sleep(len(phrase)/6)
+        time.sleep(len(phrase)/4)
         play_audio("speech.mp3")
         i += 1
 
@@ -929,6 +940,7 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
             break
 
 #%%
+
 ### trial ###
 #clearchat()
 #talk_with('julia',8,'nova')
