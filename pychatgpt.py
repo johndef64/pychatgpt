@@ -544,8 +544,9 @@ def send_message(message,
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
-    # expand chat
-    expand_chat(message)
+    if message.startswith("@"):
+        clearchat()
+        message = message.lstrip("@")
 
     # add system instruction
     if not reinforcement:
@@ -565,6 +566,9 @@ def send_message(message,
     if assistant != '' and not any(sys_duplicate):
         chat_gpt.append({"role": "system",
                          "content": assistant})
+
+    # expand chat
+    expand_chat(message)
 
     # check token limit---------------------
     if total_tokens > token_limit:
@@ -964,9 +968,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
-
-#%%
-
 
 #%%
 
