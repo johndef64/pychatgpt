@@ -452,7 +452,6 @@ def expand_chat(message, role="user"):
     if message.startswith("@"):
         clearchat()
         message = message.lstrip("@")
-        message = message.lstrip("@")
         chat_gpt.append({"role": role, "content": message})
     else:
         chat_gpt.append({"role": role, "content": message})
@@ -522,7 +521,8 @@ def send_message(message,
                  printuser=False,
                  printtoken=True,
                  savechat=True,
-                 to_clipboard=False
+                 to_clipboard=False,
+                 reinforcement=False
                  ):
     global assistant
     global persona
@@ -555,9 +555,10 @@ def send_message(message,
         if x:
             break
 
-    if system != '' and not any(sys_duplicate):
-        chat_gpt.append({"role": "system",
-                         "content": system})
+    if not reinforcement:
+        if system != '' and not any(sys_duplicate):
+            chat_gpt.append({"role": "system",
+                             "content": system})
 
     if assistant != '' and not any(sys_duplicate):
         chat_gpt.append({"role": "system",
@@ -871,9 +872,9 @@ def creator(m,  gpt=model, max = 1000, clip=True):
 def delamain(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clipboard=clip)
 def crick(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
 def watson(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
 def newton(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clipboard=clip)
 def galileo(m,  gpt=model, max = 1000, clip=True):
