@@ -448,9 +448,10 @@ def ask_gpt(prompt,
 # chat function ================================
 
 def expand_chat(message, role="user"):
-    # default setting (role = "user") to change role replace with "assistant" or "system"
+    #print('default setting (role = "user") to change role replace with "assistant" or "system"')
     if message.startswith("@"):
         clearchat()
+        message = message.lstrip("@")
         message = message.lstrip("@")
         chat_gpt.append({"role": role, "content": message})
     else:
@@ -543,10 +544,10 @@ def send_message(message,
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
-    # expand chat (user):
+    # expand chat
     expand_chat(message)
 
-    # add system instructions:
+    # add system instruction
     sys_duplicate = []
     for entry in chat_gpt:
         x = system == entry.get('content')
@@ -585,7 +586,6 @@ def send_message(message,
 
     # send message----------------------------
     messages = build_messages(chat_gpt)
-
     response = client.chat.completions.create(
         model = model,
         messages = messages,
@@ -617,7 +617,7 @@ def send_message(message,
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
-    # expand chat:
+        # expand chat--------------------------------
     chat_gpt.append({"role": "assistant", "content":reply})
 
     count = Tokenizer()
@@ -886,7 +886,7 @@ def roger(m,  gpt=model, max = 1000, clip=True):
 def robert(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=clip)
 
- # Characters
+# Characters
 def bestie(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clipboard=clip)
 def julia(m,  gpt=model, max = 1000, clip=True):
@@ -961,6 +961,9 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
+
+#%%
+
 
 #%%
 
