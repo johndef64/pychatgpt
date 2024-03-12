@@ -585,7 +585,6 @@ def send_message(message,
 
     # send message----------------------------
     messages = build_messages(chat_gpt)
-    print(messages)
 
     response = client.chat.completions.create(
         model = model,
