@@ -544,7 +544,34 @@ def clearchat():
     print('*chat cleared*\n')
 
 
-# request function ================================
+def tokenizer(chat_gpt, print_token=True):
+    global total_tokens
+    #tokens = count.tokens(str(messages)) + count.tokens(reply)
+    context_fix = (str(chat_gpt).replace("{'role': 'system', 'content':", "")
+                   .replace("{'role': 'user', 'content':", "")
+                   .replace("{'role': 'assistant', 'content':", "")
+                   .replace("},", ""))
+    tokens = Tokenizer().tokens(context_fix)
+    total_tokens += tokens
+    if print_token:
+        print('\n <prompt tokens:', str(total_tokens)+'>')
+    return total_tokens
+
+def write_log(reply,filename='chat_log.txt'):
+    with open(filename, 'a', encoding= 'utf-8') as file:
+        file.write('---------------------------')
+    file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+    if persona != '' and persona.find(',') != -1:
+        comma_ind = persona.find(',')
+        persona_p = persona[:comma_ind]
+    elif persona != '' and persona.find(',') == -1:
+        persona_p = persona
+    else:
+        persona_p = model
+    file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+
+
+# request functions ================================
 '''
 Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
 gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
@@ -564,7 +591,7 @@ def send_message(message,
                  system='',
                  printreply=True,
                  printuser=False,
-                 printtoken=True,
+                 print_token=True,
                  savechat=True,
                  to_clipboard=False,
                  reinforcement=False
@@ -668,7 +695,7 @@ def send_message(message,
                 time.sleep(lag)
                 print(chunk_message, end='')
 
-    time.sleep(1)
+    time.sleep(0.85)
     if printuser:
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
@@ -677,31 +704,11 @@ def send_message(message,
     chat_gpt.append({"role": "assistant", "content":reply})
 
     # count tokens--------------------------------
-    count = Tokenizer()
-    #tokens = count.tokens(str(messages)) + count.tokens(reply)
-    context_fix = (str(chat_gpt).replace("{'role': 'system', 'content':", "")
-                   .replace("{'role': 'user', 'content':", "")
-                   .replace("{'role': 'assistant', 'content':", "")
-                   .replace("},", ""))
-    tokens = count.tokens(context_fix)
-
-    total_tokens += tokens
-    if printtoken: print('\n => prompt tokens:', total_tokens)
-
+    total_tokens = tokenizer(chat_gpt, print_token)
 
     # Add the assistant's reply to the chat log-------------
     if savechat:
-        with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
-            file.write('---------------------------')
-            file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-            if persona != '' and persona.find(',') != -1:
-                comma_ind = persona.find(',')
-                persona_p = persona[:comma_ind]
-            elif persona != '' and persona.find(',') == -1:
-                persona_p = persona
-            elif persona == '':
-                persona_p = model
-            file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+        write_log(reply)
 
     if to_clipboard:
         pc.copy(reply)
@@ -712,17 +719,20 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-# need to remove in send_image at the end {"type": "image_url",  from chat to change model!
-# content is a list [] I have to replace ("type": "image_url", "image_url":) with "type": "text", "text":
 
-def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg", message="What’s in this image?", maxtoken=1000, printreply=True, lag=0.00):
+def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+               message="What’s in this image?",
+               maxtoken=1000, printreply=True, lag=0.00):
     global reply
+    global chat_gpt
+    global total_tokens
+
     if url.startswith('http'):
         pass
     else:
         base64_image = encode_image(url)
         url = f"data:image/jpeg;base64,{base64_image}"
-    print(url)
+    print('Image:',url)
     # expand chat
     chat_gpt.append({"role": 'user',
                      "content": [
@@ -738,24 +748,10 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
-        #messages = [
-        #    {
-        #        "role": "user",
-        #        "content": [
-        #            {"type": "text", "text": message},
-        #            {"type": "image_url",
-        #                "image_url": {
-        #                    "url": url
-        #                }
-        #             },
-        #        ],
-        #    }
-        #],
         messages=messages,
         max_tokens=maxtoken,
         stream=True,
     )
-
 
     #reply = response.choices[0].message.content
     collected_chunks = []
@@ -770,7 +766,15 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
                 time.sleep(lag)
                 print(chunk_message, end='')
 
+    # reset compatibility with the other models
+    time.sleep(0.85)
+    # expand chat--------------------------------
+    chat_gpt.append({"role": "assistant", "content":reply})
+    chat_gpt[-2] = {"role": "user", "content": message+":\nImage:"+url}
     # content is a list [] I have to replace ("image_url", "text") and GO!
+
+    # count tokens-------------------------------
+    total_tokens = tokenizer(chat_gpt, True)
 
 
 
@@ -1033,7 +1037,7 @@ def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts
     else:
         add_persona(who, language)
         system = ''
-    send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
+    send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
     text2speech(reply,filename="chat_with.mp3", voice=voice, play=True, model=tts)
 
 def talk_with(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=1000, printall=False, duration=5):
@@ -1045,7 +1049,7 @@ def talk_with(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=
     else:
         add_persona(who, language)
         system = ''
-    send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, printtoken=False)
+    send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
     text2speech(reply,filename="talk_with.mp3", voice=voice, play=True, model=tts)
 
 def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
@@ -1057,8 +1061,32 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
+
+url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
+
+
+
+
+#%%
+#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
+#%%
+#send_image(url,'Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
+#%%
+#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
+
 #%%
 
+
+
+
+
+
+
+
+
+
+
+#%%
 
 ### trial ###
 #clearchat()
