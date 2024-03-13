@@ -422,6 +422,12 @@ def get_embeddings(input="Your text string goes here", ):
     #print(response.data[0].embedding)
     return response.data[0].embedding
 
+'''
+MODEL	                ~ PAGES PER 1$	PERFORMANCE ON MTEB EVAL	MAX INPUT
+text-embedding-3-small	62,500	        62.3%	                    8191
+text-embedding-3-large	9,615	        64.6%	                    8191
+text-embedding-ada-002	12,500	        61.0%	                    8191
+'''
 
 ###### ask function (question-answer) ######
 def ask_gpt(prompt,
