@@ -411,8 +411,19 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
         file.write('Auto-GPT\n\nchat LOG:\n')
         print(str('\nchat_log.txt created at ' + os.getcwd()))
 
+##################  REQUESTS #####################
 
-###### ask functions ######
+# embeddings
+def get_embeddings(input="Your text string goes here", ):
+    response = client.embeddings.create(
+        input=input,
+        model="text-embedding-3-small"
+    )
+    #print(response.data[0].embedding)
+    return response.data[0].embedding
+
+
+###### ask function (question-answer) ######
 def ask_gpt(prompt,
             model = model,
             system= 'you are an helpful assistant',
