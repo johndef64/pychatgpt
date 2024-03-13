@@ -615,8 +615,6 @@ def send_message(message,
         chat_gpt.append({"role": "system",
                          "content": assistant})
 
-    # expand chat
-    expand_chat(message)
 
     # check token limit---------------------
     if total_tokens > token_limit:
@@ -638,6 +636,9 @@ def send_message(message,
             add_persona(persona)
         if keep_persona and system != '':
             chat_gpt.append({"role": "system", "content": system})
+
+    # expand chat
+    expand_chat(message)
 
     # send message----------------------------
     messages = build_messages(chat_gpt)
@@ -711,6 +712,8 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
+# need to remove in send_image at the end {"type": "image_url",  from chat to change model!
+# content is a list [] I have to replace ("type": "image_url", "image_url":) with "type": "text", "text":
 
 def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg", message="What’s in this image?", maxtoken=1000, printreply=True, lag=0.00):
     global reply
@@ -719,25 +722,41 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     else:
         base64_image = encode_image(url)
         url = f"data:image/jpeg;base64,{base64_image}"
+    print(url)
+    # expand chat
+    chat_gpt.append({"role": 'user',
+                     "content": [
+                         {"type": "text", "text": message},
+                         {"type": "image_url", "image_url": {
+                             "url": url
+                         }
+                          },
+                     ]})
+
+    # send message----------------------------
+    messages = build_messages(chat_gpt)
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": message},
-                    {"type": "image_url",
-                     "image_url": {
-                         "url": url
-                     }
-                     },
-                ],
-            }
-        ],
+        #messages = [
+        #    {
+        #        "role": "user",
+        #        "content": [
+        #            {"type": "text", "text": message},
+        #            {"type": "image_url",
+        #                "image_url": {
+        #                    "url": url
+        #                }
+        #             },
+        #        ],
+        #    }
+        #],
+        messages=messages,
         max_tokens=maxtoken,
         stream=True,
     )
+
+
     #reply = response.choices[0].message.content
     collected_chunks = []
     collected_messages = []
@@ -750,6 +769,8 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+
+    # content is a list [] I have to replace ("image_url", "text") and GO!
 
 
 
