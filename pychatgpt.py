@@ -557,18 +557,18 @@ def tokenizer(chat_gpt, print_token=True):
         print('\n <prompt tokens:', str(total_tokens)+'>')
     return total_tokens
 
-def write_log(reply,filename='chat_log.txt'):
+def write_log(reply, message, filename='chat_log.txt'):
     with open(filename, 'a', encoding= 'utf-8') as file:
         file.write('---------------------------')
-    file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-    if persona != '' and persona.find(',') != -1:
-        comma_ind = persona.find(',')
-        persona_p = persona[:comma_ind]
-    elif persona != '' and persona.find(',') == -1:
-        persona_p = persona
-    else:
-        persona_p = model
-    file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+        if persona != '' and persona.find(',') != -1:
+            comma_ind = persona.find(',')
+            persona_p = persona[:comma_ind]
+        elif persona != '' and persona.find(',') == -1:
+            persona_p = persona
+        else:
+            persona_p = model
+        file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
 
 # request functions ================================
@@ -695,7 +695,7 @@ def send_message(message,
                 time.sleep(lag)
                 print(chunk_message, end='')
 
-    time.sleep(0.85)
+    time.sleep(1)
     if printuser:
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
@@ -708,7 +708,7 @@ def send_message(message,
 
     # Add the assistant's reply to the chat log-------------
     if savechat:
-        write_log(reply)
+        write_log(reply, message)
 
     if to_clipboard:
         pc.copy(reply)
@@ -1031,7 +1031,8 @@ def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
 
 ###### Talk With ######
 
-def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',  max=1000, printall=False):
+talk_model = 'gpt-4-turbo'
+def chat_with(who, message, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
     if who in assistants:
         system = assistants[who]
     else:
@@ -1040,7 +1041,7 @@ def chat_with(message, who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts
     send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
     text2speech(reply,filename="chat_with.mp3", voice=voice, play=True, model=tts)
 
-def talk_with(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=1000, printall=False, duration=5):
+def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, duration=5):
     #record_audio(duration, "input.mp3")
     loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printall)
     whisper("temp.wav", print_transcriprion=printall)
@@ -1052,7 +1053,7 @@ def talk_with(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=
     send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
     text2speech(reply,filename="talk_with.mp3", voice=voice, play=True, model=tts)
 
-def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
+def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
     print('Press '+chat+' to chat, '+exit+' to exit.')
     while True:
         if kb.is_pressed(chat):
@@ -1061,28 +1062,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
-
-url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
-
-
-
-
-#%%
-#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
-#%%
-#send_image(url,'Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
-#%%
-#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
-
-#%%
-
-
-
-
-
-
-
-
 
 
 
@@ -1095,6 +1074,17 @@ url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/
 #talk_with('Son Goku (Dragonball)',8, 'fable')
 #send_image(url='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
 #send_image(url='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
+
+#%%
+#url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
+#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
+#send_image(url=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
+#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
+
+##%%
+#julia('@Ad agosto andremo a visitare Lisbona per la prima volta!')
+##%%
+#chat_with('julia','@Andrò a visitare Lisbona per la prima volta, che quartiere mi consigli di visitare?')
 #%%
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits
