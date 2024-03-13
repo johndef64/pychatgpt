@@ -487,18 +487,24 @@ def load_chat(contains= '', path='chats/'):
         file.close()
     print('*chat',filename,'loaded*')
 
-
-def load_file(path=os.getcwd(), ext='', contains='', file=''):
-    if file == '':
-        files_df = display_files_as_pd(path, ext=ext, contains=contains)
-        filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
-    else:
-        filename = file
-    with open(os.path.join(path, filename),'r', encoding='utf-8') as file:
+def load_file(file='', path=os.getcwd()):
+    with open(os.path.join(path, file),'r', encoding='utf-8') as file:
         my_file = file.read()#ast.literal_eval(file.read())
         file.close()
     return my_file
 
+def load_choosen_file(path=os.getcwd(), ext='', contains=''):
+    files_df = display_files_as_pd(path, ext=ext, contains=contains)
+    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+    my_file = load_file(filename, path)
+    return my_file
+
+def load_multiple_files(file_list = []):
+    loaded_files = {}
+    for file_name in file_list:
+        loaded_files[os.path.basename(file_name).split('.')[0]] = load_file(file=file_name)
+    print('Loaded Files:', list(loaded_files.keys()))
+    return loaded_files
 
 def clearchat():
     global chat_gpt
