@@ -217,16 +217,29 @@ def while_kb_press(start='alt',stop='ctrl'):
 
 ###### global variables ######
 
-model = 'gpt-3.5-turbo-16k'
-models = ['gpt-3.5-turbo',
-          'gpt-3.5-turbo-16k',
-          'gpt-3.5-turbo-0125',
+model = 'gpt-3.5-turbo'
+
+models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
+          #'gpt-3.5-turbo-16k',
+          'gpt-3.5-turbo-instruct',
           'gpt-4',
           'gpt-4-32k',
-          'gpt-4-0125-preview', #Returns a maximum of 4,096 output tokens.
+          'gpt-4-turbo-preview', # gpt-4-0125-preview
           'gpt-4-1106-preview', #Returns a maximum of 4,096 output tokens.
-          'gpt-4-vision-preview'
+          'gpt-4-vision-preview' #gpt-4-1106-vision-preview
           ] #https://openai.com/pricing
+
+models_info='''
+Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
+gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
+gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
+gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
+gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
+gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
+gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
+gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
+'''
+
 assistant = ''
 transcript = ''
 persona = ''
@@ -514,8 +527,17 @@ def clearchat():
     print('*chat cleared*\n')
 
 
-# ----------------------------------------------------
-
+# request function ================================
+'''
+Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
+gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
+gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
+gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
+gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
+gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
+gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
+gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
+'''
 
 def send_message(message,
                  model=model,
@@ -538,15 +560,18 @@ def send_message(message,
     global token_limit
     global reply
 
-    if model == 'gpt-3.5-turbo':
+    if model == 'gpt-4-turbo':
+        model = 'gpt-4-turbo-preview'
+
+    if model == 'gpt-3.5-turbo-instruct':
         token_limit = 4096 - (maxtoken*1.3)
-    if model == 'gpt-3.5-turbo-16k' or model == 'gpt-3.5-turbo-0125':
+    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
         token_limit = 16384 - (maxtoken*1.3)
     if model == 'gpt-4':
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+    if model == 'gpt-4-turbo-preview' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
@@ -630,11 +655,17 @@ def send_message(message,
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
-        # expand chat--------------------------------
+    # expand chat--------------------------------
     chat_gpt.append({"role": "assistant", "content":reply})
 
+    # count tokens--------------------------------
     count = Tokenizer()
-    tokens = count.tokens(message) + count.tokens(reply)
+    #tokens = count.tokens(str(messages)) + count.tokens(reply)
+    context_fix = (str(chat_gpt).replace("{'role': 'system', 'content':", "")
+                   .replace("{'role': 'user', 'content':", "")
+                   .replace("{'role': 'assistant', 'content':", "")
+                   .replace("},", ""))
+    tokens = count.tokens(context_fix)
 
     total_tokens += tokens
     if printtoken: print('\n => prompt tokens:', total_tokens)
@@ -988,8 +1019,8 @@ def talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4', tts= 'tts-1',
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
-
 #%%
+
 
 ### trial ###
 #clearchat()
