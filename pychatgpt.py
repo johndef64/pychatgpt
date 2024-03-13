@@ -712,7 +712,7 @@ def display_image(filename, jupyter = False, plotlib=True, dpi=200):
 def create_image(prompt= "a cute kitten",
                  model="dall-e-2",
                  size='512x512',
-                 response_format='url',
+                 response_format='b64_json',
                  quality="standard",
                  time_flag=True,
                  show_image=True):
