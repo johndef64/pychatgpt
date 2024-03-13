@@ -419,10 +419,10 @@ def get_embeddings(input="Your text string goes here", ):
         input=input,
         model="text-embedding-3-small"
     )
-    #print(response.data[0].embedding)
     return response.data[0].embedding
 
 '''
+Usage is priced per input token, below is an example of pricing pages of text per US dollar (assuming ~800 tokens per page):
 MODEL	                ~ PAGES PER 1$	PERFORMANCE ON MTEB EVAL	MAX INPUT
 text-embedding-3-small	62,500	        62.3%	                    8191
 text-embedding-3-large	9,615	        64.6%	                    8191
