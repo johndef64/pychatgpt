@@ -414,19 +414,20 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
 ##################  REQUESTS #####################
 
 # embeddings
-def get_embeddings(input="Your text string goes here", ):
+def get_embeddings(input="Your text string goes here", model="text-embedding-3-small"):
     response = client.embeddings.create(
         input=input,
-        model="text-embedding-3-small"
+        model=model
     )
     return response.data[0].embedding
 
 '''
 Usage is priced per input token, below is an example of pricing pages of text per US dollar (assuming ~800 tokens per page):
+
 MODEL	                ~ PAGES PER 1$	PERFORMANCE ON MTEB EVAL	MAX INPUT
-text-embedding-3-small	62,500	        62.3%	                    8191
-text-embedding-3-large	9,615	        64.6%	                    8191
-text-embedding-ada-002	12,500	        61.0%	                    8191
+text-embedding-3-small	  62,500	    62.3%	                    8191
+text-embedding-3-large	  9,615	        64.6%	                    8191
+text-embedding-ada-002	  12,500	    61.0%	                    8191
 '''
 
 ###### ask function (question-answer) ######
