@@ -1,5 +1,4 @@
 import os
-import sys
 import ast
 import glob
 import json
@@ -8,13 +7,20 @@ import platform
 import requests
 import importlib
 import subprocess
-from datetime import datetime
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 def simple_bool(message, y='y', n ='n'):
     choose = input(message+" ("+y+"/"+n+"): ").lower()
     your_bool = choose in [y]
     return your_bool
+
+
+def get_file_paths(path):
+    file_paths = []
+    files = [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))]
+    for file in files:
+        file_paths.append(file)
+    return file_paths
 
 
 def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
@@ -27,15 +33,8 @@ def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
 
     files_df = pd.Series(files_name)
     file = files_df[files_df.str.contains(contains)]
-
     return file
 
-def get_file_paths(path):
-    file_paths = []
-    files = [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))]
-    for file in files:
-        file_paths.append(file)
-    return file_paths
 
 def check_and_install_module(module_name):
     try:
@@ -50,6 +49,7 @@ def check_and_install_module(module_name):
             print(f"The module '{module_name}' was installed correctly.")
         else:
             exit()
+
 
 def check_and_install_requirements(requirements):
     missing_requirements = []
@@ -70,9 +70,11 @@ def check_and_install_requirements(requirements):
         else:
             exit()
 
-requirements  = ["openai","tiktoken","pandas","pyperclip","gdown"]
+
+requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown"]
 check_and_install_requirements(requirements)
 from openai import OpenAI
+import pyperclip as pc
 import pandas as pd
 import tiktoken
 
@@ -82,14 +84,12 @@ if platform.system() == "Linux":
     subprocess.check_call(["sudo","apt-get", "update"])
     subprocess.check_call(["sudo","apt", "install", "xsel"])
     subprocess.check_call(["sudo","apt", "install", "xclip"])
-
 else:
     pass
-import pyperclip as pc
 
 
 ### audio requirements
-audio_requirements = ["pygame","sounddevice","soundfile","keyboard"]
+audio_requirements = ["pygame", "sounddevice", "soundfile", "keyboard"]
 def is_package_installed(package_name):
     try:
         output = subprocess.check_output("dpkg -l | grep " + package_name, shell=True)
@@ -100,8 +100,7 @@ def is_package_installed(package_name):
 if platform.system() == "Linux":
     if not is_package_installed("libportaudio2"):
         subprocess.check_call(["sudo","apt-get", "update"])
-        subprocess.check_call(["sudo","apt-get", "install", "libportaudio2"])  #!sudo apt-get install libportaudio2
-
+        subprocess.check_call(["sudo","apt-get", "install", "libportaudio2"])
     else:
         pass
 
@@ -150,6 +149,7 @@ def change_key():
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
         client = OpenAI(api_key=str(api_key))
 
+
 ###### audio functions  #####
 def play_audio(file_name):
     pygame.mixer.init()
@@ -172,6 +172,7 @@ def record_audio(duration=5, filename="recorded_audio.mp3"): # duration: in seco
     print('recording ended')
     sf.write(filename, recording, sample_rate) #save audio file
 
+
 def record_audio_press(filename='recorded_audio.wav',
                        channels=1,
                        rate=44100,
@@ -189,6 +190,7 @@ def record_audio_press(filename='recorded_audio.wav',
     sd.wait()  # wait until recording is finished
     sf.write(filename, myrecording, rate, subtype)
 
+
 def loop_audio(start='alt', stop='ctrl',exit='shift', filename='recorded_audio.wav', printinfo=True):
     if printinfo:
         print("Press "+start+" to start recording, "+exit+" to exit")
@@ -199,7 +201,6 @@ def loop_audio(start='alt', stop='ctrl',exit='shift', filename='recorded_audio.w
             break
         elif kb.is_pressed(exit):
             break
-
 
 
 def while_kb_press(start='alt',stop='ctrl'):
@@ -245,17 +246,18 @@ transcript = ''
 persona = ''
 reply = ''
 
-total_tokens = 0 # iniziale token count
-token_limit = 0 # iniziale token limit
+total_tokens = 0  # iniziale token count
+token_limit = 0  # iniziale token limit
 keep_persona = True
 
 if not 'chat_gpt' in locals():
     chat_gpt = []
 
 
-###### In-Build Assistants ######
+######## In-Build Assistants ########
 
-topic_areas ={ "bioinformatics": '''System Biology, Biochemistry, Genetics and Molecular Biology, Computer Science, Health Informatics, and Statistics''',}
+topic_areas ={ "bioinformatics": '''System Biology, Biochemistry, Genetics and Molecular Biology, Computer Science, Health Informatics, and Statistics''',
+               "custom": '''Add here your topic areas'''}
 
 def science_assistant(topic_areas):
     science_assistant = '''You are a Scientific Assistant, your primary goal is to provide expertise and assistance to the user in his scientific research. These are your specified roles:
@@ -530,7 +532,7 @@ def load_choosen_file(path=os.getcwd(), ext='', contains=''):
     my_file = load_file(filename, path)
     return my_file
 
-def load_multiple_files(file_list = []):
+def load_multiple_files(file_list):
     loaded_files = {}
     for file_name in file_list:
         loaded_files[os.path.basename(file_name).split('.')[0]] = load_file(file=file_name)
