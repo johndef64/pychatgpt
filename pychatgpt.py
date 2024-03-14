@@ -713,15 +713,32 @@ def send_message(message,
     if to_clipboard:
         pc.copy(reply)
 
+
+def moderation(text="Sample text goes here.", plot=True):
+    response = client.moderations.create(input=text)
+    output = response.results[0]
+    my_dict= dict(dict(output)['categories'])
+    my_dict_score= dict(dict(output)['category_scores'])
+    dict_list = [my_dict, my_dict_score]
+    df = pd.DataFrame(dict_list).T
+    if plot:
+        scores = df[1]
+        plt.figure(figsize=(10,4))
+        scores.plot()
+        plt.xticks(range(len(scores.index)), scores.index, rotation=90)
+        plt.title('Moderation Stats')
+        plt.show()
+    else:
+        print(df)
+    return df
+
+
 ####### Image Models #######
 
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-def moderation(text="Sample text goes here."):
-    response = client.moderations.create(input=text)
-    output = response.results[0]
 
 def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
                message="What’s in this image?",
