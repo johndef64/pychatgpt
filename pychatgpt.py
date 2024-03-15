@@ -324,6 +324,7 @@ assistants = {
     'english': translator('English'),
     'spanish': translator('Spanish'),
     'french': translator('French'),
+    'italian': translator('Italian'),
     'portuguese': translator('Portuguese'),
     "korean": translator('Korean'),
     "chinese": translator('Chinese'),
@@ -1018,6 +1019,8 @@ def julia(m,  gpt=model, max = 1000, clip=True):
 # Translators
 def english(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clipboard=clip)
+def italian(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['italian'], maxtoken=max, model=gpt, to_clipboard=clip)
 def portuguese(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['portuguese'], maxtoken=max, model=gpt, to_clipboard=clip)
 def japanese(m,  gpt=model, max = 1000, clip=True):
