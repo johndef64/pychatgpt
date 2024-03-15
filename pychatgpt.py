@@ -670,6 +670,9 @@ def send_message(message,
 
     # expand chat
     expand_chat(message)
+    if printuser:
+        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+        print('user:',print_mess)
 
     # send message----------------------------
     messages = build_messages(chat_gpt)
@@ -700,10 +703,6 @@ def send_message(message,
                 print(chunk_message, end='')
 
     time.sleep(1)
-    if printuser:
-        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess,'\n...')
-
     # expand chat--------------------------------
     chat_gpt.append({"role": "assistant", "content":reply})
 
@@ -716,6 +715,23 @@ def send_message(message,
 
     if to_clipboard:
         pc.copy(reply)
+
+def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit_chat= 'stop', printall=True):
+    print('Send "'+exit_chat+'" to exit chat.')
+    if who in assistants:
+        system = assistants[who]
+    elif who != '':
+        add_persona(who, language)
+    else:
+        system = system
+    while True:
+        message = input('\n')
+        if message == exit_chat:
+            print('Chat Closed')
+            break
+        else:
+            send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False, printuser=True)
+            print('')
 
 
 def moderation(text="Sample text goes here.", plot=True):
@@ -1025,10 +1041,10 @@ def portuguese(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['portuguese'], maxtoken=max, model=gpt, to_clipboard=clip)
 def japanese(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=clip)
-def japanese_teacher(m,  gpt=model, max = 1000, clip=True):
+def japanese_teacher(m, gpt=model, max = 1000, clip=True):
     print('Text: '+m.lstrip("@"))
     send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
-def portuguese_teacher(m,  gpt=model, max = 1000, clip=True):
+def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
 
 def japanese_learner(m, repeat= 3, voice='nova', speed=1):
@@ -1058,14 +1074,34 @@ def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
 ###### Talk With ######
 
 talk_model = 'gpt-4-turbo'
-def chat_with(who, message, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
+def chat_with(who='',message='', system='',  voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
     if who in assistants:
         system = assistants[who]
-    else:
+    elif who != '':
         add_persona(who, language)
-        system = ''
+    else:
+        system = system
     send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
     text2speech(reply,filename="chat_with.mp3", voice=voice, play=True, model=tts)
+
+def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop'):
+    print('Send "'+exit_chat+'" to exit.')
+    if who in assistants:
+        system = assistants[who]
+    elif who != '':
+        add_persona(who, language)
+    else:
+        system = system
+    while True:
+        message = input('\n')
+        if message == exit_chat:
+            print('Chat Closed')
+            break
+        else:
+            send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False, printuser=True)
+            text2speech(reply,filename="chat_with.mp3", voice=voice, play=True, model=tts)
+            print('')
+
 
 def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, duration=5):
     #record_audio(duration, "input.mp3")
@@ -1088,7 +1124,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
-
 
 
 #%%
