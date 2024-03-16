@@ -71,8 +71,9 @@ def check_and_install_requirements(requirements):
             exit()
 
 
-requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown"]
+requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy"]
 check_and_install_requirements(requirements)
+from scipy.spatial import distance
 from openai import OpenAI
 import pyperclip as pc
 import pandas as pd
@@ -423,6 +424,18 @@ def get_embeddings(input="Your text string goes here", model="text-embedding-3-s
         model=model
     )
     return response.data[0].embedding
+
+def cosine_similarity(s1, s2, model="text-embedding-3-small"):
+    allsentences = [s1 , s2]
+    # text to vector
+    text_to_vector_v1 = get_embeddings(allsentences[0], model=model)
+    text_to_vector_v2 = get_embeddings(allsentences[1], model=model)
+    # distance of similarity
+    cosine = distance.cosine(text_to_vector_v1, text_to_vector_v2)
+    distance_round = round((1-cosine)*100,2)
+    print('Similarity of two sentences are equal to',distance_round,'%')
+    #print('cosine:', round(cosine, 3))
+    return cosine
 
 '''
 Usage is priced per input token, below is an example of pricing pages of text per US dollar (assuming ~800 tokens per page):
@@ -1135,6 +1148,24 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
 #talk_with('Son Goku (Dragonball)',8, 'fable')
 #send_image(url='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
 #send_image(url='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
+#%%
+def cosine_similarity_example():
+    terms_related_to_joy_and_happiness = ['Joy', 'Happiness', 'Bliss', 'Euphoria', 'Delight', 'Contentment', 'Glee', 'Ecstasy', 'Jubilation', 'Cheerfulness', 'Laughter', 'Smiling', 'Radiance', 'Serenity', 'Exhilaration']
+    happiness = ' '.join(terms_related_to_joy_and_happiness)
+
+    a= ['''tomorrow it's my bithday! it's time to party''',
+        '''yeasterday my cat died... I'm so sad...''',
+        '''I won the lottery! It's my lucky day!''',
+        '''my girlfriend broke up with me. I'm so angry!''',
+        '''I broke up with my girlfriend, I'm a worthless man''',
+        '''President Obama spoke for the rights of black people in Chicago''',
+        '''autism: a neurodevelopmental condition of variable severity with lifelong effects that can be recognized from early childhood, chiefly characterized by difficulties with social interaction and communication and by restricted or repetitive patterns of thought and behaviour.''',
+        '''atherosclerosis: a disease of the arteries characterized by the deposition of fatty material on their inner walls.''',
+        happiness]
+    print(pd.Series(a))
+    print('Reference:',happiness,'\n')
+    for i in a:
+        cosine_similarity(i, happiness, model="text-embedding-3-large")
 
 #%%
 #url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
