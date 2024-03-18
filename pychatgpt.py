@@ -424,6 +424,7 @@ import nltk
 def update_nlkt():
     nltk.download('stopwords')
     nltk.download('punkt')
+
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
@@ -435,7 +436,10 @@ def get_embeddings(input="Your text string goes here", model="text-embedding-3-s
     )
     return response.data[0].embedding
 
-def cosine_similarity(s1, s2, model="text-embedding-3-small"):
+def cosine_similarity(s1, s2, model="text-embedding-3-small", preprocessing=False):
+    if preprocessing:
+        s1 = nltk_preprocessing(s1)
+        s2 = nltk_preprocessing(s2)
     allsentences = [s1 , s2]
     # text to vector
     text_to_vector_v1 = get_embeddings(allsentences[0], model=model)
@@ -447,8 +451,8 @@ def cosine_similarity(s1, s2, model="text-embedding-3-small"):
     #print('cosine:', round(cosine, 3))
     return cosine
 
-def nltk_preprocessing(text, lower=True, trim=True, stem=True, language='enghlish'):
-    update_nlkt()
+def nltk_preprocessing(text, lower=True, trim=True, stem=True, language='english'):
+    #update_nlkt()
     #docs_processed = [nltk_preprocessing(doc) for doc in docs_to_process]
     timea = time.time()
     stop_words = set(stopwords.words(language))
@@ -457,7 +461,7 @@ def nltk_preprocessing(text, lower=True, trim=True, stem=True, language='enghlis
     word_tokens = [word.lower() for word in word_tokens] if lower else word_tokens
     word_tokens = [word for word in word_tokens if word not in stop_words] if trim else word_tokens
     word_tokens = [stemmer.stem(word) for word in word_tokens] if stem else word_tokens
-    print(word_tokens)
+    #print(word_tokens)
     return " ".join(word_tokens)
 
 '''
@@ -1070,7 +1074,7 @@ def julia(m,  gpt=model, max = 1000, clip=True):
 
 def giulia(m,  gpt=model, max = 1000, clip=True):
     if os.path.exists("my_bio.txt"):
-        assistants['giulia'] = assistants['giulia']+'''\n '''+load_file("my_bio.txt")
+        assistants['giulia'] = assistants['giulia']+'''\n***'''+load_file("my_bio.txt")+'***'
     else:
         pass
     send_message(m,system=assistants['giulia'], maxtoken=max, model=gpt, to_clipboard=clip)
@@ -1172,7 +1176,7 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
 
 
 #%%
-
+giulia('parlami di te', 'gpt-4-turbo')
 ### trial ###
 #clearchat()
 #talk_with('julia',8,'nova')
@@ -1180,6 +1184,7 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
 #talk_with('Son Goku (Dragonball)',8, 'fable')
 #send_image(url='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
 #send_image(url='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
+
 #%%
 def cosine_similarity_example():
     terms_related_to_joy_and_happiness = ['Joy', 'Happiness', 'Bliss', 'Euphoria', 'Delight', 'Contentment', 'Glee', 'Ecstasy', 'Jubilation', 'Cheerfulness', 'Laughter', 'Smiling', 'Radiance', 'Serenity', 'Exhilaration']
@@ -1197,10 +1202,9 @@ def cosine_similarity_example():
     print(pd.Series(a))
     print('Reference:',happiness,'\n')
     for i in a:
-        cosine_similarity(i, happiness, model="text-embedding-3-large")
-
+        cosine_similarity(i, happiness, model="text-embedding-3-large", preprocessing=False)
 #%%
-delamain('if file exists in workig directory do this')
+
 #%%
 
 #url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
