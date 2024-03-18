@@ -802,7 +802,7 @@ def encode_image(image_path):
 
 def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
                message="What’s in this image?",
-               maxtoken=1000, printreply=True, lag=0.00):
+               maxtoken=1000, lag=0.00, printreply=True, to_clipboard=True):
     global reply
     global chat_gpt
     global total_tokens
@@ -855,6 +855,9 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
 
     # count tokens-------------------------------
     total_tokens = tokenizer(chat_gpt, True)
+
+    if to_clipboard:
+        pc.copy(reply)
 
 
 
