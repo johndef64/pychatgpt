@@ -1179,7 +1179,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
 
 
 #%%
-giulia('parlami di te', 'gpt-4-turbo')
 ### trial ###
 #clearchat()
 #talk_with('julia',8,'nova')
@@ -1187,6 +1186,7 @@ giulia('parlami di te', 'gpt-4-turbo')
 #talk_with('Son Goku (Dragonball)',8, 'fable')
 #send_image(url='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
 #send_image(url='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
+#giulia('parlami di te', 'gpt-4-turbo')
 
 #%%
 def cosine_similarity_example():
