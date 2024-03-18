@@ -1071,9 +1071,9 @@ def robert(m,  gpt=model, max = 1000, clip=True):
 def prompt_maker(m,  gpt=model, max = 1000, clip=True, sdxl=True):
     import stablediffusion_rag as sd
     if sdxl:
-        assistant = sd.prompt_example_xl
+        assistant = sd.rag_sdxl
     else:
-        assistant = sd.prompt_example_sd
+        assistant = sd.rag_sd
     send_message(m,system=assistant, maxtoken=max, model=gpt, to_clipboard=clip)
 
 
