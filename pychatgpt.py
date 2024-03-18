@@ -1068,6 +1068,14 @@ def roger(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clipboard=clip)
 def robert(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=clip)
+def prompt_maker(m,  gpt=model, max = 1000, clip=True, sdxl=True):
+    import stablediffusion_rag as sd
+    if sdxl:
+        assistant = sd.prompt_example_xl
+    else:
+        assistant = sd.prompt_example_sd
+    send_message(m,system=assistant, maxtoken=max, model=gpt, to_clipboard=clip)
+
 
 # Characters
 def bestie(m,  gpt=model, max = 1000, clip=True):
