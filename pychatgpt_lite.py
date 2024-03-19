@@ -275,7 +275,9 @@ text-embedding-ada-002	  12,500	    61.0%	                    8191
 def ask_gpt(prompt,
             system= 'you are an helpful assistant',
             model = model,
+            maxtoken = 800,
             lag = 0.00,
+            temperature = 1,
             printuser = False,
             printreply = True,
             savechat = True,
@@ -289,7 +291,12 @@ def ask_gpt(prompt,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": prompt}
-        ])
+        ],
+        temperature = temperature,
+        max_tokens = maxtoken,
+        top_p = 1,
+        frequency_penalty = 0,
+        presence_penalty = 0)
 
     if printuser:
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
@@ -704,7 +711,8 @@ assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instruct
 usage= '''import pychatgpt_lite as op
 op.ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', op.assistants['french'])
 reply = op.reply'''
-
+#%%
+ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', assistants['french'], maxtoken=1000)
 #%%
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits

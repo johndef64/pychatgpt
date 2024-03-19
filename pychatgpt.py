@@ -478,7 +478,9 @@ text-embedding-ada-002	  12,500	    61.0%	                    8191
 def ask_gpt(prompt,
             system= 'you are an helpful assistant',
             model = model,
+            maxtoken = 800,
             lag = 0.00,
+            temperature = 1,
             printuser = False,
             printreply = True,
             savechat = True,
@@ -492,8 +494,13 @@ def ask_gpt(prompt,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": prompt}
-        ])
-
+        ],
+        temperature = temperature,
+        max_tokens = maxtoken,
+        top_p = 1,
+        frequency_penalty = 0,
+        presence_penalty = 0)
+    
     if printuser:
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
