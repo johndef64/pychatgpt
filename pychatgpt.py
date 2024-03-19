@@ -473,14 +473,16 @@ text-embedding-3-large	  9,615	        64.6%	                    8191
 text-embedding-ada-002	  12,500	    61.0%	                    8191
 '''
 
-###### ask function (question-answer) ######
+###### Question-Answer-GPT ######
+
 def ask_gpt(prompt,
-            model = model,
             system= 'you are an helpful assistant',
+            model = model,
             lag = 0.00,
             printuser = False,
             printreply = True,
-            savechat = True
+            savechat = True,
+            to_clipboard = False
             ):
     global reply
     response = client.chat.completions.create(
@@ -511,15 +513,15 @@ def ask_gpt(prompt,
 
     time.sleep(1)
 
-    # Add the assistant's reply to the chat log-------
+    # Add the assistant's reply to the chat log-------------
     if savechat:
-        with open('chat_log.txt', 'a', encoding= 'utf-8') as file:
-            file.write('---------------------------')
-            file.write('\nUser: ' + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + '\n' + prompt)
-            file.write('\n\n'+model+': '+ reply + '\n\n')
+        write_log(reply, prompt)
+
+    if to_clipboard:
+        pc.copy(reply)
 
 
-# chat function ================================
+############ Chat GPT ############
 
 def expand_chat(message, role="user"):
     #print('default setting (role = "user") to change role replace with "assistant" or "system"')
@@ -590,11 +592,12 @@ def clearchat():
 
 def tokenizer(chat_gpt, print_token=True):
     global total_tokens
-    #tokens = count.tokens(str(messages)) + count.tokens(reply)
+
     context_fix = (str(chat_gpt).replace("{'role': 'system', 'content':", "")
                    .replace("{'role': 'user', 'content':", "")
                    .replace("{'role': 'assistant', 'content':", "")
                    .replace("},", ""))
+
     tokens = Tokenizer().tokens(context_fix)
     total_tokens += tokens
     if print_token:
@@ -629,10 +632,10 @@ gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $
 
 def send_message(message,
                  model=model,
+                 system='',
                  maxtoken=800,
                  temperature=1,
                  lag=0.00,
-                 system='',
                  printreply=True,
                  printuser=False,
                  print_token=True,
