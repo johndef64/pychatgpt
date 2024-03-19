@@ -701,8 +701,9 @@ assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instruct
 
 #%%
 ### trial ###
-usage= '''
-ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', assistants['french'])'''
+usage= '''import pychatgpt_lite as op
+op.ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', op.assistants['french'])
+reply = op.reply'''
 
 #%%
 ######### INFO #########
