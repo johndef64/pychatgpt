@@ -712,7 +712,7 @@ usage= '''import pychatgpt_lite as op
 op.ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', op.assistants['french'])
 reply = op.reply'''
 #%%
-ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', assistants['french'], maxtoken=1000)
+#ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', assistants['french'], maxtoken=1000)
 #%%
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits

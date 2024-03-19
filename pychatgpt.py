@@ -500,7 +500,7 @@ def ask_gpt(prompt,
         top_p = 1,
         frequency_penalty = 0,
         presence_penalty = 0)
-    
+
     if printuser:
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
