@@ -146,8 +146,14 @@ sentiments = {
     'science': ['Inquiry', 'Exploration', 'Experimentation', 'Observation', 'Analysis', 'Study', 'Research', 'Technology', 'Innovation', 'Discovery'],
     'bizarre': ['Bizarre', 'Odd', 'Uncanny', 'Weird', 'Strange', 'Eerie', 'Surreal', 'Quirky', 'Unusual', 'Grotesque']
 }
+
+seven_deadly_sins = {'pride': ['Pride', 'Satisfaction', 'Dignity', 'Ego', 'Confidence', 'Self-respect', 'Vanity', 'Arrogance', 'Honor', 'Glory', 'Triumph', 'Joy', 'Fulfillment', 'Esteem', 'Self-worth'], 'greed': ['Greed', 'Avarice', 'Covetousness', 'Acquisitiveness', 'Rapacity', 'Materialism', 'Insatiability', 'Selfishness', 'Graspingness', 'Gluttony', 'Desire', 'Envy', 'Lust', 'Obsession', 'Hoarding'], 'lust': ['Lust', 'Desire', 'Longing', 'Craving', 'Passion', 'Ardor', 'Sensuality', 'Libido', 'Yearning', 'Infatuation', 'Attraction', 'Carnality', 'Hunger', 'Thirst', 'Fervor'], 'envy': ['Envy', 'Jealousy', 'Covetousness', 'Resentment', 'Begrudging', 'Lust', 'Longing', 'Grudge', 'Spite', 'Emulation', 'Rivalry', 'Invidiousness', 'Malice', 'Bitterness', 'Competitiveness'], 'gluttony': ['Gluttony', 'Overeating', 'Excess', 'Greed', 'Indulgence', 'Bingeing', 'Overindulgence', 'Insatiability', 'Hunger', 'Appetite', 'Craving', 'Gorging', 'Self-indulgence', 'Compulsion', 'Intemperance'], 'wrath': ['Wrath', 'Anger', 'Rage', 'Fury', 'Ire', 'Temper', 'Indignation', 'Annoyance', 'Resentment', 'Vexation', 'Outrage', 'Spite', 'Hatred', 'Hostility', 'Retaliation'], 'sloth': ['Sloth', 'Laziness', 'Idleness', 'Indolence', 'Inaction', 'Lethargy', 'Inactivity', 'Sluggishness', 'Torpor', 'Apathy', 'Neglect', 'Procrastination', 'Disinterest', 'Inertia', 'Listlessness']}
+
 def make_sentiments_df(sentiments):
     return pd.DataFrame({'sentiment': sentiments.keys(), 'representation': sentiments.values()})
+def clear_sentiments():
+    global sentiments
+    sentiments = {}
 
 sentiments_df = make_sentiments_df(sentiments)
 
@@ -163,72 +169,115 @@ sentences = ['''Tomorrow is my birthday! It's time to party.''',
              ''' Today I'll buy roses for my beloved girlfriend''',
              ''' Today I'll buy condoms to have fun with my hot girlfriend''']
 
-
-def write_new_sentiment(new_sentiment= 'friendship', hint='', clearchat=True):
+###############
+def generate_sentiment(new_sentiment= 'friendship', hint='', clearchat=True, max=1000):
     if clearchat:
         op.clearchat()
-    else:
-        pass
+
     op.chatgpt("""
     
     """+str(sentiments)+"""
     
-    Please, following this dictionary example, write down this new entry:
+    Please, following this dictionary example above, write down this new entry:
     '"""+new_sentiment+"""': ['"""+new_sentiment.replace('_',' ')+"""','"""+hint+"""','','','','','','','','','','','','',
     
     Reply example:
     'anger': ['Anger', 'Rage', 'Fury', 'Hostility', 'Irritation', 'Frustration', 'Resentment', 'Outrage', 'Hatred', 'Wrath', 'Aggression', 'Vexation', 'Annoyance', 'Displeasure', 'Retribution']
     
-    """, 'gpt-4-turbo',2000)
+    """, 'gpt-4-turbo',max)
     new_entry = ast.literal_eval('{'+op.reply+'}')
     return new_entry
 
 
-new_sentiment = {
-    '': []}
+#new_sentiment = {    '': []}
 def add_sentiment(new_sentiment_entry, replace=False):
     global sentiments
     if new_sentiment_entry not in list(sentiments.keys()) or replace:
         sentiments.update(new_sentiment_entry)
 
-def write_add_sentiment(new_sentiment= 'friendship', hint='', replace=False, clearchat=True):
+def generate_update_sentiment(new_sentiment= 'friendship', hint='', replace=False, clearchat=True):
     global sentiments_df
-    new_sentiment = write_new_sentiment(new_sentiment= new_sentiment, hint=hint, clearchat=clearchat)
+    new_sentiment = generate_sentiment(new_sentiment= new_sentiment, hint=hint, clearchat=clearchat)
     add_sentiment(new_sentiment, replace=replace)
     sentiments_df = make_sentiments_df(sentiments)
     display(sentiments_df)
 
-def add_sentence(new_sentence):
+def generate_update_sentiments(new_sentiments=['pride', 'greed', 'lust', 'envy', 'gluttony', 'wrath', 'sloth'], clearchat=False):
+    global sentiments_df
+    for entry in new_sentiments:
+        generate_update_sentiment(entry, clearchat=clearchat)
+
+def generate_replace_sentiments(new_sentiments=['pride', 'greed', 'lust', 'envy', 'gluttony', 'wrath', 'sloth'], clearchat=False):
+    global sentiments_df
+    clear_sentiments()
+    for entry in new_sentiments:
+        generate_update_sentiment(entry, clearchat=clearchat)
+
+###############
+
+def generate_new_sentences(topic= 'friendship', hint='', count= 5, clearchat=True, max = 1000):
+    if clearchat:
+        op.clearchat()
+
+    op.chatgpt("""
+    
+    """+str(sentences)+"""
+    
+    Please, following this sentence list example above, write down """+str(count)+""" new sentences on """+topic+""" topic as a list. """+hint+"""
+    
+    
+    Reply example for 'friendship' topic:
+    ["My best friend and I have been inseparable since kindergarten, truly partners in crime.",
+    "True friendship is like sound health; the value of it is seldom known until it is lost.",
+    "Spending time with good friends after a long week feels like healing to the soul.",
+    "Friendships require effort and care, but the joy and support they bring are worth every bit.",
+    "Finding a friend who understands your tears is much more valuable than finding a bunch of friends who only know your smile."
+    ]
+    
+    """, 'gpt-4-turbo',max)
+    new_sentences = op.reply.replace('```python\n', '')
+    new_sentences = new_sentences.replace('\n```', '')
+    new_sentences = ast.literal_eval(new_sentences)
+    return new_sentences
+
+def append_sentences(new_sentences):
     global sentences
-    if new_sentence not in sentences:
-        sentences.append(new_sentence)
+    if not isinstance(new_sentences, list):
+        new_sentences = [new_sentences]
+    for sentence in new_sentences:
+        if sentence not in sentences:
+            sentences.append(sentence)
+
+def generate_append_sentences(topic= 'friendship', hint='', count= 5, clearchat=True, max = 1000):
+    new_sentences=generate_new_sentences(topic, hint, count, clearchat, max)
+    append_sentences(new_sentences)
+
+def replace_sentences(new_sentences):
+    global sentences
+    sentences = new_sentences
 
 print('Default Sentiments:')
 display(sentiments_df)
 #%%
-
 # USAGE
-#new_sentiment=write_new_sentiment()
+#generate_update_sentiments(['genetics', 'diseases', 'politics'])
+#seven_deadly_sins=generate_sentiment('seven_deadly_sins','Pride')
 #%%
-#write_add_sentiment(hint='Pals',replace=True)
+#add_sentence(""" """)
 #%%
-
-#add_sentence("")
+#sentiment_analysis(sentences, sentiments)
+#%%
+#sentiment_analysis(sentences, seven_deadly_sins)
+#%%
+#new_sentences = generate_append_sentences('Obama President')
+#%%
+#new_sentences = generate_append_sentences()
 #%%
 #sentiment_analysis(sentences, sentiments)
 #%%
 
+
+
+
 #%%
 
-couples=  [['The president greets the press in Chicago', 'Obama speaks to the media in Illinois'],
-           ['The president greets the press in New York', 'Obama speaks to the media in Illinois'],
-           ['The president greets the press in Chicago', 'Dua Lipa speaks to the media in Illinois'],
-           ['The president greets the jews in Chicago', 'Obama speaks against racism'],
-           ['The president greets the US army in Chicago', 'Obama speaks against Russia'],
-           ['The president greets the US army in Chicago', 'Obama speaks against war'],
-           ['My girlfriend eats an ice cream in Chicago', 'Obama speaks against Russia'],
-           ['Honey, count sheep, my little boy, and sleep well, my dear. See you tomorrow.', "The Lord Satan unleashed a horde of demons from the gates of hell to slaughter the angels of heaven."],
-           ['Honey, count sheep, my little boy, and sleep well, my dear. See you tomorrow.', "The Lord Satan unleashed a horde of demons from the gates of hell to put the world on fire."],
-           ['Honey, count sheep, my little boy, and sleep well, my dear. See you tomorrow.', "Conditional generative adversarial network driven radiomic prediction of mutation status based on magnetic resonance imaging of breast cancer"],
-           ["My cat Fuffy ate his pet food and spitted a fur ball",'Obama, Clinton, Kennedy all Presidents of US']
-           ]
