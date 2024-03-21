@@ -151,6 +151,8 @@ sentiments = {
 
 seven_deadly_sins = {'pride': ['Pride', 'Satisfaction', 'Dignity', 'Ego', 'Confidence', 'Self-respect', 'Vanity', 'Arrogance', 'Honor', 'Glory', 'Triumph', 'Joy', 'Fulfillment', 'Esteem', 'Self-worth'], 'greed': ['Greed', 'Avarice', 'Covetousness', 'Acquisitiveness', 'Rapacity', 'Materialism', 'Insatiability', 'Selfishness', 'Graspingness', 'Gluttony', 'Desire', 'Envy', 'Lust', 'Obsession', 'Hoarding'], 'lust': ['Lust', 'Desire', 'Longing', 'Craving', 'Passion', 'Ardor', 'Sensuality', 'Libido', 'Yearning', 'Infatuation', 'Attraction', 'Carnality', 'Hunger', 'Thirst', 'Fervor'], 'envy': ['Envy', 'Jealousy', 'Covetousness', 'Resentment', 'Begrudging', 'Lust', 'Longing', 'Grudge', 'Spite', 'Emulation', 'Rivalry', 'Invidiousness', 'Malice', 'Bitterness', 'Competitiveness'], 'gluttony': ['Gluttony', 'Overeating', 'Excess', 'Greed', 'Indulgence', 'Bingeing', 'Overindulgence', 'Insatiability', 'Hunger', 'Appetite', 'Craving', 'Gorging', 'Self-indulgence', 'Compulsion', 'Intemperance'], 'wrath': ['Wrath', 'Anger', 'Rage', 'Fury', 'Ire', 'Temper', 'Indignation', 'Annoyance', 'Resentment', 'Vexation', 'Outrage', 'Spite', 'Hatred', 'Hostility', 'Retaliation'], 'sloth': ['Sloth', 'Laziness', 'Idleness', 'Indolence', 'Inaction', 'Lethargy', 'Inactivity', 'Sluggishness', 'Torpor', 'Apathy', 'Neglect', 'Procrastination', 'Disinterest', 'Inertia', 'Listlessness']}
 
+chakras = {'Root': ['Root', 'Fisical Identity', 'Self-preservation', 'Body Identification', 'Masculine', 'Feminine', 'Young', 'Old', 'Fat', 'Thin', 'Healthy', 'Ill', 'Physical Qualities', 'Soul’s Physical Expression', 'World Physical Interaction'], 'Sacral': ['Sacral', 'Emotional Identity', 'Self-gratification', 'Emotions', 'Feelings', 'I feel, therefore I am', 'Body Awareness', 'Emotion Interpretation', 'Experience Expansion', 'Dimension', 'Structure', 'Connection to the World Flow', 'Physical Identity Emergence', 'New Dimension Addition', 'Sensation Identification'], 'Solar Plexus': ['Solar Plexus', 'Ego Identity', 'Self-definition', 'Will', 'Actions', 'Choices', 'Consequences', 'I do, therefore I am', 'Right Doing', 'Achievement', 'Mistakes', 'Failure', 'Inner Executor', 'Activities in the World', 'Physical and Emotional Emergence'], 'Heart': ['Heart', 'Social Identity', 'Interpersonal Relationships', 'Compassion', 'Love', 'Acceptance', 'Persona', 'Self-acceptance', 'Ego Extension', 'Awareness of Others', 'Giving', 'Receiving', 'Role Perception', 'Service to Others', 'Ego-Self Dissociation'], 'Throat': ['Throat', 'Creative Identity', 'Self-expression', 'Communication', 'Creativity', 'Speaking Truth', 'Commitment', 'Artistic Expression', 'Teaching', 'Writing', 'Public Speaking', 'Singing', 'Listening', 'Expression of Thoughts', 'Sharing Ideas'], 'Third Eye': ['Third Eye', 'Archetypal Identity', 'Transpersonal Self', 'Intuition', 'Vision', 'Perception Beyond Ordinary', 'Insight', 'Imagination', 'Psychic Abilities', 'Clear Seeing', 'Symbolic Understanding', 'Deep Awareness', 'Connection to Universal Knowledge', 'Inner Guidance', 'Transcendence of the Personal Self'], 'Crown': ['Crown', 'Universal Identity', 'Transcendence', 'Cosmic Consciousness', 'Spiritual Connection', 'Unity with All', 'Mystical Experiences', 'Self-Realization', 'Enlightenment', 'Pure Awareness', 'Divine Presence', 'Infinite Peace', 'Ultimate Wisdom', 'Oneness with the Divine', 'Liberation from the Ego']}
+
 def make_sentiments_df(sentiments):
     return pd.DataFrame({'sentiment': sentiments.keys(), 'representation': sentiments.values()})
 def clear_sentiments():
@@ -172,9 +174,12 @@ sentences = ['''Tomorrow is my birthday! It's time to party.''',
              ''' Today I'll buy condoms to have fun with my hot girlfriend''']
 
 ###############
-def generate_sentiment(new_sentiment= 'friendship', hint='', clearchat=True, max=1000):
+def generate_sentiment(new_sentiment= 'friendship', hint='', clearchat=True, max=1000, add_context=''):
     if clearchat:
         op.clearchat()
+
+    if add_context !='':
+        op.expand_chat('The infomations below extends your knowledgle about a specific topic, use them in your replies:\n'+add_context+'\n','system')
 
     op.chatgpt("""
     
@@ -197,29 +202,32 @@ def add_sentiment(new_sentiment_entry, replace=False):
     if new_sentiment_entry not in list(sentiments.keys()) or replace:
         sentiments.update(new_sentiment_entry)
 
-def generate_update_sentiment(new_sentiment= 'friendship', hint='', replace=False, clearchat=True):
+def generate_update_sentiment(new_sentiment= 'friendship', hint='', replace=False, clearchat=True, add_context=''):
     global sentiments_df
-    new_sentiment = generate_sentiment(new_sentiment= new_sentiment, hint=hint, clearchat=clearchat)
+    new_sentiment = generate_sentiment(new_sentiment= new_sentiment, hint=hint, clearchat=clearchat, add_context=add_context)
     add_sentiment(new_sentiment, replace=replace)
     sentiments_df = make_sentiments_df(sentiments)
     display(sentiments_df)
 
-def generate_update_sentiments(new_sentiments=['pride', 'greed', 'lust', 'envy', 'gluttony', 'wrath', 'sloth'], clearchat=False):
+def generate_update_sentiments(new_sentiments=['pride', 'greed', 'lust', 'envy', 'gluttony', 'wrath', 'sloth'], clearchat=False, add_context=''):
     global sentiments_df
     for entry in new_sentiments:
-        generate_update_sentiment(entry, clearchat=clearchat)
+        generate_update_sentiment(entry, clearchat=clearchat, add_context=add_context)
 
-def generate_replace_sentiments(new_sentiments=['pride', 'greed', 'lust', 'envy', 'gluttony', 'wrath', 'sloth'], clearchat=False):
+def generate_replace_sentiments(new_sentiments=['pride', 'greed', 'lust', 'envy', 'gluttony', 'wrath', 'sloth'], clearchat=False, add_context=''):
     global sentiments_df
     clear_sentiments()
     for entry in new_sentiments:
-        generate_update_sentiment(entry, clearchat=clearchat)
+        generate_update_sentiment(entry, clearchat=clearchat, add_context=add_context)
 
 ###############
 
-def generate_new_sentences(topic= 'friendship', hint='', count= 5, clearchat=True, max = 1000):
+def generate_new_sentences(topic= 'friendship', hint='', count= 5, clearchat=True, max = 1000, add_context=''):
     if clearchat:
         op.clearchat()
+
+    if add_context !='':
+        op.expand_chat('The infomations below extends your knowledgle about a specific topic, use them in your replies:\n'+add_context+'\n','system')
 
     op.chatgpt("""
     
@@ -250,13 +258,15 @@ def append_sentences(new_sentences):
         if sentence not in sentences:
             sentences.append(sentence)
 
-def generate_append_sentences(topic= 'friendship', hint='', count= 5, clearchat=True, max = 1000):
-    new_sentences=generate_new_sentences(topic, hint, count, clearchat, max)
-    append_sentences(new_sentences)
-
 def replace_sentences(new_sentences):
     global sentences
     sentences = new_sentences
+
+def generate_append_sentences(topic= 'friendship', hint='', count= 5, clearchat=True, max = 1000, add_context=''):
+    new_sentences=generate_new_sentences(topic, hint, count, clearchat, max, add_context)
+    append_sentences(new_sentences)
+
+
 
 print('Default Sentiments:')
 display(sentiments_df)
@@ -265,19 +275,26 @@ display(sentiments_df)
 #generate_update_sentiments(['genetics', 'diseases', 'politics'])
 #seven_deadly_sins=generate_sentiment('seven_deadly_sins','Pride')
 #%%
+#m= """ """
+#generate_replace_sentiments(['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'], add_context=m, clearchat=True)
+#%%
 #add_sentence(""" """)
 #%%
 #sentiment_analysis(sentences, sentiments)
 #%%
 #sentiment_analysis(sentences, seven_deadly_sins)
 #%%
-#new_sentences = generate_append_sentences('Obama President')
+#%%
+#sentiment_analysis(sentences, chakras)
+#%%
+#new_sentences = generate_append_sentences('Alice In Wonderland Allucinations')
+#%%
+#new_sentences = generate_append_sentences('')
 #%%
 #new_sentences = generate_append_sentences()
 #%%
 #sentiment_analysis(sentences, sentiments)
 #%%
-
 
 #%%
 
