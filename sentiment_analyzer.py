@@ -143,9 +143,11 @@ sentiments = {
     'hate': ['Hate', 'Loathing', 'Detestation', 'Abhorrence', 'Animosity', 'Antipathy', 'Hostility', 'Enmity', 'Resentment', 'Revulsion'],
     'sexuality': ['Attraction', 'Desire', 'Lust', 'Passion', 'Intimacy', 'Libido', 'Sensuality', 'Eroticism', 'Arousal', 'Love'],
     'violence': ['Violence', 'Aggression', 'Brutality', 'Force', 'Ferocity', 'Rage', 'Assault', 'Attack', 'Coercion', 'Domination'],
+    'bizarre': ['Bizarre', 'Odd', 'Uncanny', 'Weird', 'Strange', 'Eerie', 'Surreal', 'Quirky', 'Unusual', 'Grotesque'],
     'science': ['Inquiry', 'Exploration', 'Experimentation', 'Observation', 'Analysis', 'Study', 'Research', 'Technology', 'Innovation', 'Discovery'],
-    'bizarre': ['Bizarre', 'Odd', 'Uncanny', 'Weird', 'Strange', 'Eerie', 'Surreal', 'Quirky', 'Unusual', 'Grotesque']
-}
+    'genetics': ['Genetics', 'Heredity', 'DNA', 'Genes', 'Chromosomes', 'Mutation', 'Inheritance', 'Biotechnology', 'Genomics', 'Alleles', 'Recombination', 'Evolution', 'Genetic Engineering', 'Phenotype', 'Genotype'],
+    'diseases': ['Diseases', 'Infections', 'Illness', 'Disorder', 'Condition', 'Ailment', 'Syndrome', 'Pathology', 'Epidemic', 'Pandemic', 'Cancer', 'Diabetes', 'Cardiovascular', 'Autoimmune', 'Neurological'],
+    'politics': ['Politics', 'Government', 'Democracy', 'Legislation', 'Policy', 'Diplomacy', 'Election', 'Campaign', 'Republic', 'Partisanship', 'Geopolitics', 'Statecraft', 'Governance', 'Ideology', 'Regulation']}
 
 seven_deadly_sins = {'pride': ['Pride', 'Satisfaction', 'Dignity', 'Ego', 'Confidence', 'Self-respect', 'Vanity', 'Arrogance', 'Honor', 'Glory', 'Triumph', 'Joy', 'Fulfillment', 'Esteem', 'Self-worth'], 'greed': ['Greed', 'Avarice', 'Covetousness', 'Acquisitiveness', 'Rapacity', 'Materialism', 'Insatiability', 'Selfishness', 'Graspingness', 'Gluttony', 'Desire', 'Envy', 'Lust', 'Obsession', 'Hoarding'], 'lust': ['Lust', 'Desire', 'Longing', 'Craving', 'Passion', 'Ardor', 'Sensuality', 'Libido', 'Yearning', 'Infatuation', 'Attraction', 'Carnality', 'Hunger', 'Thirst', 'Fervor'], 'envy': ['Envy', 'Jealousy', 'Covetousness', 'Resentment', 'Begrudging', 'Lust', 'Longing', 'Grudge', 'Spite', 'Emulation', 'Rivalry', 'Invidiousness', 'Malice', 'Bitterness', 'Competitiveness'], 'gluttony': ['Gluttony', 'Overeating', 'Excess', 'Greed', 'Indulgence', 'Bingeing', 'Overindulgence', 'Insatiability', 'Hunger', 'Appetite', 'Craving', 'Gorging', 'Self-indulgence', 'Compulsion', 'Intemperance'], 'wrath': ['Wrath', 'Anger', 'Rage', 'Fury', 'Ire', 'Temper', 'Indignation', 'Annoyance', 'Resentment', 'Vexation', 'Outrage', 'Spite', 'Hatred', 'Hostility', 'Retaliation'], 'sloth': ['Sloth', 'Laziness', 'Idleness', 'Indolence', 'Inaction', 'Lethargy', 'Inactivity', 'Sluggishness', 'Torpor', 'Apathy', 'Neglect', 'Procrastination', 'Disinterest', 'Inertia', 'Listlessness']}
 
@@ -277,7 +279,7 @@ display(sentiments_df)
 #%%
 
 
-
-
 #%%
+
+
 
