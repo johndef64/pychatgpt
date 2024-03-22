@@ -49,11 +49,12 @@ text_models = ["all-mpnet-base-v2",
                'albert-base-v2',
                'bert-base-cased',
                "allenai-specter", # SPECTER is a model trained on scientific citations and can be used to estimate the similarity of two publications. We can use it to find similar papers.
+               'thenlper/gte-large'
                ]
 # https://www.sbert.net/docs/pretrained_models.html
 
 # Initialize the SentenceTransformer model
-sentence_transformer = SentenceTransformer(text_models[0])
+sentence_transformer = SentenceTransformer(text_models[5])
 
 # NEW MODELS GOES IN TORCH CACHE
 # C:\Users\Utente/.cache\torch\sentence_transformers\albert-base-v2
@@ -280,12 +281,12 @@ display(sentiments_df)
 #%%
 #add_sentence(""" """)
 #%%
-#sentiment_analysis(sentences, sentiments)
+#sentiment_analysis(sentences, sentiments, openai=True)
 #%%
 #sentiment_analysis(sentences, seven_deadly_sins)
 #%%
 #%%
-#sentiment_analysis(sentences, chakras)
+#sentiment_analysis(sentences, chakras, openai=True)
 #%%
 #new_sentences = generate_append_sentences('Alice In Wonderland Allucinations')
 #%%
