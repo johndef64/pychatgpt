@@ -71,7 +71,7 @@ def check_and_install_requirements(requirements):
             exit()
 
 
-requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy"]
+requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk"]
 check_and_install_requirements(requirements)
 from scipy.spatial import distance
 from openai import OpenAI
