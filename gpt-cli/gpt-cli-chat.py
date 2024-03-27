@@ -19,6 +19,7 @@ if not os.getcwd().endswith('pychatgpt_lite.py'):
     for file in files:
         url = handle+file
         get_gitfile(url)
+        time.sleep(0.2)
 
 def get_boolean_input(prompt):
     while True:
@@ -60,7 +61,6 @@ check_and_install_requirements(requirements)
 
 #print('--------------------------------------')
 
-current_dir = ''
 # to run in python terminal you need this:
 if os.getcwd() == 'C:\WINDOWS\System32':
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -71,14 +71,11 @@ else:
 # If  import openai
 import pychatgpt_lite as op
 
-
 # check Usage:
 # https://platform.openai.com/account/usage
 
 # Set API key:
 # https://platform.openai.com/account/api-keys
-
-
 
 # Parameters--------------------------
 #The Max Token Limit In ChatGPT: gpt-4 (8,192 tokens), gpt-4-0613 (8,192 tokens), gpt-4-32k (32,768 tokens), gpt-4-32k-0613 (32,768 tokens). maximum limit (4097 tokens for gpt-3.5-turbo )
