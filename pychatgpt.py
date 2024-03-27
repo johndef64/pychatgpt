@@ -1151,7 +1151,6 @@ def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
 
 def japanese_learner(m, repeat= 3, voice='nova', speed=1):
-    #play_audio("silence.mp3")
     japanese_teacher(m, 'gpt-4')
     print('')
     phrase = reply.split('\n')[0].split(':')[1].strip()
@@ -1163,7 +1162,6 @@ def japanese_learner(m, repeat= 3, voice='nova', speed=1):
         i += 1
 
 def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
-    #play_audio("silence.mp3")
     portuguese_teacher(m, 'gpt-4')
     print('')
     phrase = reply.split('\n')[0].split(':')[1].strip()
@@ -1250,7 +1248,7 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
 ##%%
 #chat_with('julia','@Andrò a visitare Lisbona per la prima volta, che quartiere mi consigli di visitare?')
 #%%
-
+#japanese_learner('@Lei mi piaceva tanto... volevo baciarla sulla bocca')
 
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits
