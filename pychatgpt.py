@@ -1,4 +1,5 @@
 import os
+import io
 import ast
 import glob
 import json
@@ -159,9 +160,7 @@ def play_audio(file_name):
     while pygame.mixer.music.get_busy():
         pygame.time.Clock().tick(10)
     pygame.mixer.music.stop()
-
-    file = open(file_name, "r")  # You can use "r" for reading, or "w" for writing,
-    file.close()
+    pygame.mixer.quit() # Close the file after music play ends
 
 
 def record_audio(duration=5, filename="recorded_audio.mp3"): # duration: in seconds
@@ -489,6 +488,10 @@ def ask_gpt(prompt,
             savechat = True,
             to_clipboard = False
             ):
+
+    if model == 'gpt-4-turbo':
+        model = 'gpt-4-turbo-preview'
+
     global reply
     response = client.chat.completions.create(
         # https://platform.openai.com/docs/models/gpt-4
@@ -508,18 +511,16 @@ def ask_gpt(prompt,
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
-    collected_chunks = []
     collected_messages = []
     for chunk in response:
-        collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        reply = ''.join(collected_messages).strip()
-
         if printreply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+
+        reply = ''.join(collected_messages).strip()
 
     time.sleep(1)
 
@@ -649,6 +650,7 @@ def send_message(message,
                  printreply=True,
                  printuser=False,
                  print_token=True,
+                 play= False,
                  savechat=True,
                  to_clipboard=False,
                  reinforcement=False
@@ -742,18 +744,16 @@ def send_message(message,
 
     # stream reply ---------------------------------------------
     # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
-    collected_chunks = []
     collected_messages = []
     for chunk in response:
-        collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        reply = ''.join(collected_messages).strip()
 
         if printreply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+        reply = ''.join(collected_messages).strip()
 
     time.sleep(1)
     # expand chat--------------------------------
@@ -768,6 +768,9 @@ def send_message(message,
 
     if to_clipboard:
         pc.copy(reply)
+
+    if play:
+        text2speech_stream(reply)
 
 def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit_chat= 'stop', printall=True):
     print('Send "'+exit_chat+'" to exit chat.')
@@ -847,17 +850,16 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     )
 
     #reply = response.choices[0].message.content
-    collected_chunks = []
     collected_messages = []
     for chunk in response:
-        collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        reply = ''.join(collected_messages).strip()
         if printreply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+
+        reply = ''.join(collected_messages).strip()
 
     # reset compatibility with the other models
     time.sleep(0.85)
@@ -1013,19 +1015,47 @@ def text2speech(text,
                 play=False):
     if os.path.exists(filename):
         os.remove(filename)
-    response = client.audio.speech.create(
+    spoken_response = client.audio.speech.create(
         model=model, # tts-1 or tts-1-hd
         voice=voice,
         input=text,
         speed=speed
     )
-    response.stream_to_file(filename)
+    spoken_response.stream_to_file(filename)
     if play:
         play_audio(filename)
-        play_audio("silence.mp3")
+        #play_audio("silence.mp3")
 
-if "silence.mp3" not in os.listdir():
-    text2speech(' ',filename="silence.mp3")
+def text2speech_stream(text,
+                       voice="alloy",
+                       model="tts-1",
+                       speed=1):
+    spoken_response = client.audio.speech.create(
+        model=model,
+        voice=voice,
+        response_format="opus",
+        input=text,
+        speed=speed
+    )
+
+    # Create a buffer using BytesIO to store the data
+    buffer = io.BytesIO()
+
+    # Iterate through the 'spoken_response' data in chunks of 4096 bytes and write each chunk to the buffer
+    for chunk in spoken_response.iter_bytes(chunk_size=4096):
+        buffer.write(chunk)
+
+    # Set the position in the buffer to the beginning (0) to be able to read from the start
+    buffer.seek(0)
+
+    with sf.SoundFile(buffer, 'r') as sound_file:
+        data = sound_file.read(dtype='int16')
+        sd.play(data, sound_file.samplerate)
+        sd.wait()
+
+
+#if "silence.mp3" not in os.listdir():
+#    text2speech(' ',filename="silence.mp3")
 
 def speech2speech(voice= 'nova', tts= 'tts-1',
                   filename="speech2speech.mp3",
@@ -1121,7 +1151,7 @@ def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
 
 def japanese_learner(m, repeat= 3, voice='nova', speed=1):
-    play_audio("silence.mp3")
+    #play_audio("silence.mp3")
     japanese_teacher(m, 'gpt-4')
     print('')
     phrase = reply.split('\n')[0].split(':')[1].strip()
@@ -1133,7 +1163,7 @@ def japanese_learner(m, repeat= 3, voice='nova', speed=1):
         i += 1
 
 def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
-    play_audio("silence.mp3")
+    #play_audio("silence.mp3")
     portuguese_teacher(m, 'gpt-4')
     print('')
     phrase = reply.split('\n')[0].split(':')[1].strip()
@@ -1155,7 +1185,7 @@ def chat_with(who='',message='', system='',  voice='nova', language='eng', gpt=t
     else:
         system = system
     send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
-    text2speech(reply,filename="chat_with.mp3", voice=voice, play=True, model=tts)
+    text2speech_stream(reply, voice=voice, model=tts)
 
 def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop'):
     print('Send "'+exit_chat+'" to exit.')
@@ -1172,7 +1202,7 @@ def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1
             break
         else:
             send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False, printuser=True)
-            text2speech(reply,filename="chat_with.mp3", voice=voice, play=True, model=tts)
+            text2speech_stream(reply, voice=voice, model=tts)
             print('')
 
 
@@ -1186,7 +1216,7 @@ def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', m
         add_persona(who, language)
         system = ''
     send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
-    text2speech(reply,filename="talk_with.mp3", voice=voice, play=True, model=tts)
+    text2speech_stream(reply, voice=voice, model=tts)
 
 def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
     print('Press '+chat+' to chat, '+exit+' to exit.')
@@ -1210,6 +1240,28 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
 #giulia('parlami di te', 'gpt-4-turbo')
 
 #%%
+#url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
+#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
+#send_image(url=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
+#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
+
+##%%
+#julia('@Ad agosto andremo a visitare Lisbona per la prima volta!')
+##%%
+#chat_with('julia','@Andrò a visitare Lisbona per la prima volta, che quartiere mi consigli di visitare?')
+#%%
+
+
+######### INFO #########
+# https://platform.openai.com/account/rate-limits
+# https://platform.openai.com/account/usage
+# https://platform.openai.com/docs/guides/text-generation/chat-completions-api
+# https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
+
+######### ASSISTANT DUMP #########
+#'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
+
+#%%
 def cosine_similarity_example():
     terms_related_to_joy_and_happiness = ['Joy', 'Happiness', 'Bliss', 'Euphoria', 'Delight', 'Contentment', 'Glee', 'Ecstasy', 'Jubilation', 'Cheerfulness', 'Laughter', 'Smiling', 'Radiance', 'Serenity', 'Exhilaration']
     happiness = ' '.join(terms_related_to_joy_and_happiness)
@@ -1227,29 +1279,5 @@ def cosine_similarity_example():
     print('Reference:',happiness,'\n')
     for i in a:
         cosine_similarity(i, happiness, model="text-embedding-3-large", preprocessing=False)
-#%%
-
-#%%
-
-#url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
-#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
-#send_image(url=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
-#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
-
-##%%
-#julia('@Ad agosto andremo a visitare Lisbona per la prima volta!')
-##%%
-#chat_with('julia','@Andrò a visitare Lisbona per la prima volta, che quartiere mi consigli di visitare?')
-#%%
-######### INFO #########
-# https://platform.openai.com/account/rate-limits
-# https://platform.openai.com/account/usage
-# https://platform.openai.com/docs/guides/text-generation/chat-completions-api
-# https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
-
-######### ASSISTANT DUMP #########
-#'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
-
-
 
 

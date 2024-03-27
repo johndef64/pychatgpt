@@ -284,6 +284,10 @@ def ask_gpt(prompt,
             to_clipboard = False
             ):
     global reply
+
+    if model == 'gpt-4-turbo':
+        model = 'gpt-4-turbo-preview'
+
     response = client.chat.completions.create(
         # https://platform.openai.com/docs/models/gpt-4
         model=model,
@@ -302,18 +306,16 @@ def ask_gpt(prompt,
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
-    collected_chunks = []
     collected_messages = []
     for chunk in response:
-        collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        reply = ''.join(collected_messages).strip()
 
         if printreply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+        reply = ''.join(collected_messages).strip()
 
     time.sleep(1)
 
@@ -435,8 +437,8 @@ gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $
 '''
 
 def send_message(message,
-                 system='',
                  model=model,
+                 system='',
                  maxtoken=800,
                  temperature=1,
                  lag=0.00,
@@ -460,7 +462,7 @@ def send_message(message,
 
     if model == 'gpt-3.5-turbo-instruct':
         token_limit = 4096 - (maxtoken*1.3)
-    if model == 'gpt-3.5-turbo' or model == 'gpt-3.5-turbo-0125':
+    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
         token_limit = 16384 - (maxtoken*1.3)
     if model == 'gpt-4':
         token_limit = 8192 - (maxtoken*1.3)
@@ -536,18 +538,16 @@ def send_message(message,
 
     # stream reply ---------------------------------------------
     # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
-    collected_chunks = []
     collected_messages = []
     for chunk in response:
-        collected_chunks.append(chunk)  # save the event response
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        reply = ''.join(collected_messages).strip()
 
         if printreply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+        reply = ''.join(collected_messages).strip()
 
     time.sleep(1)
     # expand chat--------------------------------
