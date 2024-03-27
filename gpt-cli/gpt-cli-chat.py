@@ -13,9 +13,9 @@ def get_gitfile(url, flag='', dir = os.getcwd()):
     with open(file_path, 'wb') as file:
         file.write(response.content)
 
-if not os.getcwd().endswith('pychatgpt.py'):
+if not os.getcwd().endswith('pychatgpt_lite.py'):
     handle="https://raw.githubusercontent.com/johndef64/pychatgpt/main/"
-    files = ["pychatgpt.py"]
+    files = ["pychatgpt_lite.py"]
     for file in files:
         url = handle+file
         get_gitfile(url)
@@ -27,20 +27,22 @@ def get_boolean_input(prompt):
         except KeyError:
             print("Invalid input. Please enter 'y' or 'n'.")
 
-def check_and_install_module(module_name):
-    try:
-        # Check if the module is already installed
-        importlib.import_module(module_name)
-        #import module_name
-        #print(f"The module '{module_name}' is already installed.")
-    except ImportError:
-        # If the module is not installed, try installing it
-        x = get_boolean_input(
-            "\n" + module_name + "  module is not installed.\nwould you like to install it? (y/n):")
+def check_and_install_requirements(requirements):
+    missing_requirements = []
+    for module in requirements:
+        try:
+            # Check if the module is already installed
+            importlib.import_module(module)
+        except ImportError:
+            missing_requirements.append(module)
+    if len(missing_requirements) == 0:
+        pass
+    else:
+        x = simple_bool(str(missing_requirements)+" are missing.\nWould you like to install them all?")
         if x:
-            import subprocess
-            subprocess.check_call(["pip", "install", module_name])
-            print(f"The module '{module_name}' was installed correctly.")
+            for module in missing_requirements:
+                subprocess.check_call(["pip", "install", module])
+                print(f"{module}' was installed correctly.")
         else:
             exit()
 
@@ -53,10 +55,9 @@ try:
 except ImportError:
     print('Check requirements:')
 
-check_and_install_module("pandas")
-check_and_install_module("openai")
-check_and_install_module("tiktoken")
-check_and_install_module('pyperclip')
+requirements = ["openai", "tiktoken", "pandas", "pyperclip"]
+check_and_install_requirements(requirements)
+
 #print('--------------------------------------')
 
 current_dir = ''
@@ -68,16 +69,14 @@ else:
     current_dir = os.getcwd()
 
 # If  import openai
-import pychatgpt as op
-import pyperclip
-import pandas as pd
+import pychatgpt_lite as op
+
 
 # check Usage:
 # https://platform.openai.com/account/usage
 
 # Set API key:
 # https://platform.openai.com/account/api-keys
-
 
 
 
@@ -112,27 +111,26 @@ while True:  # external cycle
 
     while safe_word != 'restartnow' or 'exitnow' or 'maxtoken':
         timea = datetime.now()
-        print('--------------------------------')
 
-        message = input()
+        message = input('--------------------------------\nuser:')
         #print(message)
 
         safe_word = message
         if safe_word == 'restartnow':
-            conversation_gpt = []
+            op.clearchat()
             break
         if safe_word == 'exitnow':
             exit()
         if safe_word == 'maxtoken':
-            maxtoken = int(input('set max response tokens (1000 default):'))
+            maxtoken = int(input('\nSet max response tokens (1000 default):'))
             break
         if safe_word == 'system':
-            conversation_gpt = []
-            system = input('define custum system instructions:')
+            op.clearchat()
+            system = input('\nDefine custum system instructions:')
             print('*system instruction changed*')
             pass
         else:
-            op.send_message(message)
+            op.send_message(message, to_clipboard=True)
 
         timed = datetime.now() - timea
 
