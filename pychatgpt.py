@@ -1007,6 +1007,7 @@ def whisper(filepath,
 ####### text-to-speech #######
 
 voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+response_formats = ["mp3", "flac", "aac", "opus"]
 def text2speech(text,
                 voice="alloy",
                 filename="speech.mp3",
@@ -1024,7 +1025,7 @@ def text2speech(text,
     spoken_response.stream_to_file(filename)
     if play:
         play_audio(filename)
-        #play_audio("silence.mp3")
+
 
 def text2speech_stream(text,
                        voice="alloy",
