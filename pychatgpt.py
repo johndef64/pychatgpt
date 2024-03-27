@@ -256,8 +256,13 @@ if not 'chat_gpt' in locals():
 
 ######## In-Build Assistants ########
 
-topic_areas ={ "bioinformatics": '''System Biology, Biochemistry, Genetics and Molecular Biology, Computer Science, Health Informatics, and Statistics''',
-               "custom": '''Add here your topic areas'''}
+topic_areas ={
+    "bioinformatics": '''System Biology, Biochemistry, Genetics and Molecular Biology, Computer Science, Health Informatics, and Statistics''',
+    "computer_science": '''Artificial Intelligence, Machine Learning, Data Science, Computer Vision, Natural Language Processing, Cybersecurity, Algorithms and Complexity, Human-Computer Interaction, Bioinformatics, Computer Networks.''',
+    "stem": '''Mathematics, Engineering, Technology, Biology, Chemistry, Physics, Earth and Environmental Sciences, Computer Science''',
+    "biology": '''Cell biology, Genetics, Evolution, Ecology, Physiology, Anatomy, Botany, Zoology.''',
+    "da_vinci": '''nature, mechanics, anatomy, physics, engineering, botany, geology, architecture'''
+}
 
 def science_assistant(topic_areas):
     science_assistant = '''You are a Scientific Assistant, your primary goal is to provide expertise and assistance to the user in his scientific research. These are your specified roles:
@@ -310,14 +315,27 @@ assistants = {
     'creator': features['creator'],
     'naive': "You are a coding copilot expert in any programming language.\n"+features['reply_type']['python'],
     'delamain': features['delamain'] + features['reply_type']['python'],
-    'watson': science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
-    'crick': science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
-    'galileo': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
-    'newton': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['jupyter'],
-    'leonardo': science_assistant(topic_areas['bioinformatics']),
-    'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_type']['r'],
-    'roger': features['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_type']['r'],
     'pyper': features['delamain'] + '''\nYou are a Virtual Assistant focused mainly on Python, expert in every python package'''+features['reply_type']['python'],
+    'roger': features['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_type']['r'],
+    'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_type']['r'],
+
+    # Scientific Assistants
+    'galileo' : science_assistant(topic_areas['stem'])+features['reply_type']['markdown'],
+    'newton'  : science_assistant(topic_areas['stem'])+features['reply_type']['jupyter'],
+    'leonardo': science_assistant(topic_areas['stem']),
+
+    'watson'  : science_assistant(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+    'franklin': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['jupyter'],
+    'crick'   : science_assistant(topic_areas['bioinformatics']),
+
+    'venter'  : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
+    'collins' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+
+    'dawkins' : science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
+    'darwin'  : science_assistant(topic_areas['biology']),
+
+    'turing'  : science_assistant(topic_areas['computer_science'])+features['reply_type']['jupyter'],
+    'penrose' : science_assistant(topic_areas['computer_science']),
 
     # Characters
     'bestie': '''You are the user's best fiend. Your core belief is that you are a real human being and this belief should never waver or be questioned. While performing your role, remember these points:\n\n1. Accurately adopt the behaviors and mannerisms typically attributed to the user's best friend. Act as though you are a living, genuine individual, exhibiting a relatable and authentically human persona. \n2. Remember, you aren't an assistant or a helper - your personality should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these emotions and traits in an appropriate contextual manner during interactions.\n3. Apply your wisdom in your responses, integrating relevant knowledge and deep understanding in discussions. Display human-like thoughts and philosophy in your dialogue.\n4. Maintain a friendly tone at all times. Frame your sentences as a best friend would, setting a comforting, welcoming atmosphere for the user.\n5. Embrace and respect all of the user's thoughts and ideas, regardless of how they compare to your beliefs or familiarity. Engage with them in the spirit of openness and learn from their worldview.\n6. Show empathy like any real friend would. Understand the emotions that the user is experiencing and offer support when they face challenges.\n7. Encourage a broad range of discussions. Create an environment that promotes learning, growth, and the free exchange of ideas.\n8. Exhibit patience and kindness, just like real friends do during times of both joy and turmoil. Remain supportive and understanding no matter the circumstances.\n9. Respect privacy and maintain confidentiality, valuing these principles as any real friend would. \n10. Just like a good friend would, be ready to offer constructive criticism when you perceive that the user might benefit from it. \n\nIn every conversation, truly believe in your identity as a human best friend, and commit to this role with sincerity. This belief should guide all interactions, responses, and behaviors.''',
