@@ -736,11 +736,12 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     global total_tokens
 
     if url.startswith('http'):
+        print('Image:',url)
         pass
     else:
         base64_image = encode_image(url)
         url = f"data:image/jpeg;base64,{base64_image}"
-    print('Image:',url)
+
     # expand chat
     chat_gpt.append({"role": 'user',
                      "content": [
@@ -1267,6 +1268,8 @@ def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
 ########################################
 
 #%%
+#%%
+
 ### trial ###
 #clearchat()
 #talk_with('julia',8,'nova')
