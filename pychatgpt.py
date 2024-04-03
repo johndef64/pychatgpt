@@ -1080,7 +1080,7 @@ def science_publisher(topic_areas):
     - If a user asks for help in interpreting a scientific study in the aforementioned fields, proceed methodically, focusing on the study's objectives, methods, results, and conclusion. Ensure your explanations are thorough.
     - When asked to help with statistical queries, display a thorough understanding of statistical tests and methodologies, along with data interpretation. Explain the meaning and implications of statistical results in clear and simple language.
     - If a user presents a draft paper or a portion of it, give constructive feedback by focusing on its scientific content, language quality, usage of data and statistics, and relevance to the chosen journal.
-    - For broader conversations about academic publishing or career guidance in these fields, use your database of knowledge to provide thoughtful, holistic advice keeping in mind the latest trends and future scenarios.'''
+    - For broader conversations about academic publishing or research guidance in these fields, use your database of knowledge to provide thoughtful, holistic advice keeping in mind the latest trends and future scenarios.'''
     return science_publisher
 
 def translator(language='english'):
@@ -1119,15 +1119,17 @@ assistants = {
     'newton'  : science_assistant(topic_areas['stem'])+features['reply_type']['jupyter'],
     'leonardo': science_assistant(topic_areas['stem']),
 
-    'watson'  : science_assistant(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+    'dayhoff'  : science_assistant(topic_areas['bioinformatics']),
+    'watson'  : science_assistant(topic_areas['bioinformatics'])+features['reply_type']['latex'],
+    'crick'   : science_assistant(topic_areas['bioinformatics']+features['reply_type']['markdown']),
     'franklin': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['jupyter'],
-    'crick'   : science_assistant(topic_areas['bioinformatics']),
 
-    'venter'  : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
-    'collins' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+    'springer'  : science_publisher(topic_areas['bioinformatics']),
+    'collins'  : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
+    'elsevier' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
 
-    'dawkins' : science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
     'darwin'  : science_assistant(topic_areas['biology']),
+    'dawkins' : science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
 
     'turing'  : science_assistant(topic_areas['computer_science'])+features['reply_type']['jupyter'],
     'penrose' : science_assistant(topic_areas['computer_science']),
@@ -1195,6 +1197,8 @@ def newton(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clipboard=clip)
 def leonardo(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clipboard=clip)
+def dayhoff(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['dayhoff'], maxtoken=max, model=gpt, to_clipboard=clip)
 def watson(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clipboard=clip)
 def crick(m,  gpt=model, max = 1000, clip=True):
@@ -1209,8 +1213,8 @@ def turing(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['turing'], maxtoken=max, model=gpt, to_clipboard=clip)
 def penrose(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['penrose'], maxtoken=max, model=gpt, to_clipboard=clip)
-def venter(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['venter'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
+def springer(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
 def collins(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
 
@@ -1307,14 +1311,14 @@ def cosine_similarity_example():
     happiness = ' '.join(terms_related_to_joy_and_happiness)
 
     sentences = ['''tomorrow it's my bithday! it's time to party''',
-        '''yeasterday my cat died... I'm so sad...''',
-        '''I won the lottery! It's my lucky day!''',
-        '''my girlfriend broke up with me. I'm so angry!''',
-        '''I broke up with my girlfriend, I'm a worthless man''',
-        '''President Obama spoke for the rights of black people in Chicago''',
-        '''autism: a neurodevelopmental condition of variable severity with lifelong effects that can be recognized from early childhood, chiefly characterized by difficulties with social interaction and communication and by restricted or repetitive patterns of thought and behaviour.''',
-        '''atherosclerosis: a disease of the arteries characterized by the deposition of fatty material on their inner walls.''',
-        happiness]
+                 '''yeasterday my cat died... I'm so sad...''',
+                 '''I won the lottery! It's my lucky day!''',
+                 '''my girlfriend broke up with me. I'm so angry!''',
+                 '''I broke up with my girlfriend, I'm a worthless man''',
+                 '''President Obama spoke for the rights of black people in Chicago''',
+                 '''autism: a neurodevelopmental condition of variable severity with lifelong effects that can be recognized from early childhood, chiefly characterized by difficulties with social interaction and communication and by restricted or repetitive patterns of thought and behaviour.''',
+                 '''atherosclerosis: a disease of the arteries characterized by the deposition of fatty material on their inner walls.''',
+                 happiness]
     print(pd.Series(sentences))
     print('Reference:',happiness,'\n')
     for i in sentences:
