@@ -250,8 +250,8 @@ total_tokens = 0  # iniziale token count
 token_limit = 0  # iniziale token limit
 keep_persona = True
 
-if not 'chat_gpt' in locals():
-    chat_gpt = []
+if not 'chat_thread' in locals():
+    chat_thread = []
 
 
 def display_assistants():
@@ -266,10 +266,10 @@ def add_persona(char, language='eng'):
         'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'
     }
     if language == 'eng':
-        chat_gpt.append({"role": "system",
+        chat_thread.append({"role": "system",
                          "content": persona_dict['character']})
     if language == 'ita':
-        chat_gpt.append({"role": "system",
+        chat_thread.append({"role": "system",
                          "content": persona_dict['personaggio']})
 
 
@@ -451,9 +451,9 @@ def expand_chat(message, role="user"):
     if message.startswith("@"):
         clearchat()
         message = message.lstrip("@")
-        chat_gpt.append({"role": role, "content": message})
+        chat_thread.append({"role": role, "content": message})
     else:
-        chat_gpt.append({"role": role, "content": message})
+        chat_thread.append({"role": role, "content": message})
 
 
 def build_messages(chat):
@@ -466,7 +466,7 @@ def build_messages(chat):
 def save_chat(path='chats/'):
     filename = input('chat name:')
     directory = 'chats'
-    formatted_json = json.dumps(chat_gpt, indent=4)
+    formatted_json = json.dumps(chat_thread, indent=4)
     if not os.path.exists(directory):
         os.mkdir(directory)
     with open(path+filename+'.json', 'w', encoding= 'utf-8') as file:
@@ -475,14 +475,14 @@ def save_chat(path='chats/'):
 
 
 def load_chat(contains= '', path='chats/'):
-    global chat_gpt
+    global chat_thread
     files_df = display_files_as_pd(path, ext='json',contains=contains)
     files_df = files_df.sort_values().reset_index(drop=True)
     files_df_rep = files_df.str.replace('.json','',regex =True)
     files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
     filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))])
     with open(path+filename,'r') as file:
-        chat_gpt = ast.literal_eval(file.read())
+        chat_thread = ast.literal_eval(file.read())
         file.close()
     print('*chat',filename,'loaded*')
 
@@ -506,17 +506,17 @@ def load_multiple_files(file_list):
     return loaded_files
 
 def clearchat():
-    global chat_gpt
+    global chat_thread
     global total_tokens
-    chat_gpt = []
+    chat_thread = []
     total_tokens = 0
     print('*chat cleared*\n')
 
 
-def tokenizer(chat_gpt, print_token=True):
+def tokenizer(chat_thread, print_token=True):
     global total_tokens
 
-    context_fix = (str(chat_gpt).replace("{'role': 'system', 'content':", "")
+    context_fix = (str(chat_thread).replace("{'role': 'system', 'content':", "")
                    .replace("{'role': 'user', 'content':", "")
                    .replace("{'role': 'assistant', 'content':", "")
                    .replace("},", ""))
@@ -569,7 +569,7 @@ def send_message(message,
                  ):
     global assistant
     global persona
-    global chat_gpt
+    global chat_thread
     global reply
     global total_tokens
     global token_limit
@@ -597,7 +597,7 @@ def send_message(message,
     # add system instruction
     if not reinforcement:
         sys_duplicate = []
-        for entry in chat_gpt:
+        for entry in chat_thread:
             x = system == entry.get('content')
             sys_duplicate.append(x)
             if x:
@@ -606,11 +606,11 @@ def send_message(message,
         sys_duplicate = [False]
 
     if system != '' and not any(sys_duplicate):
-        chat_gpt.append({"role": "system",
+        chat_thread.append({"role": "system",
                          "content": system})
 
     if assistant != '' and not any(sys_duplicate):
-        chat_gpt.append({"role": "system",
+        chat_thread.append({"role": "system",
                          "content": assistant})
 
 
@@ -619,21 +619,21 @@ def send_message(message,
         print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
         cut_length = 0
         if 36500 < token_limit < 128500:
-            cut_length = len(chat_gpt) // 75
+            cut_length = len(chat_thread) // 75
         if 16500 < token_limit < 36500:
-            cut_length = len(chat_gpt) // 18
+            cut_length = len(chat_thread) // 18
         if 8500 < token_limit < 16500:
-            cut_length = len(chat_gpt) // 10
+            cut_length = len(chat_thread) // 10
         if 4500 < token_limit < 8500:
-            cut_length = len(chat_gpt) // 6
+            cut_length = len(chat_thread) // 6
         if 0 < token_limit < 4500:
-            cut_length = len(chat_gpt) // 3
-        chat_gpt = chat_gpt[cut_length:]
+            cut_length = len(chat_thread) // 3
+        chat_thread = chat_thread[cut_length:]
 
         if keep_persona and persona != '':
             add_persona(persona)
         if keep_persona and system != '':
-            chat_gpt.append({"role": "system", "content": system})
+            chat_thread.append({"role": "system", "content": system})
 
     # expand chat
     expand_chat(message)
@@ -642,7 +642,7 @@ def send_message(message,
         print('user:',print_mess)
 
     # send message----------------------------
-    messages = build_messages(chat_gpt)
+    messages = build_messages(chat_thread)
     response = client.chat.completions.create(
         model = model,
         messages = messages,
@@ -669,10 +669,10 @@ def send_message(message,
 
     time.sleep(1)
     # expand chat--------------------------------
-    chat_gpt.append({"role": "assistant", "content":reply})
+    chat_thread.append({"role": "assistant", "content":reply})
 
     # count tokens--------------------------------
-    total_tokens = tokenizer(chat_gpt, print_token)
+    total_tokens = tokenizer(chat_thread, print_token)
 
     # Add the assistant's reply to the chat log-------------
     if savechat:
@@ -732,7 +732,7 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
                message="What’s in this image?",
                maxtoken=1000, lag=0.00, printreply=True, to_clipboard=True):
     global reply
-    global chat_gpt
+    global chat_thread
     global total_tokens
 
     if url.startswith('http'):
@@ -743,7 +743,7 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
         url = f"data:image/jpeg;base64,{base64_image}"
 
     # expand chat
-    chat_gpt.append({"role": 'user',
+    chat_thread.append({"role": 'user',
                      "content": [
                          {"type": "text", "text": message},
                          {"type": "image_url", "image_url": {
@@ -753,7 +753,7 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
                      ]})
 
     # send message----------------------------
-    messages = build_messages(chat_gpt)
+    messages = build_messages(chat_thread)
 
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -777,12 +777,12 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     # reset compatibility with the other models
     time.sleep(0.85)
     # expand chat--------------------------------
-    chat_gpt.append({"role": "assistant", "content":reply})
-    chat_gpt[-2] = {"role": "user", "content": message+":\nImage:"+url}
+    chat_thread.append({"role": "assistant", "content":reply})
+    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+url}
     # content is a list [] I have to replace ("image_url", "text") and GO!
 
     # count tokens-------------------------------
-    total_tokens = tokenizer(chat_gpt, True)
+    total_tokens = tokenizer(chat_thread, True)
 
     if to_clipboard:
         pc.copy(reply)
