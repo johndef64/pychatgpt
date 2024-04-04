@@ -10,11 +10,11 @@ def get_gitfile(url, dir=os.getcwd()):
 if not os.path.exists('pychatgpt.py'):
     get_gitfile("https://raw.githubusercontent.com/johndef64/pychatgpt/main/pychatgpt.py")
 
-clip = False if 'google.colab' in sys.modules else True
 #%%
 import pychatgpt as op
 op.display_assistants()
 
+clip = False if 'google.colab' in sys.modules else True
 #%% Load file as variable
 path = os.getcwd()
 file = op.load_file(path)
@@ -26,36 +26,36 @@ op.expand_chat(file, 'user') #system #assistant
 m = ''' 
 
 '''
-op.delamain(m, 'gpt-4', 1000, clip)
+op.delamain(m, op.model, 1000, clip)
 #%%
 op.clearchat()
 m = ''' 
 
 '''
-op.leonardo(m, 'gpt-4', 1000, clip)
+op.leonardo(m, op.model, 1000, clip)
 #%%
 op.clearchat()
 m = ''' 
 
 '''
-op.newton(m, 'gpt-4', 1000, clip)
+op.newton(m, op.model, 1000, clip)
 #%%
 op.clearchat()
 m = ''' 
 
 '''
-op.crick(m, 'gpt-4', 1000, clip)
+op.crick(m, op.model, 1000, clip)
 #%%
 op.clearchat()
 m = '''
 Today I'm going to the sea. Tomorrow I will go to the sea. Yesterday I went to the sea. '''
-op.japanese_teacher(m, 'gpt-4', 1000, clip)
+op.japanese_teacher(m, op.model, 1000, clip)
 #%%
 op.clearchat()
 m = ''' 
 
 '''
-op.roger(m, 'gpt-4', 1000, clip)
+op.roger(m, op.model, 1000, clip)
 #%%
 
 #%% Load chat
@@ -67,7 +67,7 @@ print(df.head())
 m='''
  
 '''
-op.chatgpt(m, 'gpt-4', 1000, clip)
+op.chatgpt(m, op.model, 1000, clip)
 #%%
 op.chat_gpt
 
@@ -101,21 +101,28 @@ op.text2speech(op.reply,'onyx', play=True)
 # Chat with...
 m = '''@ 
 What's up bro?!'''
-op.chat_with(m,'bestie','onyx')
+op.chat_with('bestie',m, voice='onyx')
 #%%
 m='''@ 
 write an introduction to machine learning as if it were the first lecture in my course
 '''
-op.chat_with(m,'leonardo','onyx', printall=True)
+op.chat_with('leonardo',m,voice='onyx', printall=True)
+#%%
+#%%
+m='''@ 
+ciao tesoro, come sei bella oggi?'''
+op.chat_with('julia',m,voice='nova', printall=True)
+#%%
+op.chat_thread
 #%%
 ly='''@ 
 Please, write the lyrics of a song in your style.
 '''
 #m='@Hi, who are you?'
 #%%
-op.chat_with(ly,'Nergal (Behemoth Frontman)','onyx', printall=True)
+op.chat_with('Nergal (Behemoth Frontman)', ly, voice='onyx', printall=True)
 #%%
-op.chat_with(ly,'Dua Lipa','nova', printall=True)
+op.chat_with('Dua Lipa', ly, voice='nova', printall=True)
 #%%
 import pychatgpt as op
 # Talk with ...
