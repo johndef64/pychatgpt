@@ -281,7 +281,7 @@ def ask_gpt(prompt,
             printuser = False,
             printreply = True,
             savechat = True,
-            to_clipboard = False
+            to_clip = False
             ):
     global reply
 
@@ -323,7 +323,7 @@ def ask_gpt(prompt,
     if savechat:
         write_log(reply, prompt)
 
-    if to_clipboard:
+    if to_clip:
         pc.copy(reply)
 
 
@@ -446,7 +446,7 @@ def send_message(message,
                  printuser=False,
                  print_token=True,
                  savechat=True,
-                 to_clipboard=False,
+                 to_clip=False,
                  reinforcement=False
                  ):
     global assistant
@@ -560,7 +560,7 @@ def send_message(message,
     if savechat:
         write_log(reply, message)
 
-    if to_clipboard:
+    if to_clip:
         pc.copy(reply)
 
 def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit_chat= 'stop', printall=True):
@@ -623,10 +623,14 @@ def translator(language='english'):
 
 features = {
     'reply_type' : {
-        'latex': '''Reply only using Latex markup language. \nReply example:\n```latex\n\\documentclass{article}\n\n\\begin{document}\n\n\\section{basic LaTeX document structure}\nThis is a basic LaTeX document structure. In this example, we are creating a new document of the `article` class. The `\\begin{document}` and `\\end{document}` tags define the main content of the document, which can include text, equations, tables, figures, and more.\n\n\\end{document}\n```\n''',
-        'python':'''Reply only writing programming code, you speak only though code #comments.\nReply example:\n```python\n# Sure, I\'m here to help\n\ndef greeting(name):\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```\n''',
-        'r':'''Reply only writing programming code, you speak only though code #comments.\nReply example:\n```R\n# Sure, I\'m here to help\n\ngreeting <- function(name) {\n  # This function takes in a name as input and prints a greeting message\n  print(paste0("Hello, ", name, "!"))\n}\n\n# Prompt the user for their name\nuser_name <- readline(prompt = "What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```''',
+        'latex': '''Reply only using Latex markup language. \nReply example:\n```latex\n\\documentclass{article}\n\n\\begin{document}\n\n\\section{basic LaTeX document structure}\nThis is a basic LaTeX document structure. In this example, we are creating a new document of the `article` class. The `\\begin{document}` and `\\end{document}` tags define the main content of the document, which can include text, equations, tables, figures, and more.\n\n\\end{document}\n```''',
+
+        'python':'''Reply only writing programming code, you speak only though code #comments.\nReply example:\n```python\n# Sure, I\'m here to help\n\ndef greeting(name):\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```''',
+
+        'r':'''Reply only writing programming code, you speak only though code #comments.\nReply example:\n```r\n# Sure, I\'m here to help\n\ngreeting <- function(name) {\n  # This function takes in a name as input and prints a greeting message\n  print(paste0("Hello, ", name, "!"))\n}\n\n# Prompt the user for their name\nuser_name <- readline(prompt = "What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```''',
+
         'markdown': '''Reply only using Markdown markup language.\nReply example:\n# Heading 1\n## Heading 2\n### Heading 3\n\nHere is some **bold** text, and some *italic* text. \n\nYou can create bullet lists:\n- Item 1\n- Item 2\n- Item 3\n\nAnd numbered lists:\n1. Item 1\n2. Item 2\n3. Item 3\n\n[Here is a link](https://example.com)\n\nCode can be included in backticks: `var example = true`\n''',
+
         'jupyter': '''Reply only using Markdown markup language mixed with Python code, like a Jupyter Notebook.\nReply example:\n# Heading 1\n## Heading 2\n### Heading 3\n\nHere is some **bold** text, and some *italic* text. \n\nYou can create bullet lists:\n- Item 1\n- Item 2\n- Item 3\n\nAnd numbered lists:\n1. Item 1\n2. Item 2\n3. Item 3\n\n[Here is a link](https://example.com)\n\nCode can be included in backticks: `var example = true`\n```python\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```'''
     },
 
@@ -700,84 +704,84 @@ def send_to(m, who,  gpt=model, max = 1000, clip=True):
         sys = ''
     else:
         sys = who
-    send_message(m,system=sys, maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=sys, maxtoken=max, model=gpt, to_clip=clip)
 
 # Copilots
 def chatgpt(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clip=clip)
 def creator(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['creator'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['creator'], maxtoken=max, model=gpt, to_clip=clip)
 def delamain(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clip=clip)
 def roger(m,  gpt=model, max = 1000, clip=True):
     expand_chat('Return always just the R code in your output!','system')
-    send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clip=clip)
 def robert(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clip=clip)
 def prompt_maker(m,  gpt=model, max = 1000, clip=True, sdxl=True):
     import stablediffusion_rag as sd
     if sdxl:
         assistant = sd.rag_sdxl
     else:
         assistant = sd.rag_sd
-    send_message(m,system=assistant, maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistant, maxtoken=max, model=gpt, to_clip=clip)
 
 
 # Scientific Assistants
 def galileo(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['galileo'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['galileo'], maxtoken=max, model=gpt, to_clip=clip)
 def newton(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clip=clip)
 def leonardo(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clip=clip)
 def dayhoff(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['dayhoff'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['dayhoff'], maxtoken=max, model=gpt, to_clip=clip)
 def watson(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clip=clip)
 def crick(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clip=clip)
 def franklin(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['franklin'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['franklin'], maxtoken=max, model=gpt, to_clip=clip)
 def darwin(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['darwin'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['darwin'], maxtoken=max, model=gpt, to_clip=clip)
 def dawkins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['dawkins'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['dawkins'], maxtoken=max, model=gpt, to_clip=clip)
 def turing(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['turing'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['turing'], maxtoken=max, model=gpt, to_clip=clip)
 def penrose(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['penrose'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['penrose'], maxtoken=max, model=gpt, to_clip=clip)
 def springer(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
+    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=True)
 def collins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clipboard=clip, reinforcement=True)
+    send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=True)
 
 
 # Characters
 def bestie(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clip=clip)
 def julia(m,  gpt=model, max = 1000, clip=True, name='julia'):
     if os.path.exists("my_bio.txt"):
         assistants[name] = assistants[name]+'''\n***'''+load_file("my_bio.txt")+'***'
     else:
         pass
-    send_message(m,system=assistants[name], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants[name], maxtoken=max, model=gpt, to_clip=clip)
 
 
 
 # Translators
 def english(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clip=clip)
 def italian(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['italian'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['italian'], maxtoken=max, model=gpt, to_clip=clip)
 def portuguese(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['portuguese'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['portuguese'], maxtoken=max, model=gpt, to_clip=clip)
 def japanese(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clip=clip)
 def japanese_teacher(m, gpt=model, max = 1000, clip=True):
     print('Text: '+m.lstrip("@"))
-    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
 def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clipboard=clip)
+    send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
 
 
 ########################################
