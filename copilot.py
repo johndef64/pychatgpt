@@ -24,6 +24,7 @@ op.clearchat()
 op.expand_chat(file, 'user') #system #assistant
 #%%
 m = ''' 
+shutdoan windos cmd terminal pc dopo mezz ora epr favore, il comado
 
 '''
 op.delamain(m, op.model, 1000, clip)
@@ -137,6 +138,39 @@ import pychatgpt as op
 m= '''@Hello, I am a biologist studying computer science.'''
 op.japanese_learner(m, 1)
 #%%
+# Describe Image
+op.clearchat()
+url = "https://i.pinimg.com/564x/2c/b7/25/2cb725d68d10b3e1fa87fa6c48769072.jpg"
+op.send_image(url)
+
+#%%
+# Stable Diffusion Prompt Maker
+
+m='''@
+An alchemist master brewer in a brewery laboratory who taps beer and talks to the observer, 1920s, vintage style, red-haired with a monocle, dressed elegantly.
+'''
+m='''
+The image features an illustration of a female character with noticeably unique characteristics, particularly her red eyes and the makeup, consisting of blue lipstick. She has dark hair with blue highlights and appears to be styled in a gothic fashion, indicated by her black choker, rings, and dark-colored clothing. The background suggests an urban setting with buildings and a clear sky. This seems to be artwork from a comic book or graphic novel, known for their stylized and vibrant portrayals of characters.
+'''
+op.prompt_maker(m)
+#%%
+op.english(''' un alchimista mastro birraio in una birreria laboratorio che spila birra e parla all ossevatore, anni '20, vintage stile, rossi di capelli con il monocolo, vestito elegante ''')
+#%%
+op.chat_thread
+#%%
+
+prompts = [
+    {'Positive prompt': '1920s vintage style portrait, an alchemist master brewer in brewery lab, taps beer, talks to observer, red-haired with monocle, elegant attire, industrial setting, cinematic shot, film grain texture:1.1, (vintage, classy:1.2)', 'Negative prompt': '(worst quality, low quality, illustration, 3d, 2d, cartoons), modern clothing, outdoors setting'},
+    {'Positive prompt': '1920s vintage style, alchemist master brewer pours beer, conversing, red-haired monocled figure in elegant attire, brewery lab, detailed interior, natural lighting, (cinematic, vintage film:1.2)', 'Negative prompt': '(low resolution, blurry, unrealistic lighting, cartoonish style), casual clothing, contemporary setting'},
+    {'Positive prompt': '1920s vintage-style setting, alchemist master brewer discussing while pouring beer, red-haired character with monocle, elegant outfit, laboratory ambiance, focused expression, warm-toned lighting, (realistic, detailed, high resolution:1.2)', 'Negative prompt': '(caricatured, minimalistic, abstract, unnatural colors), bright lighting, casual outfit, modern background'},
+
+    {'Positive prompt': 'comic book style, illustration of a female character with red eyes, blue lipstick, gothic fashion, dark hair with blue highlights, black choker, urban background with buildings, clear sky, vibrant colors, (comic art, graphic novel:1.2)', 'Negative prompt': '(realistic, photographic, portrait, 3d render, painting), bright smile'},
+
+    {'Positive prompt': 'vibrant graphic novel art, female character with red eyes and blue lipstick, gothic fashion style, dark hair with blue highlights, urban background, black choker, stylized rings, (comic book art:1.2), (graphic novel:1.1)', 'Negative prompt': '(realistic, photographic, portrait, 3d render, painting), open mouth'},
+
+    {'Positive prompt': 'comic book illustration, female character with red eyes, unique blue lipstick, gothic style, dark hair with blue highlights, black choker, urban setting, stylized rings, (vibrant colors:1.2), (comic art, graphic novel:1.1)', 'Negative prompt': '(realistic, photographic, portrait, 3d render, painting), smiling widely'}
+]
+
 
 # Notes
 '''
