@@ -1132,9 +1132,9 @@ assistants = {
     'crick'   : science_assistant(topic_areas['bioinformatics']+features['reply_type']['markdown']),
     'franklin': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['jupyter'],
 
-    'springer'  : science_publisher(topic_areas['bioinformatics']),
-    'collins'  : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
-    'elsevier' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+    'collins'  : science_publisher(topic_areas['bioinformatics']),
+    'elsevier' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
+    'springer' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
 
     'darwin'  : science_assistant(topic_areas['biology']),
     'dawkins' : science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
@@ -1223,10 +1223,12 @@ def turing(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['turing'], maxtoken=max, model=gpt, to_clip=clip)
 def penrose(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['penrose'], maxtoken=max, model=gpt, to_clip=clip)
-def springer(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=True)
 def collins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=True)
+    send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clip=clip, reinforcement= False)
+def springer(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=False)
+def elsevier(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['elsevier'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=False)
 
 
 # Characters
@@ -1256,32 +1258,46 @@ def japanese_teacher(m, gpt=model, max = 1000, clip=True):
 def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
 
-def japanese_learner(m, repeat= 3, voice='nova', speed=1):
-    japanese_teacher(m, 'gpt-4')
+def japanese_learner(m, voice='nova', times= 3, speed=1):
+    japanese_teacher(m, 'gpt-4-turbo')
     print('')
     phrase = reply.split('\n')[0].split(':')[1].strip()
     text2speech(phrase,voice=voice, speed = speed, play=True)
-    i = 0
-    while i in range(repeat-1):
-        time.sleep(len(phrase)/3)
-        play_audio("speech.mp3")
-        i += 1
+    audio_loop()
+    #i = 0
+    #while i in range(times-1):
+    #    time.sleep(len(phrase)/3)
+    #    play_audio("speech.mp3")
+    #    i += 1
 
-def portuguese_learner(m, repeat= 3, voice='nova', speed=1):
-    portuguese_teacher(m, 'gpt-4')
+def portuguese_learner(m, voice='nova', times= 3, speed=1):
+    portuguese_teacher(m, 'gpt-4-turbo')
     print('')
     phrase = reply.split('\n')[0].split(':')[1].strip()
     text2speech(phrase,voice=voice, speed = speed, play=True)
-    i = 0
-    while i in range(repeat-1):
-        time.sleep(len(phrase)/4)
-        play_audio("speech.mp3")
-        i += 1
+    audio_loop()
+    #i = 0
+    #while i in range(times-1):
+    #    time.sleep(len(phrase)/4)
+    #    play_audio("speech.mp3")
+    #    i += 1
+
+
+def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
+    print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
+    while True:
+        if kb.is_pressed(repeat):
+            play_audio(audio_file)
+            #print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
+        elif kb.is_pressed(exit):
+            print('Chat Closed')
+            break
 
 
 ########################################
 
 #%%
+portuguese_learner('ciao, mi chiamo Giovanni e vengo da Napoli. Lisbona è bellissima')
 #%%
 
 ### trial ###
