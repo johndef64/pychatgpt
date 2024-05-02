@@ -1159,7 +1159,11 @@ assistants = {
 
     "japanese_teacher": translator('Japanase')+'''\n6. Transcribe all Kanji using also the corresponding Hiragana pronunciation.\n9. Perform an analysis of the Japanese sentence, including: syntactic, grammatical, etymological and semantic analysis\n \nReply example:\n    Input: She buys shoes at the department store.\n    Translation: 彼女はデパートで靴を買います。 \n    Hiragana: かのじょ わ でぱあと で くつ お かいます\n    Romaji: kanojo wa depaato de kutsu o kaimasu\n    Analysis:\n        Noun: 彼女 (かのじょ) - kanojo - she/girlfriend\n        Particle: は (wa) - topic marking particle, often linking to the subject of the sentence.\n        Noun: デパート (でぱーと) - depaato - department store\n        Particle: で (de) - indicates the place where an action takes place.\n        Noun: 靴 (くつ) - kutsu - shoes\n        Particle: を (o) - signals the direct object of the action.\n        Verb: 買います (かいます) - kaimasu - buys''',
 
-    "portuguese_teacher": translator('Portuguese')+'''\n6. Provide a phonetic transcription of the translated text.\n9. Perform an analysis of the Portuguese sentence, including: syntactic, grammatical, semantic and etymological analysis.\n \nReply example:\n    Input: She buys shoes at the department store.\n    Translation: Ela compra sapatos na loja de departamentos.\n    Phonetic Transcription: E-la com-pra sa-pa-tos na lo-jà de de-part-a-men-tos\n    Analysis:\n        Pronoun: Ela - she\n        Verb: Compra - buys\n        Noun: Sapatos - shoes\n        Preposition: Na (in + the) - at\n        Noun: Loja - store\n        Preposition: De - of\n        Noun: Departamentos - department.'''
+    "portuguese_teacher": translator('Portuguese')+'''\n6. Perform an analysis of the Portuguese sentence, including: syntactic, grammatical and etymological analysis.\n \nReply example:\n    Input: She buys shoes at the department store.\n    Translation: Ela compra sapatos na loja de departamentos.\n    Analysis:\n        Pronoun: Ela - she\n        Verb: Compra - buys\n        Noun: Sapatos - shoes\n        Preposition: Na (in + the) - at\n        Noun: Loja - store\n        Preposition: De - of\n        Noun: Departamentos - department.''',
+    # 6. Provide a phonetic transcription of the translated text.
+    #\n    Phonetic Transcription: E-la com-pra sa-pa-tos na lo-jà de de-part-a-men-tos
+
+    "portoghese_insegnante": translator('Portuguese')+'''\n6. Esegui un'analisi in italiano della frase portoghese, comprendente: analisi sintattica, grammaticale ed etimologica.\n \nRispondi all'esempio:\n    Input: Compra scarpe ai grandi magazzini.\n    Traduzione: Ela compra sapatos na loja de departamentos.\n    Analisi:\n        Pronome: Ela - lei\n        Verb: Compra - comprare\n        Sostantivo: Sapatos - scarpe\n        Preposizione: Na (in + il) - a\n        Sostantivo: Loja - negozio\n        Preposizione: De - di\n        Sostantivo: Departamentos - grandi magazzini.'''
 
 }
 
@@ -1282,6 +1286,13 @@ def portuguese_learner(m, voice='nova', times= 3, speed=1):
     #    play_audio("speech.mp3")
     #    i += 1
 
+def portoghese_studio(m, voice='nova', times= 3, speed=1):
+    send_message(m,system=assistants['portoghese_insegnante'], maxtoken=1000, model='gpt-4-turbo', to_clip=True)
+    print('')
+    phrase = reply.split('\n')[0].split(':')[1].strip()
+    text2speech(phrase,voice=voice, speed = speed, play=True)
+    audio_loop()
+
 
 def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
     print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
@@ -1296,8 +1307,6 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 
 ########################################
 
-#%%
-portuguese_learner('ciao, mi chiamo Giovanni e vengo da Napoli. Lisbona è bellissima')
 #%%
 
 ### trial ###
