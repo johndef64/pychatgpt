@@ -1,7 +1,11 @@
+#%%
+
+#%%
 import os
 import time
 import importlib
 import requests
+import subprocess
 from datetime import datetime
 
 # check requirements
@@ -13,13 +17,18 @@ def get_gitfile(url, flag='', dir = os.getcwd()):
     with open(file_path, 'wb') as file:
         file.write(response.content)
 
-if not os.getcwd().endswith('pychatgpt_lite.py'):
+if not os.getcwd().endswith('pychatgpt.py'):
     handle="https://raw.githubusercontent.com/johndef64/pychatgpt/main/"
-    files = ["pychatgpt_lite.py"]
+    files = ["pychatgpt_lite.py", 'pychatgpt.py']
     for file in files:
         url = handle+file
         get_gitfile(url)
         time.sleep(0.2)
+
+def simple_bool(message, y='y', n ='n'):
+    choose = input(message+" ("+y+"/"+n+"): ").lower()
+    your_bool = choose in [y]
+    return your_bool
 
 def get_boolean_input(prompt):
     while True:
@@ -69,7 +78,8 @@ else:
     current_dir = os.getcwd()
 
 # If  import openai
-import pychatgpt_lite as op
+#import pychatgpt_lite as op
+import pychatgpt as op
 
 # check Usage:
 # https://platform.openai.com/account/usage
@@ -123,11 +133,11 @@ while True:  # external cycle
             break
         if safe_word == 'system':
             op.clearchat()
-            system = input('\nDefine custum system instructions:')
+            system = input('\nDefine custom system instructions:')
             print('*system instruction changed*')
             pass
         else:
-            op.send_message(message, to_clipboard=True)
+            op.send_message(message, to_clip=True)
 
         timed = datetime.now() - timea
 
@@ -137,5 +147,3 @@ while True:  # external cycle
         #https://platform.openai.com/account/rate-limits
         time.sleep(0.5)  # Wait 1 second before checking again
 
-
-#%%
