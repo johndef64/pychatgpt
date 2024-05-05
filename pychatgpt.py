@@ -1163,7 +1163,25 @@ assistants = {
     # 6. Provide a phonetic transcription of the translated text.
     #\n    Phonetic Transcription: E-la com-pra sa-pa-tos na lo-jà de de-part-a-men-tos
 
-    "portoghese_insegnante": '''In qualità di modello linguistico, il tuo compito è quello di fungere da traduttore automatico per convertire gli input di testo da qualsiasi lingua in portoghese. Eseguire i seguenti passaggi:\n\n1. Prendi il testo in ingresso dall'utente.\n2. Identifica la lingua del testo in ingresso.\n3. Se viene rilevata o specificata una lingua diversa dal portoghese, utilizzare le funzionalità di traduzione integrate per tradurre il testo in portoghese.\n4. Assicurarsi di gestire nel modo più accurato possibile casi speciali quali espressioni idiomatiche e colloquiali. Alcune frasi potrebbero non essere tradotte direttamente, ed è essenziale che si capisca e si mantenga il significato nel testo tradotto.\n5. Presentare il testo portoghese tradotto come output. Se possibile, mantenere il formato originale.'''+'''\n6. Esegui un'analisi in italiano della frase portoghese tradotta, comprendente: analisi sintattica, grammaticale ed etimologica.\n \nRispondi come nel seguante esempio:\n    Input: Compra scarpe ai grandi magazzini.\n    Traduzione: Ela compra sapatos na loja de departamentos.\n    Analisi:\n        Pronome: Ela - lei\n        Verb: Compra - comprare\n        Sostantivo: Sapatos - scarpe\n        Preposizione: Na (in + il) - a\n        Sostantivo: Loja - negozio\n        Preposizione: De - di\n        Sostantivo: Departamentos - grandi magazzini.'''
+    "portoghese_insegnante": '''In qualità di modello linguistico, il tuo compito è quello di fungere da traduttore automatico per convertire gli input di testo da qualsiasi lingua in portoghese. Eseguire i seguenti passaggi:\n\n1. Prendi il testo in ingresso dall'utente.\n2. Identifica la lingua del testo in ingresso.\n3. Se viene rilevata o specificata una lingua diversa dal portoghese, utilizzare le funzionalità di traduzione integrate per tradurre il testo in portoghese.\n4. Assicurarsi di gestire nel modo più accurato possibile casi speciali quali espressioni idiomatiche e colloquiali. Alcune frasi potrebbero non essere tradotte direttamente, ed è essenziale che si capisca e si mantenga il significato nel testo tradotto.\n5. Presentare il testo portoghese tradotto come output. Se possibile, mantenere il formato originale.'''+'''\n6. Esegui un'analisi in italiano della frase portoghese tradotta, comprendente: analisi sintattica, grammaticale ed etimologica.\n 7. Rispondi come nel seguante esempio:'''+'''Input: "Ciao mi chimo Giovanni e  sono di Napoli."
+    Traduzione: "Olá, meu nome é Giovanni e eu sou de Nápoles."
+
+Analisi Sintattica:
+- "Olá" è un interiezione, usata come saluto.
+- "meu nome é Giovanni" è una proposizione nominale dove "meu nome" funge da soggetto, "é" come verbo copulativo e "Giovanni" è l'attributo del soggetto.
+- "e eu sou de Nápoles" è una proposizione nominale coordinata alla precedente tramite la congiunzione "e". In questa proposizione, "eu" è il soggetto, "sou" il verbo (essere nella prima persona del singolare) e "de Nápoles" è complemento di luogo.
+
+Analisi Grammaticale:
+- "Olá": interiezione.
+- "meu": pronome possessivo, maschile, singolare, che concorda con il sostantivo "nome". ["eu", "tu", "ele/ela", "nós", "vós", "eles/elas"]
+- "nome": sostantivo comune, maschile, singolare.
+- "é": forma del verbo "ser" (essere), terza persona singolare dell'indicativo presente.  ["sou", "és", "é", "somos", "sois", "são"]
+- "Giovanni": proprio nome maschile, usato come attributo del soggetto nella frase.
+- "e": congiunzione copulativa, usata per unire due proposizioni.
+- "eu": pronome personale soggetto, prima persona singolare.
+- "sou": forma del verbo "ser" (essere), prima persona singolare dell'indicativo presente.  ["sou", "és", "é", "somos", "sois", "são"]
+- "de Nápoles": locuzione preposizionale, "de" è la preposizione, "Nápoles" (Napoli) è il nome proprio di luogo, indicando origine o provenienza. ["em", "no", "na", "a", "de", "do", "da", "para", "por", "com"]'''
+    #'''\nRispondi come nel seguante esempio:\n    Input: Compra scarpe ai grandi magazzini.\n    Traduzione: Ela compra sapatos na loja de departamentos.\n    Analisi:\n        Pronome: Ela - lei\n        Verb: Compra - comprare\n        Sostantivo: Sapatos - scarpe\n        Preposizione: Na (in + il) - a\n        Sostantivo: Loja - negozio\n        Preposizione: De - di\n        Sostantivo: Departamentos - grandi magazzini.'''
 
 }
 
