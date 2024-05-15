@@ -236,10 +236,17 @@ Model	                point_at                   Context    Input (1K tokens) Ou
 gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
 gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
 gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
+gpt-4o	                gpt-4o-2024-05-13          128K       $0.01   	        $0.02   
+gpt-4-turbo             gpt-4-turbo-2024-04-09     128K       $0.01   	        $0.03   
 gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
-gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
 gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
 gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
+
+Vision pricing 
+500x500   = ld: $0.000425
+500x500   = hd: $0.001275
+1000x1000 = ld: $0.000425 
+1000x1000 = hd: $0.003825 
 '''
 
 assistant = ''
@@ -402,9 +409,6 @@ def ask_gpt(prompt,
             to_clip = False
             ):
 
-    if model == 'gpt-4-turbo':
-        model = 'gpt-4-turbo-preview'
-
     global reply
     response = client.chat.completions.create(
         # https://platform.openai.com/docs/models/gpt-4
@@ -544,17 +548,7 @@ def write_log(reply, message, filename='chat_log.txt'):
 
 
 # request functions ================================
-'''
-Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
-gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
-gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
-gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
-gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
-gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
-gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
-gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
-gpt-4o
-'''
+
 
 def send_message(message,
                  model=model,      # choose openai model (choose_model())
@@ -580,8 +574,6 @@ def send_message(message,
     global token_limit
     global reply
 
-    if model == 'gpt-4-turbo':
-        model = 'gpt-4-turbo-preview'
 
     if model == 'gpt-3.5-turbo-instruct':
         token_limit = 4096 - (maxtoken*1.3)
@@ -591,7 +583,7 @@ def send_message(message,
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4o' or model == 'gpt-4-turbo-preview' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+    if model == 'gpt-4o' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
@@ -736,7 +728,7 @@ def encode_image(image_path):
 
 def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
                message="What’s in this image?",
-               model= "gpt-4o", #"gpt-4-vision-preview"
+               model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
                maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
     global reply
     global chat_thread
@@ -1361,6 +1353,7 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
             break
 
 #%%
+
 #%% 
 ### trial ###
 #clearchat()
@@ -1394,22 +1387,6 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
 
 #%%
-def cosine_similarity_example():
-    terms_related_to_joy_and_happiness = ['Joy', 'Happiness', 'Bliss', 'Euphoria', 'Delight', 'Contentment', 'Glee', 'Ecstasy', 'Jubilation', 'Cheerfulness', 'Laughter', 'Smiling', 'Radiance', 'Serenity', 'Exhilaration']
-    happiness = ' '.join(terms_related_to_joy_and_happiness)
 
-    sentences = ['''tomorrow it's my bithday! it's time to party''',
-                 '''yeasterday my cat died... I'm so sad...''',
-                 '''I won the lottery! It's my lucky day!''',
-                 '''my girlfriend broke up with me. I'm so angry!''',
-                 '''I broke up with my girlfriend, I'm a worthless man''',
-                 '''President Obama spoke for the rights of black people in Chicago''',
-                 '''autism: a neurodevelopmental condition of variable severity with lifelong effects that can be recognized from early childhood, chiefly characterized by difficulties with social interaction and communication and by restricted or repetitive patterns of thought and behaviour.''',
-                 '''atherosclerosis: a disease of the arteries characterized by the deposition of fatty material on their inner walls.''',
-                 happiness]
-    print(pd.Series(sentences))
-    print('Reference:',happiness,'\n')
-    for i in sentences:
-        cosine_similarity(i, happiness, model="text-embedding-3-large", preprocessing=False)
 
 
