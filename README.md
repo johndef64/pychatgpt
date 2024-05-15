@@ -121,34 +121,23 @@ op.delamain('your message',
             clip=True)  
 #n.b. assistants sends reply to clipbord by default
 ```
-The Main Assistants provided:
+An extract of the Assistants provided:
 
 | Role            | Assistant Name | Reply type    |
 |-----------------|----------------|---------------|
-| Copilots        |                |               |
-|                 | chatgpt (base) | text          |
-|                 | creator        | text          |
-|                 | delamain       | python (main) |
+| Copilots        | delamain       | python (main) |
 |                 | oracle         | python        |
 |                 | roger          | R             |
-| Formatters      |                |               |
-|                 | schematizer    | bulletpoint   |
+| Formatters      | schematizer    | bulletpoint   |
 |                 | prompt_maker   | promt         |
-| Scientific Assistants  |                |               |
-|                 | galileo        | markdown      |
+| Scientific Assistants  | galileo        | markdown      |
 |                 | newton         | python        |
 |                 | leonardo       | text          |
-|                 | mendel         | text          |
-|                 | watson         | latex         |
-|                 | crick          | markdown      |
-|                 | franklin       | python        |
 |                 | turing         | python        |
 |                 | penrose        | text          |
-| Characters      |                |               |
-|                 | bestie         | text          |
+| Characters      | bestie         | text          |
 |                 | julia          | text          |
-| Translators     |                |               |
-|                 | english        | text          |
+| Translators     | english        | text          |
 |                 | italian        | text          |
 |                 | portuguese     | text          |
 |                 | japanese       | text          |
