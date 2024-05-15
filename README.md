@@ -3,6 +3,8 @@
 
 `pychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
 
+Now implemented with vision, hearing and drawing functions.
+
 ## Installation
 
 Simply add `pychatgpt.py` to your working directory. Otherwise, to implement your Conda envoiroment, add it in the folder `C:\Users\\*your_user_name*\\.conda\envs\\*your_env*\\Lib\site-packages`.
@@ -44,7 +46,7 @@ op.send_message('Your request',
 ```python
 op.send_image(image="https://repo.com/image.jpg",
               message="What’s in this image?",
-              model= "gpt-4o", #"gpt-4-vision-preview"
+              model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
               maxtoken=1000, 
               lag=0.00, printreply=True, to_clip=True)
 ```
@@ -64,14 +66,15 @@ op.whisper(filepath, # audio.mp3, audio.wav
            response_format = "text",
            print_transcriprion = True)
 
-voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
-response_formats = ["mp3", "flac", "aac", "opus"]
 op.text2speech(text,
                voice="alloy",
                filename="speech.mp3",
                model="tts-1",
                speed=1,
                play=False)
+
+voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+response_formats = ["mp3", "flac", "aac", "opus"]
 ```
 
 6. Chat With...
@@ -120,7 +123,8 @@ op.delamain('your message',
             gpt='gpt-4o', 
             max = 1000, 
             clip=True)  
-#n.b. assistants sends reply to clipbord by default
+
+#n.b. assistants sends reply to clipboard by default
 ```
 An extract of the Assistants provided:
 
