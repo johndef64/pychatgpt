@@ -26,36 +26,144 @@ You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.txt` file.  
 Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
-        op.send_message(message,
-                        model= 'gpt-3.5-turbo-16k',
-                        maxtoken = 800,
-                        temperature = 1,
-                        lag = 0.00
-                        system='',
-                        persona='',
-                        printreply = True,
-                        printuser = False,
-                        printtoken = True,
-                        savechat = True
-                        )
+```python
+import pychatgpt as op
 
+op.send_message('Your request',
+                model='gpt-3.5-turbo', # choose openai model 
+                system='',        # 'system' instruction
+                maxtoken=800,     # max tokens in reply
+                temperature=1,    # output randomness [0-2]
+                lag=0.00,         # word streaming lag
 
+                play= False,      # play audio response
+                save_chat=True,   # update chat_log.txt
+                to_clip=False,    # send reply to clipboard
+                
+                print_reply=True, print_user=False, print_token=True,
+                )
+```
+        
+3. `op.send_image(url,*parameters*)` insert in your chat context gpt-vision, activate  a multimodal chat  
+```python
+op.send_image(image="https://repo.com/image.jpg",
+              message="What’s in this image?",
+              model= "gpt-4o", #"gpt-4-vision-preview"
+              maxtoken=1000, 
+              lag=0.00, printreply=True, to_clip=True)
+```
+4. `op.create_image(prompt,*parameters*)`
+```python
+op.create_image(prompt= "a cute kitten",
+                model="dall-e-2",
+                size='512x512',
+                response_format='b64_json',
+                quality="standard",
+                time_flag=True, show_image=True)
+```
+5. Whisper
+```python
+op.whisper(filepath, # audio.mp3, audio.wav
+           translate = False,
+           response_format = "text",
+           print_transcriprion = True)
+```
+6. Text-to-Speech
+```python
+voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+response_formats = ["mp3", "flac", "aac", "opus"]
+op.text2speech(text,
+                voice="alloy",
+                filename="speech.mp3",
+                model="tts-1",
+                speed=1,
+                play=False)
+```
+
+7. Talk With...
+```python
+op.chat_with(who='',  # An embedded assistant or a character of your choice
+             message='', 
+             system='',  
+             voice='nova', 
+             language='eng', 
+             gpt='gpt-4-turbo', 
+             tts= 'tts-1', 
+             max=1000, 
+             printall=False)
+
+op.chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
+
+op.talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False)
+
+op.talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
+```
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions, save/load chats.
 
-3. `choose_model()`
-4. `clear_chat()`
-5. `expand_chat()`
-6. `save_chat()`
-7. `load_chat()`
-8. `load_file()`
+1. `choose_model()`
+2. `clear_chat()`
+3. `expand_chat()`
+4. `save_chat()`
+5. `load_chat()`
+6. `load_file()`
 
 To set-up multiple conversations or change the API-key, follow the example proposed in [pychatgpt_trial.ipynb](https://github.com/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
 
-## Notes
-The code in this module assumes that the conversation history is stored in a global variable named `chat_gpt`. Use `print(op.chat_gpt)` to show conversation history and `op.chat_gpt.pop()` to remove last interacition. `op.send_message('clearchat')` to start a new conversation.
+## In-Build Assistants
+```python
+op.display_assistants()
 
-Using `op.send_message`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
+# Call an assistant simply by name
+op.delamain('your message',
+            gpt='gpt-4o', 
+            max = 1000, 
+            clip=True)  
+#n.b. assistants sends reply to clipbord by default
+```
+The Main Assistants provided:
+
+| Role            | Assistant Name | Reply type    |
+|-----------------|----------------|---------------|
+| Copilots        |                |               |
+|                 | chatgpt (base) | text          |
+|                 | creator        | text          |
+|                 | delamain       | python (main) |
+|                 | oracle         | python        |
+|                 | roger          | R             |
+| Formatters      |                |               |
+|                 | schematizer    | bulletpoint   |
+|                 | prompt_maker   | promt         |
+| Scientific Assistants  |                |               |
+|                 | galileo        | markdown      |
+|                 | newton         | python        |
+|                 | leonardo       | text          |
+|                 | mendel         | text          |
+|                 | watson         | latex         |
+|                 | crick          | markdown      |
+|                 | franklin       | python        |
+|                 | turing         | python        |
+|                 | penrose        | text          |
+| Characters      |                |               |
+|                 | bestie         | text          |
+|                 | julia          | text          |
+| Translators     |                |               |
+|                 | english        | text          |
+|                 | italian        | text          |
+|                 | portuguese     | text          |
+|                 | japanese       | text          |
+
+
+
+## Notes
+The code in this module assumes that the conversation history is stored in a global variable named `chat_thread`. Use `print(op.chat_thread)` to show conversation history and `op.chat_thread.pop()` to remove last interacition. `op.send_message('clearchat')` to start a new conversation.
+
+Using `op.send_message()`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
+
+## 
+
+
+
 
 ## Openai-based applications 
 Some other python applications executable in Terminal that take advantage of openai modulo features:

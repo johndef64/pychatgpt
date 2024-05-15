@@ -224,6 +224,7 @@ models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
           #'gpt-3.5-turbo-16k',
           'gpt-3.5-turbo-instruct',
           'gpt-4',
+          'gpt-4o',
           'gpt-4-32k',
           'gpt-4-turbo-preview', # gpt-4-0125-preview
           'gpt-4-1106-preview', #Returns a maximum of 4,096 output tokens.
@@ -395,9 +396,9 @@ def ask_gpt(prompt,
             maxtoken = 800,
             lag = 0.00,
             temperature = 1,
-            printuser = False,
-            printreply = True,
-            savechat = True,
+            print_user = False,
+            print_reply = True,
+            save_chat = True,
             to_clip = False
             ):
 
@@ -419,7 +420,7 @@ def ask_gpt(prompt,
         frequency_penalty = 0,
         presence_penalty = 0)
 
-    if printuser:
+    if print_user:
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
@@ -427,7 +428,7 @@ def ask_gpt(prompt,
     for chunk in response:
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        if printreply:
+        if print_reply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
@@ -437,7 +438,7 @@ def ask_gpt(prompt,
     time.sleep(1)
 
     # Add the assistant's reply to the chat log-------------
-    if savechat:
+    if save_chat:
         write_log(reply, prompt)
 
     if to_clip:
@@ -447,6 +448,7 @@ def ask_gpt(prompt,
 ############ Chat GPT ############
 
 def expand_chat(message, role="user"):
+    global chat_thread
     #print('default setting (role = "user") to change role replace with "assistant" or "system"')
     if message.startswith("@"):
         clearchat()
@@ -551,21 +553,24 @@ gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.
 gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
 gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
 gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
+gpt-4o
 '''
 
 def send_message(message,
-                 model=model,
-                 system='',
-                 maxtoken=800,
-                 temperature=1,
-                 lag=0.00,
-                 printreply=True,
-                 printuser=False,
+                 model=model,      # choose openai model (choose_model())
+                 system='',        # 'system' instruction
+                 maxtoken=800,     # max tokens in reply
+                 temperature=1,    # output randomness [0-2]
+                 lag=0.00,         # word streaming lag
+
+                 play= False,      # play audio response
+                 save_chat=True,   # update chat_log.txt
+                 to_clip=False,    # send reply to clipboard
+                 reinforcement=False,
+
+                 print_reply=True,
+                 print_user=False,
                  print_token=True,
-                 play= False,
-                 savechat=True,
-                 to_clip=False,
-                 reinforcement=False
                  ):
     global assistant
     global persona
@@ -586,7 +591,7 @@ def send_message(message,
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4-turbo-preview' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+    if model == 'gpt-4o' or model == 'gpt-4-turbo-preview' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
         token_limit = 128000 - (maxtoken*1.3)
         # https://platform.openai.com/docs/models/gpt-4
 
@@ -637,7 +642,7 @@ def send_message(message,
 
     # expand chat
     expand_chat(message)
-    if printuser:
+    if print_user:
         print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess)
 
@@ -661,7 +666,7 @@ def send_message(message,
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
 
-        if printreply:
+        if print_reply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
@@ -675,7 +680,7 @@ def send_message(message,
     total_tokens = tokenizer(chat_thread, print_token)
 
     # Add the assistant's reply to the chat log-------------
-    if savechat:
+    if save_chat:
         write_log(reply, message)
 
     if to_clip:
@@ -699,7 +704,7 @@ def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit
             print('Chat Closed')
             break
         else:
-            send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False, printuser=True)
+            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True)
             print('')
 
 
@@ -729,35 +734,40 @@ def encode_image(image_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
-def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
                message="What’s in this image?",
-               maxtoken=1000, lag=0.00, printreply=True, to_clip=True):
+               model= "gpt-4o", #"gpt-4-vision-preview"
+               maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
     global reply
     global chat_thread
     global total_tokens
 
-    if url.startswith('http'):
-        print('Image:',url)
+    if image_path.startswith('http'):
+        print('Image:',image_path)
         pass
     else:
-        base64_image = encode_image(url)
-        url = f"data:image/jpeg;base64,{base64_image}"
+        print('enc')
+        base64_image = encode_image(image_path)
+        image_path = f"data:image/jpeg;base64,{base64_image}"
 
     # expand chat
     chat_thread.append({"role": 'user',
                         "content": [
                             {"type": "text", "text": message},
-                            {"type": "image_url", "image_url": {
-                                "url": url
-                            }
-                             },
-                        ]})
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": image_path,
+                                },
+                            },
+                        ]
+                        })
 
     # send message----------------------------
     messages = build_messages(chat_thread)
 
     response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model= model,
         messages=messages,
         max_tokens=maxtoken,
         stream=True,
@@ -768,7 +778,7 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     for chunk in response:
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-        if printreply:
+        if print_reply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
@@ -778,9 +788,9 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     # reset compatibility with the other models
     time.sleep(0.85)
     # expand chat--------------------------------
-    chat_thread.append({"role": "assistant", "content":reply})
-    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+url}
-    # content is a list [] I have to replace ("image_url", "text") and GO!
+    chat_thread.append({"role": "assistant", "content":'TAG'+reply})
+    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+image_path}
+    # content is a list [] I have to replace ("image_file", "text") and GO!
 
     # count tokens-------------------------------
     total_tokens = tokenizer(chat_thread, True)
@@ -788,7 +798,9 @@ def send_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gf
     if to_clip:
         pc.copy(reply)
 
+###
 
+###
 
 def display_image(filename, jupyter = False, plotlib=True, dpi=200):
     if jupyter:
@@ -869,8 +881,8 @@ def create_image(prompt= "a cute kitten",
 
 #create_image(response_format='b64_json')
 
-def replicate(url, styler='', model ='dall-e-2'):
-    send_image(url=url)
+def replicate(image, styler='', model ='dall-e-2'):
+    send_image(image=image)
     create_image(prompt=reply, response_format='b64_json', model=model, show_image=True)
 
 #replicate('https://avatars.githubusercontent.com/u/116732521?v=4')
@@ -997,14 +1009,15 @@ def speech2speech_loop(voice='nova', filename="speech2speech.mp3",
 ###### Talk With ######
 
 talk_model = 'gpt-4-turbo'
-def chat_with(who='',message='', system='',  voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
+def chat_with(who='',  # An embedded assistant or a character of your choice
+              message='', system='',  voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
     if who in assistants:
         system = assistants[who]
     elif who != '':
         add_persona(who, language)
     else:
         system = system
-    send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
+    send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False)
     text2speech_stream(reply, voice=voice, model=tts)
 
 def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop'):
@@ -1021,7 +1034,7 @@ def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1
             print('Chat Closed')
             break
         else:
-            send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False, printuser=True)
+            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True)
             text2speech_stream(reply, voice=voice, model=tts)
             print('')
 
@@ -1035,7 +1048,7 @@ def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', m
     else:
         add_persona(who, language)
         system = ''
-    send_message(transcript,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False)
+    send_message(transcript,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False)
     text2speech_stream(reply, voice=voice, model=tts)
 
 def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
@@ -1127,7 +1140,7 @@ assistants = {
     'newton'  : science_assistant(topic_areas['stem'])+features['reply_type']['jupyter'],
     'leonardo': science_assistant(topic_areas['stem']),
 
-    'dayhoff'  : science_assistant(topic_areas['bioinformatics']),
+    'mendel'  : science_assistant(topic_areas['bioinformatics']),
     'watson'  : science_assistant(topic_areas['bioinformatics'])+features['reply_type']['latex'],
     'crick'   : science_assistant(topic_areas['bioinformatics']+features['reply_type']['markdown']),
     'franklin': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['jupyter'],
@@ -1254,8 +1267,8 @@ def newton(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clip=clip)
 def leonardo(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clip=clip)
-def dayhoff(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['dayhoff'], maxtoken=max, model=gpt, to_clip=clip)
+def mendel(m,  gpt=model, max = 1000, clip=True):
+    send_message(m,system=assistants['mendel'], maxtoken=max, model=gpt, to_clip=clip)
 def watson(m,  gpt=model, max = 1000, clip=True):
     send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clip=clip)
 def crick(m,  gpt=model, max = 1000, clip=True):
@@ -1347,24 +1360,21 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
             print('Chat Closed')
             break
 
-
-########################################
-
 #%%
-
+#%% 
 ### trial ###
 #clearchat()
 #talk_with('julia',8,'nova')
 #talk_with('Adolf Hitler',8, 'onyx')
 #talk_with('Son Goku (Dragonball)',8, 'fable')
-#send_image(url='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
-#send_image(url='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
+#send_image(image='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
+#send_image(image='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
 #giulia('parlami di te', 'gpt-4-turbo')
 
 #%%
 #url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
 #julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
-#send_image(url=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
+#send_image(image=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
 #julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
 
 ##%%
