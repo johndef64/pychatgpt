@@ -1357,6 +1357,16 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #%% 
 ### trial ###
 #clearchat()
+#add_persona('Antonio Gramsci')
+#send_message("""Cosa ne pensi di Giorgia Meloni""", 'gpt-4o')
+#%%
+#clearchat()
+#add_persona('Morgan (cantante)')
+#send_message("""Cosa ne pensi di Chiara Ferragni""", 'gpt-4o')
+
+#%%
+
+#clearchat()
 #talk_with('julia',8,'nova')
 #talk_with('Adolf Hitler',8, 'onyx')
 #talk_with('Son Goku (Dragonball)',8, 'fable')
