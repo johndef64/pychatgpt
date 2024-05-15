@@ -61,28 +61,26 @@ op.create_image(prompt= "a cute kitten",
                 quality="standard",
                 time_flag=True, show_image=True)
 ```
-5. Whisper
+5. Whisper and Text-to-Speech
 ```python
 op.whisper(filepath, # audio.mp3, audio.wav
            translate = False,
            response_format = "text",
            print_transcriprion = True)
-```
-6. Text-to-Speech
-```python
+
 voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
 response_formats = ["mp3", "flac", "aac", "opus"]
 op.text2speech(text,
-                voice="alloy",
-                filename="speech.mp3",
-                model="tts-1",
-                speed=1,
-                play=False)
+               voice="alloy",
+               filename="speech.mp3",
+               model="tts-1",
+               speed=1,
+               play=False)
 ```
 
-7. Talk With...
+6. Chat With...
 ```python
-op.chat_with(who='',  # An embedded assistant or a character of your choice
+op.chat_with(who='',  
              message='', 
              system='',  
              voice='nova', 
@@ -92,11 +90,18 @@ op.chat_with(who='',  # An embedded assistant or a character of your choice
              max=1000, 
              printall=False)
 
-op.chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
+# Use an in-build assistant or any character of your choice, example:
+op.chat_with('Scorates', 'Tell me about the Truth.', 'onyx')
 
-op.talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False)
+# Endless chat, keyboard controlled
+op.chat_with_loop(who='', system='', voice='nova',  gpt='gpt-4-turbo', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
+```
+7. Talk With...
+```python
+op.talk_with(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False)
 
-op.talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
+# Endless talk, keyboard controlled
+op.talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
 ```
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions, save/load chats.
