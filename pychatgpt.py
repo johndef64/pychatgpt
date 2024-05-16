@@ -1374,21 +1374,18 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
             break
 
 #%%
-#julia('come stai oggi tesoro?')
-#%%
-
-send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are Him')
-#%%
-
 ### trial ###
+
 #clearchat()
 #add_persona('Antonio Gramsci')
 #send_message("""Cosa ne pensi di Giorgia Meloni""", 'gpt-4o')
 #%%
 #clearchat()
-#add_persona('Morgan (cantante)')
+#add_persona('Pino Scotto')
 #send_message("""Cosa ne pensi di Chiara Ferragni""", 'gpt-4o')
 
+#%%
+#send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are Him')
 #%%
 
 #clearchat()
