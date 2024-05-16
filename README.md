@@ -50,7 +50,12 @@ op.send_message('Your message goes here',
 ```
 Usage:
 ```python
-
+op.add_persona('Elon Musk')
+op.send_message("""What do you think about OpenAI?""", 'gpt-4o')
+```
+```python
+op.add_persona('Vincent Van Gogh')
+op.send_message("""Tell me what you see. Can you paint it?""", 'gpt-4o', img=op.dummy_img)
 ```
         
 3. `op.send_image(url,*parameters*)` insert in your chat context gpt-vision, activate  a multimodal chat  
@@ -113,6 +118,9 @@ op.talk_with(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1',
 
 # Endless talk, keyboard controlled
 op.talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
+```
+```python
+op.talk_with_loop('Friedrich Nietzsche', 'onyx')
 ```
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions, save/load chats.

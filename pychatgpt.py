@@ -1038,7 +1038,7 @@ def speech2speech_loop(voice='nova', filename="speech2speech.mp3",
 
 ###### Talk With ######
 
-talk_model = 'gpt-4-turbo'
+talk_model = 'gpt-4o'
 def chat_with(who='',  # An embedded assistant or a character of your choice
               message='', system='',  voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
     if who in assistants:
@@ -1418,7 +1418,12 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #%%
 #julia('@Hi Julia, what do you think about this girl? Do you know her? I have a crush on her.', img=r"", my_name='John')#
 #%%
-#send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are Him')
+#clearchat()
+#add_persona('Vincent Van Gogh')
+#send_message(""" Tell me what you see. Can you paint it?""", 'gpt-4o', img=dummy_img)
+#%%
+
+#send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are him')
 #%%
 
 #clearchat()
