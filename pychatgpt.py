@@ -809,6 +809,7 @@ def send_image(image_path = dummy_img,
     total_tokens = tokenizer(chat_thread, True)
 
     if to_clip:
+        clip_reply = reply.replace('```', '###')
         pc.copy(reply)
 
 
