@@ -27,9 +27,9 @@ Use `op.send_message(message)` keeping the default *parameters* or change them a
 ```python
 import pychatgpt as op
 
-op.send_message('Your request',
+op.send_message('Your message goes here',
                 model='gpt-3.5-turbo', # choose openai model 
-                system='',        # 'system' instruction
+                system='',        # add 'system' instruction
                 maxtoken=800,     # max tokens in reply
                 temperature=1,    # output randomness [0-2]
                 lag=0.00,         # word streaming lag
@@ -46,6 +46,7 @@ op.send_message('Your request',
 ```python
 op.send_image(image="https://repo.com/image.jpg",
               message="What’s in this image?",
+              system = '',     # add 'system' instruction
               model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
               maxtoken=1000, 
               lag=0.00, printreply=True, to_clip=True)

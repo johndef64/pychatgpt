@@ -547,7 +547,7 @@ def write_log(reply, message, filename='chat_log.txt'):
         file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
 
-# request functions ================================
+# Accessory Request Functions ================================
 # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
 def stream_reply(response, print_reply=True, lag = 0.00):
     collected_messages = []
@@ -563,6 +563,59 @@ def stream_reply(response, print_reply=True, lag = 0.00):
     reply = ''.join(collected_messages).strip()
     return reply
 
+def add_system(system='', reinforcement=False):
+    global chat_thread
+    global assistant
+    if not reinforcement:
+        sys_duplicate = []
+        for entry in chat_thread:
+            x = system == entry.get('content')
+            sys_duplicate.append(x)
+            if x:
+                break
+    else:
+        sys_duplicate = [False]
+
+    if system != '' and not any(sys_duplicate):
+        chat_thread.append({"role": "system",
+                            "content": system})
+
+    if assistant != '' and not any(sys_duplicate):
+        chat_thread.append({"role": "system",
+                            "content": assistant})
+
+def prune_chat(token_limit, chat_thread):
+    print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
+    cut_length = 0
+    if 36500 < token_limit < 128500:
+        cut_length = len(chat_thread) // 75
+    if 16500 < token_limit < 36500:
+        cut_length = len(chat_thread) // 18
+    if 8500 < token_limit < 16500:
+        cut_length = len(chat_thread) // 10
+    if 4500 < token_limit < 8500:
+        cut_length = len(chat_thread) // 6
+    if 0 < token_limit < 4500:
+        cut_length = len(chat_thread) // 3
+    return cut_length
+
+def set_token_limit(model = 'gpt-3.5-turbo', maxtoken=500):
+    # https://platform.openai.com/docs/models/gpt-4
+    if model == 'gpt-3.5-turbo-instruct':
+        token_limit = 4096 - (maxtoken*1.3)
+    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
+        token_limit = 16384 - (maxtoken*1.3)
+    if model == 'gpt-4':
+        token_limit = 8192 - (maxtoken*1.3)
+    if model == 'gpt-4-32k':
+        token_limit = 32768 - (maxtoken*1.3)
+    if model == 'gpt-4o' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+        token_limit = 128000 - (maxtoken*1.3)
+    return token_limit
+
+
+
+# Request Functions ================================
 def send_message(message,
                  model=model,      # choose openai model (choose_model())
                  system='',        # 'system' instruction
@@ -587,57 +640,18 @@ def send_message(message,
     global token_limit
     global reply
 
-
-    if model == 'gpt-3.5-turbo-instruct':
-        token_limit = 4096 - (maxtoken*1.3)
-    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
-        token_limit = 16384 - (maxtoken*1.3)
-    if model == 'gpt-4':
-        token_limit = 8192 - (maxtoken*1.3)
-    if model == 'gpt-4-32k':
-        token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4o' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
-        token_limit = 128000 - (maxtoken*1.3)
-        # https://platform.openai.com/docs/models/gpt-4
+    token_limit = set_token_limit(model, maxtoken)
 
     if message.startswith("@"):
         clearchat()
         message = message.lstrip("@")
 
     # add system instruction
-    if not reinforcement:
-        sys_duplicate = []
-        for entry in chat_thread:
-            x = system == entry.get('content')
-            sys_duplicate.append(x)
-            if x:
-                break
-    else:
-        sys_duplicate = [False]
-
-    if system != '' and not any(sys_duplicate):
-        chat_thread.append({"role": "system",
-                            "content": system})
-
-    if assistant != '' and not any(sys_duplicate):
-        chat_thread.append({"role": "system",
-                            "content": assistant})
-
+    add_system(system, reinforcement=reinforcement)
 
     # check token limit---------------------
     if total_tokens > token_limit:
-        print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
-        cut_length = 0
-        if 36500 < token_limit < 128500:
-            cut_length = len(chat_thread) // 75
-        if 16500 < token_limit < 36500:
-            cut_length = len(chat_thread) // 18
-        if 8500 < token_limit < 16500:
-            cut_length = len(chat_thread) // 10
-        if 4500 < token_limit < 8500:
-            cut_length = len(chat_thread) // 6
-        if 0 < token_limit < 4500:
-            cut_length = len(chat_thread) // 3
+        cut_length = prune_chat(token_limit, chat_thread)
         chat_thread = chat_thread[cut_length:]
 
         if keep_persona and persona != '':
@@ -732,11 +746,21 @@ dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
 
 def send_image(image_path = dummy_img,
                message="What’s in this image?",
+               system = '',     # add 'system' instruction
                model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
                maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
     global reply
     global chat_thread
     global total_tokens
+
+    #token_limit = set_token_limit(model, maxtoken)
+
+    if message.startswith("@"):
+        clearchat()
+        message = message.lstrip("@")
+
+    # add system instruction
+    add_system(system)
 
     if image_path.startswith('http'):
         print('Image path:',image_path)
@@ -1217,7 +1241,6 @@ def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
         sys = who
     if img != '':
         send_image(image_path=img, message=m, model= "gpt-4o", maxtoken=max, to_clip=clip)
-
     else:
         send_message(m,system=sys, maxtoken=max, model=gpt, to_clip=clip)
 
@@ -1350,7 +1373,13 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
             print('Chat Closed')
             break
 
-#%% 
+#%%
+#julia('come stai oggi tesoro?')
+#%%
+
+send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are Him')
+#%%
+
 ### trial ###
 #clearchat()
 #add_persona('Antonio Gramsci')
