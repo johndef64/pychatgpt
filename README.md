@@ -17,11 +17,12 @@ To use this module, you need to have an **OpenAI API key**. You have to provide 
 The module provides the following main functions:
 
 1. `op.ask_gpt(prompt, *parameters*)`:  
-This function takes a prompt as input and generates a response from the GPT chosen model. It returns the generated response and logs the conversation in the `chat_log.txt` file.
+This basic function takes a prompt as input and generates a single response from the GPT chosen model. It returns the generated response and logs the conversation in the `chat_log.txt` file.
 You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 
 2. `op.send_message(message,*parameters*)`:  
-This function allows for a more interactive conversation with the GPTchosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.txt` file.  
+This main function allows for a more interactive conversation with the GPT chosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.txt` file.  
+This function is implemented with GPT vision, Text2Speech and Dall-E functionalities.
 Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
 ```python
@@ -29,17 +30,27 @@ import pychatgpt as op
 
 op.send_message('Your message goes here',
                 model='gpt-3.5-turbo', # choose openai model 
-                system='',        # add 'system' instruction
-                maxtoken=800,     # max tokens in reply
-                temperature=1,    # output randomness [0-2]
-                lag=0.00,         # word streaming lag
+                system='',          # add 'system' instruction
+                img = '',           # insert an image path to activate gpt vision
+                maxtoken=800,       # max tokens in reply
+                temperature=1,      # output randomness [0-2]
+                lag=0.00,           # word streaming lag
 
-                play= False,      # play audio response
-                save_chat=True,   # update chat_log.txt
-                to_clip=False,    # send reply to clipboard
+                create=False,       # image prompt
+                dalle="dall-e-2",   # choose dall-e model
+                size='512x512',
+
+                play= False,        # play audio response
+                save_chat=True,     # update chat_log.txt
+                to_clip=False,      # send reply to clipboard
+                reinforcement=False,
                 
                 print_reply=True, print_user=False, print_token=True,
                 )
+```
+Usage:
+```python
+
 ```
         
 3. `op.send_image(url,*parameters*)` insert in your chat context gpt-vision, activate  a multimodal chat  

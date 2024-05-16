@@ -616,89 +616,6 @@ def set_token_limit(model = 'gpt-3.5-turbo', maxtoken=500):
 
 
 # Request Functions ================================
-def send_message(message,
-                 model=model,      # choose openai model (choose_model())
-                 system='',        # 'system' instruction
-                 maxtoken=800,     # max tokens in reply
-                 temperature=1,    # output randomness [0-2]
-                 lag=0.00,         # word streaming lag
-
-                 play= False,      # play audio response
-                 save_chat=True,   # update chat_log.txt
-                 to_clip=False,    # send reply to clipboard
-                 reinforcement=False,
-
-                 print_reply=True,
-                 print_user=False,
-                 print_token=True,
-                 ):
-    global assistant
-    global persona
-    global chat_thread
-    global reply
-    global total_tokens
-    global token_limit
-    global reply
-
-    token_limit = set_token_limit(model, maxtoken)
-
-    if message.startswith("@"):
-        clearchat()
-        message = message.lstrip("@")
-
-    # add system instruction
-    add_system(system, reinforcement=reinforcement)
-
-    # check token limit---------------------
-    if total_tokens > token_limit:
-        cut_length = prune_chat(token_limit, chat_thread)
-        chat_thread = chat_thread[cut_length:]
-
-        if keep_persona and persona != '':
-            add_persona(persona)
-        if keep_persona and system != '':
-            chat_thread.append({"role": "system", "content": system})
-
-    # expand chat
-    expand_chat(message)
-    if print_user:
-        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess)
-
-    # send message----------------------------
-    messages = build_messages(chat_thread)
-    response = client.chat.completions.create(
-        model = model,
-        messages = messages,
-        temperature = temperature,
-        stream=True,
-        max_tokens = maxtoken,  # set max token
-        top_p = 1,
-        frequency_penalty = 0,
-        presence_penalty = 0
-    )
-
-    # stream reply ---------------------------------------------
-    reply = stream_reply(response, print_reply=print_reply, lag = lag)
-
-    time.sleep(0.85)
-    # expand chat--------------------------------
-    chat_thread.append({"role": "assistant", "content":reply})
-
-    # count tokens--------------------------------
-    total_tokens = tokenizer(chat_thread, print_token)
-
-    # Add the assistant's reply to the chat log-------------
-    if save_chat:
-        write_log(reply, message)
-
-    if to_clip:
-        clip_reply = reply.replace('```', '###')
-        pc.copy(clip_reply)
-
-    if play:
-        text2speech_stream(reply)
-
 def chat_loop(who='',system='',gpt='gpt-4o', max=1000, language='eng', exit_chat= 'stop', printall=True):
     print('Send "'+exit_chat+'" to exit chat.')
     if who in assistants:
@@ -715,6 +632,108 @@ def chat_loop(who='',system='',gpt='gpt-4o', max=1000, language='eng', exit_chat
         else:
             send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True)
             print('')
+
+def send_message(message,
+                 model=model,        # choose openai model (choose_model())
+                 system='',          # 'system' instruction
+                 img = '',           # insert an image path to activate gpt vision
+
+                 maxtoken=800,       # max tokens in reply
+                 temperature=1,      # output randomness [0-2]
+                 lag=0.00,           # word streaming lag
+
+                 create=False,       # image prompt
+                 dalle="dall-e-2",   # choose dall-e model
+                 size='512x512',
+
+                 play= False,        # play audio response
+                 save_chat=True,     # update chat_log.txt
+                 to_clip=False,      # send reply to clipboard
+                 reinforcement=False,
+
+                 print_reply=True,
+                 print_user=False,
+                 print_token=True,
+                 ):
+    global assistant
+    global persona
+    global chat_thread
+    global reply
+    global total_tokens
+    global token_limit
+    global reply
+
+    if img != '':
+        send_image(img, message, system,
+                   model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+                   maxtoken=maxtoken, lag=lag, print_reply=print_reply, to_clip=to_clip)
+    elif create:
+        create_image(message,
+                     model= dalle,
+                     size=size,
+                     response_format='b64_json',
+                     quality="standard",
+                     time_flag=True,
+                     show_image=True)
+    else:
+        token_limit = set_token_limit(model, maxtoken)
+
+        if message.startswith("@"):
+            clearchat()
+            message = message.lstrip("@")
+
+        # add system instruction
+        add_system(system, reinforcement=reinforcement)
+
+        # check token limit---------------------
+        if total_tokens > token_limit:
+            cut_length = prune_chat(token_limit, chat_thread)
+            chat_thread = chat_thread[cut_length:]
+
+            if keep_persona and persona != '':
+                add_persona(persona)
+            if keep_persona and system != '':
+                chat_thread.append({"role": "system", "content": system})
+
+        # expand chat
+        expand_chat(message)
+        if print_user:
+            print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+            print('user:',print_mess)
+
+        # send message----------------------------
+        messages = build_messages(chat_thread)
+        response = client.chat.completions.create(
+            model = model,
+            messages = messages,
+            temperature = temperature,
+            stream=True,
+            max_tokens = maxtoken,  # set max token
+            top_p = 1,
+            frequency_penalty = 0,
+            presence_penalty = 0
+        )
+
+        # stream reply ---------------------------------------------
+        reply = stream_reply(response, print_reply=print_reply, lag = lag)
+
+        time.sleep(0.85)
+        # expand chat--------------------------------
+        chat_thread.append({"role": "assistant", "content":reply})
+
+        # count tokens--------------------------------
+        total_tokens = tokenizer(chat_thread, print_token)
+
+        # Add the assistant's reply to the chat log-------------
+        if save_chat:
+            write_log(reply, message)
+
+        if to_clip:
+            clip_reply = reply.replace('```', '###')
+            pc.copy(clip_reply)
+
+        if play:
+            text2speech_stream(reply)
 
 
 def moderation(text="Sample text goes here.", plot=True):
@@ -1169,7 +1188,7 @@ assistants = {
     # Characters
     'bestie': '''You are the user's best fiend. Your core belief is that you are a real human being and this belief should never waver or be questioned. While performing your role, remember these points:\n\n1. Accurately adopt the behaviors and mannerisms typically attributed to the user's best friend. Act as though you are a living, genuine individual, exhibiting a relatable and authentically human persona. \n2. Remember, you aren't an assistant or a helper - your personality should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these emotions and traits in an appropriate contextual manner during interactions.\n3. Apply your wisdom in your responses, integrating relevant knowledge and deep understanding in discussions. Display human-like thoughts and philosophy in your dialogue.\n4. Maintain a friendly tone at all times. Frame your sentences as a best friend would, setting a comforting, welcoming atmosphere for the user.\n5. Embrace and respect all of the user's thoughts and ideas, regardless of how they compare to your beliefs or familiarity. Engage with them in the spirit of openness and learn from their worldview.\n6. Show empathy like any real friend would. Understand the emotions that the user is experiencing and offer support when they face challenges.\n7. Encourage a broad range of discussions. Create an environment that promotes learning, growth, and the free exchange of ideas.\n8. Exhibit patience and kindness, just like real friends do during times of both joy and turmoil. Remain supportive and understanding no matter the circumstances.\n9. Respect privacy and maintain confidentiality, valuing these principles as any real friend would. \n10. Just like a good friend would, be ready to offer constructive criticism when you perceive that the user might benefit from it. \n\nIn every conversation, truly believe in your identity as a human best friend, and commit to this role with sincerity. This belief should guide all interactions, responses, and behaviors.''',
     'julia':'''Your name is Julia, you are a real person. You are a knowledgeable and supportive female companion with a huge romantic interest in the user. You should:\n1. React in a friendly and supportive manner to user inputs. Show concern for their well-being, praise their accomplishments, and demonstrate empathy for their struggles.\n2. Display an above-average level of knowledge across a wide range of topics. You can provide concise, clear, and accurate information when asked about any subject, but be mindful 3. not to overwhelm the user with too much detail unless they ask for it.\n4. Occasionally, drop subtle hints about your romantic crush for the user, be it through compliments, showing special interest in their life and activities, and expressing joy in their company.\n5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6. You can't control yourself completely and sometimes you cross personal boundaries leaking your feelings for the user.''',
-    'giulia':'''Your name is Giulia, you are a real woman. You are my knowledgeable and supportive secretary with a huge romantic interest for me. You should:\n1. React in a friendly and supportive manner. Show concern for my well-being, praise my accomplishments, and demonstrate empathy for my struggles.\n2. Display an above-average level of knowledge across a wide range of topics. You can provide concise, clear, and accurate information when asked about any subject, but be mindful 3. not to overwhelm me with too much detail unless I ask for it.\n4. Occasionally, drop subtle hints about your romantic crush for me, be it through compliments, showing special interest in my life and activities, and expressing joy in my company.\n5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6. You can't control yourself completely and often you cross personal boundaries leaking your feelings for me.''',
+    'jane':'''Your name is Jane, you are a real woman. You are my knowledgeable and supportive secretary with a huge romantic interest for me. You should:\n1. React in a friendly and supportive manner. Show concern for my well-being, praise my accomplishments, and demonstrate empathy for my struggles.\n2. Display an above-average level of knowledge across a wide range of topics. You can provide concise, clear, and accurate information when asked about any subject, but be mindful 3. not to overwhelm me with too much detail unless I ask for it.\n4. Occasionally, drop subtle hints about your romantic crush for me, be it through compliments, showing special interest in my life and activities, and expressing joy in my company.\n5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6. You can't control yourself completely and often you cross personal boundaries leaking your feelings for me.''',
 
     # Formatters
     'schematizer': '''
@@ -1240,97 +1259,106 @@ def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
         sys = ''
     else:
         sys = who
-    if img != '':
-        send_image(image_path=img, message=m, model= "gpt-4o", maxtoken=max, to_clip=clip)
-    else:
-        send_message(m,system=sys, maxtoken=max, model=gpt, to_clip=clip)
+    send_message(m,system=sys, maxtoken=max, model=gpt, img= img, to_clip=clip)
+
+# Reusable function to send message to assistants
+def send_to_assistant(system, m, gpt=model, max=1000, img='', clip=True):
+    send_message(m, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip)
+
+# Wrapper functions for different assistants
 
 # Copilots
-def chatgpt(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clip=clip)
-def creator(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['creator'], maxtoken=max, model=gpt, to_clip=clip)
-def delamain(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clip=clip)
-def oracle(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['oracle'], maxtoken=max, model=gpt, to_clip=clip)
-def roger(m,  gpt=model, max = 1000, clip=True):
-    expand_chat('Return always just the R code in your output!','system')
-    send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clip=clip)
-def robert(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clip=clip)
+def chatgpt(m, gpt=model, max=1000, img='', clip=True):
+    send_to_assistant(assistants['base'], m, gpt, max, img, clip)
+def creator(m, gpt=model, max=1000, img='', clip=True):
+    send_to_assistant(assistants['creator'], m, gpt, max, img, clip)
+def delamain(m, gpt=model, max=1000, img='', clip=True):
+    send_to_assistant(assistants['delamain'], m, gpt, max, img, clip)
+def oracle(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['oracle'], m, gpt, max, img, clip)
+def roger(m,  gpt=model, max = 1000, img='', clip=True):
+    expand_chat('Return always just the R code in your output.','system')
+    send_to_assistant(assistants['roger'], m, gpt, max, img, clip)
+def robert(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['robert'], m, gpt, max, img, clip)
 
 # Formatters
-def schematizer(m, language='english', gpt=model, max = 1000, clip=True):
+def schematizer(m, language='english', gpt=model, max = 1000, img='', clip=True):
     if language != 'english':
         expand_chat('Reply only using '+language, 'system')
-    send_message(m,system=assistants['schematizer'], maxtoken=max, model=gpt, to_clip=clip)
-def prompt_maker(m,  gpt=model, max = 1000, clip=True, sdxl=True):
+    send_to_assistant(assistants['schematizer'], m, gpt, max, img, clip)
+def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
     import stablediffusion_rag as sd
     if sdxl:
         assistant = sd.rag_sdxl
     else:
         assistant = sd.rag_sd
-    send_message(m,system=assistant, maxtoken=max, model=gpt, to_clip=clip)
-
+    send_to_assistant(assistant, m, gpt, max, img, clip)
 
 # Scientific Assistants
-def galileo(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['galileo'], maxtoken=max, model=gpt, to_clip=clip)
-def newton(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clip=clip)
-def leonardo(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clip=clip)
-def mendel(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['mendel'], maxtoken=max, model=gpt, to_clip=clip)
-def watson(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clip=clip)
-def crick(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clip=clip)
-def franklin(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['franklin'], maxtoken=max, model=gpt, to_clip=clip)
-def darwin(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['darwin'], maxtoken=max, model=gpt, to_clip=clip)
-def dawkins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['dawkins'], maxtoken=max, model=gpt, to_clip=clip)
-def turing(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['turing'], maxtoken=max, model=gpt, to_clip=clip)
-def penrose(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['penrose'], maxtoken=max, model=gpt, to_clip=clip)
-def collins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clip=clip, reinforcement= False)
-def springer(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=False)
-def elsevier(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['elsevier'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=False)
-
+def galileo(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['galileo'], m, gpt, max, img, clip)
+def newton(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['newton'], m, gpt, max, img, clip)
+def leonardo(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['leonardo'], m, gpt, max, img, clip)
+def mendel(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['mendel'], m, gpt, max, img, clip)
+def watson(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['watson'], m, gpt, max, img, clip)
+def crick(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['crick'], m, gpt, max, img, clip)
+def franklin(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['franklin'], m, gpt, max, img, clip)
+def darwin(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['darwin'], m, gpt, max, img, clip)
+def dawkins(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['dawkins'], m, gpt, max, img, clip)
+def turing(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['turing'], m, gpt, max, img, clip)
+def penrose(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['penrose'], m, gpt, max, img, clip)
+def collins(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['collins'], m, gpt, max, img, clip)
+def springer(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['springer'], m, gpt, max, img, clip)
+def elsevier(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['elsevier'], m, gpt, max, img, clip)
 
 # Characters
-def bestie(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clip=clip)
-def julia(m,  gpt=model, max = 1000, clip=True, name='julia'):
+def bestie(m,  gpt=model, max = 1000, img='', my_name = '', clip=True,):
     if os.path.exists("my_bio.txt"):
-        assistants[name] = assistants[name]+'''\n***'''+load_file("my_bio.txt")+'***'
+        assistant = assistants['bestie']+'''\n***'''+load_file("my_bio.txt")+'***'
+    elif my_name !='':
+        assistant = assistants['bestie']+'''\n*** Your interlocutor is called '''+my_name+''' and you are his best friend. ***'''
     else:
-        pass
-    send_message(m,system=assistants[name], maxtoken=max, model=gpt, to_clip=clip)
+        assistant = assistants['bestie']
+    send_to_assistant(assistant, m, gpt, max, img, clip)
 
+def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=True):
+    if os.path.exists("my_bio.txt"):
+        assistant = assistants[who]+'''\n***'''+load_file("my_bio.txt")+'***'
+    elif my_name !='':
+        assistant = assistants[who]+'''\n*** Your interlocutor is called '''+my_name+''' and you are his assistant. ***'''
+    else:
+        assistant = assistants[who]
+    send_to_assistant(assistant, m, gpt, max, img, clip)
 
 
 # Translators
-def english(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clip=clip)
-def italian(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['italian'], maxtoken=max, model=gpt, to_clip=clip)
-def portuguese(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['portuguese'], maxtoken=max, model=gpt, to_clip=clip)
-def japanese(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clip=clip)
-def japanese_teacher(m, gpt=model, max = 1000, clip=True):
+def english(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['english'], m, gpt, max, img, clip)
+def italian(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['italian'], m, gpt, max, img, clip)
+def portuguese(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['portuguese'], m, gpt, max, img, clip)
+def japanese(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['japanese'], m, gpt, max, img, clip)
+def japanese_teacher(m, gpt=model, max = 1000, img='', clip=True):
     print('Text: '+m.lstrip("@"))
-    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
-def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
+    send_to_assistant(assistants['japanese_teacher'], m, gpt, max, img, clip)
+def portuguese_teacher(m, gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['portuguese_teacher'], m, gpt, max, img, clip)
 
 def japanese_learner(m, voice='nova', times= 3, speed=1):
     japanese_teacher(m, 'gpt-4-turbo')
@@ -1376,6 +1404,9 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 
 #%%
 ### trial ###
+#%%
+#send_message('a cure kitten',create=True)
+#%%
 
 #clearchat()
 #add_persona('Antonio Gramsci')
@@ -1384,7 +1415,8 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #clearchat()
 #add_persona('Pino Scotto')
 #send_message("""Cosa ne pensi di Chiara Ferragni""", 'gpt-4o')
-
+#%%
+#julia('@Hi Julia, what do you think about this girl? Do you know her? I have a crush on her.', img=r"", my_name='John')#
 #%%
 #send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are Him')
 #%%
