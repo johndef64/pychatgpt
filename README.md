@@ -48,7 +48,6 @@ op.send_message('Your message goes here',
                 print_reply=True, print_user=False, print_token=True,
                 )
 ```
-Usage:
 ```python
 op.add_persona('Elon Musk')
 op.send_message("""What do you think about OpenAI?""", 'gpt-4o')
