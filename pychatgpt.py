@@ -548,7 +548,20 @@ def write_log(reply, message, filename='chat_log.txt'):
 
 
 # request functions ================================
+# https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
+def stream_reply(response, print_reply=True, lag = 0.00):
+    collected_messages = []
+    for chunk in response:
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+        collected_messages.append(chunk_message)
 
+        if print_reply:
+            if chunk_message is not None:
+                time.sleep(lag)
+                print(chunk_message, end='')
+
+    reply = ''.join(collected_messages).strip()
+    return reply
 
 def send_message(message,
                  model=model,      # choose openai model (choose_model())
@@ -652,19 +665,9 @@ def send_message(message,
     )
 
     # stream reply ---------------------------------------------
-    # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
-    collected_messages = []
-    for chunk in response:
-        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message)
+    reply = stream_reply(response, print_reply=print_reply, lag = lag)
 
-        if print_reply:
-            if chunk_message is not None:
-                time.sleep(lag)
-                print(chunk_message, end='')
-        reply = ''.join(collected_messages).strip()
-
-    time.sleep(1)
+    time.sleep(0.85)
     # expand chat--------------------------------
     chat_thread.append({"role": "assistant", "content":reply})
 
@@ -682,7 +685,7 @@ def send_message(message,
     if play:
         text2speech_stream(reply)
 
-def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit_chat= 'stop', printall=True):
+def chat_loop(who='',system='',gpt='gpt-4o', max=1000, language='eng', exit_chat= 'stop', printall=True):
     print('Send "'+exit_chat+'" to exit chat.')
     if who in assistants:
         system = assistants[who]
@@ -725,8 +728,9 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
+dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
 
-def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+def send_image(image_path = dummy_img,
                message="What’s in this image?",
                model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
                maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
@@ -735,12 +739,14 @@ def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/
     global total_tokens
 
     if image_path.startswith('http'):
-        print('Image:',image_path)
+        print('Image path:',image_path)
+        dummy = image_path
         pass
     else:
-        print('enc')
+        print('<Enconding Image...>')
         base64_image = encode_image(image_path)
         image_path = f"data:image/jpeg;base64,{base64_image}"
+        dummy = "image_path"
 
     # expand chat
     chat_thread.append({"role": 'user',
@@ -757,7 +763,7 @@ def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/
 
     # send message----------------------------
     messages = build_messages(chat_thread)
-
+    print('<Looking Image...>')
     response = client.chat.completions.create(
         model= model,
         messages=messages,
@@ -766,22 +772,13 @@ def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/
     )
 
     #reply = response.choices[0].message.content
-    collected_messages = []
-    for chunk in response:
-        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message)
-        if print_reply:
-            if chunk_message is not None:
-                time.sleep(lag)
-                print(chunk_message, end='')
-
-        reply = ''.join(collected_messages).strip()
+    reply = stream_reply(response, print_reply=print_reply, lag = lag)
 
     # reset compatibility with the other models
     time.sleep(0.85)
     # expand chat--------------------------------
     chat_thread.append({"role": "assistant", "content":'TAG'+reply})
-    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+image_path}
+    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
     # content is a list [] I have to replace ("image_file", "text") and GO!
 
     # count tokens-------------------------------
@@ -790,9 +787,6 @@ def send_image(image_path="https://upload.wikimedia.org/wikipedia/commons/thumb/
     if to_clip:
         pc.copy(reply)
 
-###
-
-###
 
 def display_image(filename, jupyter = False, plotlib=True, dpi=200):
     if jupyter:
@@ -1213,7 +1207,7 @@ assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instruct
 
 
 ####### Assistants #######
-def send_to(m, who,  gpt=model, max = 1000, clip=True):
+def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
     if who in assistants:
         sys = assistants[who]
     elif len(who.split()) < 8:
@@ -1221,7 +1215,11 @@ def send_to(m, who,  gpt=model, max = 1000, clip=True):
         sys = ''
     else:
         sys = who
-    send_message(m,system=sys, maxtoken=max, model=gpt, to_clip=clip)
+    if img != '':
+        send_image(image_path=img, message=m, model= "gpt-4o", maxtoken=max, to_clip=clip)
+
+    else:
+        send_message(m,system=sys, maxtoken=max, model=gpt, to_clip=clip)
 
 # Copilots
 def chatgpt(m,  gpt=model, max = 1000, clip=True):
@@ -1351,8 +1349,6 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
         elif kb.is_pressed(exit):
             print('Chat Closed')
             break
-
-#%%
 
 #%% 
 ### trial ###
