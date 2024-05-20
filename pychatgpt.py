@@ -72,7 +72,7 @@ def check_and_install_requirements(requirements):
             exit()
 
 
-requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk"]
+requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2"]
 check_and_install_requirements(requirements)
 from scipy.spatial import distance
 from openai import OpenAI
@@ -121,6 +121,7 @@ except ImportError:
 
 import gdown
 import base64
+import PyPDF2
 from PIL import Image
 from io import BytesIO
 from datetime import datetime
@@ -510,6 +511,16 @@ def load_multiple_files(file_list):
         loaded_files[os.path.basename(file_name).split('.')[0]] = load_file(file=file_name)
     print('Loaded Files:', list(loaded_files.keys()))
     return loaded_files
+
+
+def pdf_to_text(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            page = reader.pages[page_num]
+            text += page.extract_text()
+    return text
 
 def clearchat():
     global chat_thread
