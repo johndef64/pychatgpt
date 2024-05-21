@@ -2,6 +2,7 @@
 import os
 import sys
 import requests
+#%%
 
 def get_gitfile(url, dir=os.getcwd()):
     file = requests.get(url.replace('blob', 'raw')).content
@@ -141,6 +142,7 @@ op.japanese_learner(m, 1)
 # Describe Image
 op.clearchat()
 url = "https://i.pinimg.com/564x/2c/b7/25/2cb725d68d10b3e1fa87fa6c48769072.jpg"
+url = r"F:\horizon_ai_repo\midjourney\mj_creations\alex gris\EvanJonas_by_Conrad_Roset_posing_starry_night_background_celest_4af6c7d1-1669-481a-aad1-3ce0c1f21ed6.png"
 op.send_image(url)
 
 #%%
@@ -149,14 +151,36 @@ op.send_image(url)
 m='''@
 An alchemist master brewer in a brewery laboratory who taps beer and talks to the observer, 1920s, vintage style, red-haired with a monocle, dressed elegantly.
 '''
-m='''
+ml='''
 The image features an illustration of a female character with noticeably unique characteristics, particularly her red eyes and the makeup, consisting of blue lipstick. She has dark hair with blue highlights and appears to be styled in a gothic fashion, indicated by her black choker, rings, and dark-colored clothing. The background suggests an urban setting with buildings and a clear sky. This seems to be artwork from a comic book or graphic novel, known for their stylized and vibrant portrayals of characters.
+'''
+op.clearchat()
+m='''
+The image features an artistic illustration of a person with their eyes closed, which gives a peaceful or contemplative expression. The character has short, dark hair with a slight wave, fair skin, and is wearing a black top with what appears to be a necklace. The style of the artwork is modern and somewhat ethereal, with a use of cool tones predominately blue, and there are speckled effects across the image that resemble stars or particles, adding to the dreamy quality of the illustration. Overall, the image has an intimate and serene mood. By Conrad Rosett, by Alphone Mucha
+'''
+m='''
+a swedish man in psychedlic mushroom world, fractal patterns, violet lights
 '''
 op.prompt_maker(m)
 #%%
 op.english(''' un alchimista mastro birraio in una birreria laboratorio che spila birra e parla all ossevatore, anni '20, vintage stile, rossi di capelli con il monocolo, vestito elegante ''')
 #%%
 op.chat_thread
+#%%
+###vb.net
+{'Positive prompt': 'artistic illustration, person with eyes closed, peaceful expression, short dark wavy hair, fair skin, black top, necklace, modern, ethereal style, cool tones, blue predominant, speckled star/particle effects, intimate, serene mood, (artstation:1.2), (ethereal:1.1)',
+ 'Negative prompt': '(photographic, realistic, 3d, illustration style, cartoonish), eyes open'}
+###
+
+###vb.net
+{'Positive prompt': 'ethereal modern art, person with closed eyes, contemplative, short dark wavy hair, fair skin, black top, necklace, cool blue tones, star/particle effects, dreamy, serene, Alphonse Mucha inspired, (artstation:1.2)',
+ 'Negative prompt': '(photographic, realistic, 3d, illustration style, cartoonish), eyes open'}
+###
+
+###vb.net
+{'Positive prompt': 'serene artwork, closed-eyed person, peaceful expression, modern ethereal style, short dark wavy hair, fair skin, black top, necklace, cool blue tones, starry/particle effects, dreamy, intimate mood, Conrad Roset inspired, (ethereal:1.1)',
+ 'Negative prompt': '(photographic, realistic, 3d, illustration style, cartoonish), eyes open'}
+###
 #%%
 
 prompts = [
