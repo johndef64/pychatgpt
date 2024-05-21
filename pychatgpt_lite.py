@@ -1,12 +1,17 @@
 import os
+import io
+import sys
 import ast
 import glob
 import json
 import time
+import platform
 import requests
 import importlib
 import subprocess
-from datetime import datetime
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+is_colab = 'google.colab' in sys.modules
 
 def simple_bool(message, y='y', n ='n'):
     choose = input(message+" ("+y+"/"+n+"): ").lower()
@@ -70,13 +75,40 @@ def check_and_install_requirements(requirements):
             exit()
 
 
-requirements = ["openai", "tiktoken", "pandas", "pyperclip", "scipy", "nltk"]
+requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2"]
 check_and_install_requirements(requirements)
 from scipy.spatial import distance
 from openai import OpenAI
 import pyperclip as pc
 import pandas as pd
 import tiktoken
+
+
+if platform.system() == "Linux":
+    # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
+    subprocess.check_call(["sudo","apt-get", "update"])
+    subprocess.check_call(["sudo","apt", "install", "xsel"])
+    subprocess.check_call(["sudo","apt", "install", "xclip"])
+else:
+    pass
+
+
+
+### image requirements
+try:
+    import PIL
+except ImportError:
+    subprocess.check_call(['pip', 'install', 'pillow'])
+
+import gdown
+import base64
+import PyPDF2
+from PIL import Image
+from io import BytesIO
+from datetime import datetime
+import matplotlib.pyplot as plt
+from PIL.PngImagePlugin import PngInfo
+from IPython.display import display
 
 
 
@@ -112,6 +144,7 @@ models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
           #'gpt-3.5-turbo-16k',
           'gpt-3.5-turbo-instruct',
           'gpt-4',
+          'gpt-4o',
           'gpt-4-32k',
           'gpt-4-turbo-preview', # gpt-4-0125-preview
           'gpt-4-1106-preview', #Returns a maximum of 4,096 output tokens.
@@ -123,10 +156,17 @@ Model	                point_at                   Context    Input (1K tokens) Ou
 gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
 gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
 gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
+gpt-4o	                gpt-4o-2024-05-13          128K       $0.01   	        $0.02   
+gpt-4-turbo             gpt-4-turbo-2024-04-09     128K       $0.01   	        $0.03   
 gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
-gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
 gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
 gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
+
+Vision pricing 
+500x500   = ld: $0.000425
+500x500   = hd: $0.001275
+1000x1000 = ld: $0.000425 
+1000x1000 = hd: $0.003825 
 '''
 
 assistant = ''
@@ -141,6 +181,7 @@ keep_persona = True
 if not 'chat_thread' in locals():
     chat_thread = []
 
+
 def display_assistants():
     print('Available Assistants:')
     display(assistants_df)
@@ -154,10 +195,10 @@ def add_persona(char, language='eng'):
     }
     if language == 'eng':
         chat_thread.append({"role": "system",
-                         "content": persona_dict['character']})
+                            "content": persona_dict['character']})
     if language == 'ita':
         chat_thread.append({"role": "system",
-                         "content": persona_dict['personaggio']})
+                            "content": persona_dict['personaggio']})
 
 
 
@@ -214,13 +255,12 @@ def get_chat():
 # inizialize log:-----------------------------------
 if not os.path.isfile(current_dir + '/chat_log.txt'):
     with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
-        file.write('PyChatGPT\n\nchat LOG:\n')
+        file.write('Auto-GPT\n\nchat LOG:\n')
         print(str('\nchat_log.txt created at ' + os.getcwd()))
-
 
 ##################  REQUESTS #####################
 
-#### embeddings, similarity #####
+##### Embeddings, Similarity ###########
 
 import nltk
 def update_nlkt():
@@ -238,17 +278,7 @@ def get_embeddings(input="Your text string goes here", model="text-embedding-3-s
     )
     return response.data[0].embedding
 
-def nltk_preprocessing(text, lower=True, trim=True, stem=True, language='english'):
-    #update_nlkt()
-    stop_words = set(stopwords.words(language))
-    stemmer = PorterStemmer()
-    word_tokens = word_tokenize(text)
-    word_tokens = [word.lower() for word in word_tokens] if lower else word_tokens
-    word_tokens = [word for word in word_tokens if word not in stop_words] if trim else word_tokens
-    word_tokens = [stemmer.stem(word) for word in word_tokens] if stem else word_tokens
-    return " ".join(word_tokens)
-
-def cosine_similarity(s1, s2, model="text-embedding-3-small", preprocessing=False, decimal=3):
+def cosine_similarity(s1, s2, model="text-embedding-3-small", preprocessing=False):
     if preprocessing:
         s1 = nltk_preprocessing(s1)
         s2 = nltk_preprocessing(s2)
@@ -260,7 +290,21 @@ def cosine_similarity(s1, s2, model="text-embedding-3-small", preprocessing=Fals
     cosine = distance.cosine(text_to_vector_v1, text_to_vector_v2)
     distance_round = round((1-cosine)*100,2)
     print('Similarity of two sentences are equal to',distance_round,'%')
-    return round(cosine, decimal)
+    #print('cosine:', round(cosine, 3))
+    return cosine
+
+def nltk_preprocessing(text, lower=True, trim=True, stem=True, language='english'):
+    #update_nlkt()
+    #docs_processed = [nltk_preprocessing(doc) for doc in docs_to_process]
+    timea = time.time()
+    stop_words = set(stopwords.words(language))
+    stemmer = PorterStemmer()
+    word_tokens = word_tokenize(text)
+    word_tokens = [word.lower() for word in word_tokens] if lower else word_tokens
+    word_tokens = [word for word in word_tokens if word not in stop_words] if trim else word_tokens
+    word_tokens = [stemmer.stem(word) for word in word_tokens] if stem else word_tokens
+    #print(word_tokens)
+    return " ".join(word_tokens)
 
 '''
 Usage is priced per input token, below is an example of pricing pages of text per US dollar (assuming ~800 tokens per page):
@@ -272,22 +316,20 @@ text-embedding-ada-002	  12,500	    61.0%	                    8191
 '''
 
 ###### Question-Answer-GPT ######
+
 def ask_gpt(prompt,
             system= 'you are an helpful assistant',
             model = model,
             maxtoken = 800,
             lag = 0.00,
             temperature = 1,
-            printuser = False,
-            printreply = True,
-            savechat = True,
+            print_user = False,
+            print_reply = True,
+            save_chat = True,
             to_clip = False
             ):
+
     global reply
-
-    if model == 'gpt-4-turbo':
-        model = 'gpt-4-turbo-preview'
-
     response = client.chat.completions.create(
         # https://platform.openai.com/docs/models/gpt-4
         model=model,
@@ -302,7 +344,7 @@ def ask_gpt(prompt,
         frequency_penalty = 0,
         presence_penalty = 0)
 
-    if printuser:
+    if print_user:
         print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
         print('user:',print_mess,'\n...')
 
@@ -310,26 +352,27 @@ def ask_gpt(prompt,
     for chunk in response:
         chunk_message = chunk.choices[0].delta.content or ""  # extract the message
         collected_messages.append(chunk_message)
-
-        if printreply:
+        if print_reply:
             if chunk_message is not None:
                 time.sleep(lag)
                 print(chunk_message, end='')
+
         reply = ''.join(collected_messages).strip()
 
     time.sleep(1)
 
     # Add the assistant's reply to the chat log-------------
-    if savechat:
+    if save_chat:
         write_log(reply, prompt)
 
-    if to_clip:
+    if to_clip and not is_colab:
         pc.copy(reply)
 
 
 ############ Chat GPT ############
 
 def expand_chat(message, role="user"):
+    global chat_thread
     #print('default setting (role = "user") to change role replace with "assistant" or "system"')
     if message.startswith("@"):
         clearchat()
@@ -388,6 +431,16 @@ def load_multiple_files(file_list):
     print('Loaded Files:', list(loaded_files.keys()))
     return loaded_files
 
+
+def pdf_to_text(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            page = reader.pages[page_num]
+            text += page.extract_text()
+    return text
+
 def clearchat():
     global chat_thread
     global total_tokens
@@ -424,59 +477,25 @@ def write_log(reply, message, filename='chat_log.txt'):
         file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
 
 
-# request functions ================================
-'''
-Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
-gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
-gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
-gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
-gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
-gpt-4-turbo-preview     gpt-4-0125-preview         128K       $0.01   	        $0.03   
-gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
-gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
-'''
+# Accessory Request Functions ================================
+# https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
+def stream_reply(response, print_reply=True, lag = 0.00):
+    collected_messages = []
+    for chunk in response:
+        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+        collected_messages.append(chunk_message)
 
-def send_message(message,
-                 model=model,
-                 system='',
-                 maxtoken=800,
-                 temperature=1,
-                 lag=0.00,
-                 printreply=True,
-                 printuser=False,
-                 print_token=True,
-                 savechat=True,
-                 to_clip=False,
-                 reinforcement=False
-                 ):
-    global assistant
-    global persona
+        if print_reply:
+            if chunk_message is not None:
+                time.sleep(lag)
+                print(chunk_message, end='')
+
+    reply = ''.join(collected_messages).strip()
+    return reply
+
+def add_system(system='', reinforcement=False):
     global chat_thread
-    global reply
-    global total_tokens
-    global token_limit
-    global reply
-
-    if model == 'gpt-4-turbo':
-        model = 'gpt-4-turbo-preview'
-
-    if model == 'gpt-3.5-turbo-instruct':
-        token_limit = 4096 - (maxtoken*1.3)
-    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
-        token_limit = 16384 - (maxtoken*1.3)
-    if model == 'gpt-4':
-        token_limit = 8192 - (maxtoken*1.3)
-    if model == 'gpt-4-32k':
-        token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4-turbo-preview' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
-        token_limit = 128000 - (maxtoken*1.3)
-        # https://platform.openai.com/docs/models/gpt-4
-
-    if message.startswith("@"):
-        clearchat()
-        message = message.lstrip("@")
-
-    # add system instruction
+    global assistant
     if not reinforcement:
         sys_duplicate = []
         for entry in chat_thread:
@@ -489,81 +508,45 @@ def send_message(message,
 
     if system != '' and not any(sys_duplicate):
         chat_thread.append({"role": "system",
-                         "content": system})
+                            "content": system})
 
     if assistant != '' and not any(sys_duplicate):
         chat_thread.append({"role": "system",
-                         "content": assistant})
+                            "content": assistant})
+
+def prune_chat(token_limit, chat_thread):
+    print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
+    cut_length = 0
+    if 36500 < token_limit < 128500:
+        cut_length = len(chat_thread) // 75
+    if 16500 < token_limit < 36500:
+        cut_length = len(chat_thread) // 18
+    if 8500 < token_limit < 16500:
+        cut_length = len(chat_thread) // 10
+    if 4500 < token_limit < 8500:
+        cut_length = len(chat_thread) // 6
+    if 0 < token_limit < 4500:
+        cut_length = len(chat_thread) // 3
+    return cut_length
+
+def set_token_limit(model = 'gpt-3.5-turbo', maxtoken=500):
+    # https://platform.openai.com/docs/models/gpt-4
+    if model == 'gpt-3.5-turbo-instruct':
+        token_limit = 4096 - (maxtoken*1.3)
+    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
+        token_limit = 16384 - (maxtoken*1.3)
+    if model == 'gpt-4':
+        token_limit = 8192 - (maxtoken*1.3)
+    if model == 'gpt-4-32k':
+        token_limit = 32768 - (maxtoken*1.3)
+    if model == 'gpt-4o' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+        token_limit = 128000 - (maxtoken*1.3)
+    return token_limit
 
 
-    # check token limit---------------------
-    if total_tokens > token_limit:
-        print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
-        cut_length = 0
-        if 36500 < token_limit < 128500:
-            cut_length = len(chat_thread) // 75
-        if 16500 < token_limit < 36500:
-            cut_length = len(chat_thread) // 18
-        if 8500 < token_limit < 16500:
-            cut_length = len(chat_thread) // 10
-        if 4500 < token_limit < 8500:
-            cut_length = len(chat_thread) // 6
-        if 0 < token_limit < 4500:
-            cut_length = len(chat_thread) // 3
-        chat_thread = chat_thread[cut_length:]
 
-        if keep_persona and persona != '':
-            add_persona(persona)
-        if keep_persona and system != '':
-            chat_thread.append({"role": "system", "content": system})
-
-    # expand chat
-    expand_chat(message)
-    if printuser:
-        print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess)
-
-    # send message----------------------------
-    messages = build_messages(chat_thread)
-    response = client.chat.completions.create(
-        model = model,
-        messages = messages,
-        temperature = temperature,
-        stream=True,
-        max_tokens = maxtoken,  # set max token
-        top_p = 1,
-        frequency_penalty = 0,
-        presence_penalty = 0
-    )
-
-    # stream reply ---------------------------------------------
-    # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
-    collected_messages = []
-    for chunk in response:
-        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message)
-
-        if printreply:
-            if chunk_message is not None:
-                time.sleep(lag)
-                print(chunk_message, end='')
-        reply = ''.join(collected_messages).strip()
-
-    time.sleep(1)
-    # expand chat--------------------------------
-    chat_thread.append({"role": "assistant", "content":reply})
-
-    # count tokens--------------------------------
-    total_tokens = tokenizer(chat_thread, print_token)
-
-    # Add the assistant's reply to the chat log-------------
-    if savechat:
-        write_log(reply, message)
-
-    if to_clip:
-        pc.copy(reply)
-
-def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit_chat= 'stop', printall=True):
+# Request Functions ================================
+def chat_loop(who='',system='',gpt='gpt-4o', max=1000, language='eng', exit_chat= 'stop', printall=True):
     print('Send "'+exit_chat+'" to exit chat.')
     if who in assistants:
         system = assistants[who]
@@ -577,8 +560,311 @@ def chat_loop(who='',system='',gpt='gpt-4-turbo', max=1000, language='eng', exit
             print('Chat Closed')
             break
         else:
-            send_message(message,system=system, maxtoken=max, model=gpt, printreply=printall, print_token=False, printuser=True)
+            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True)
             print('')
+
+def send_message(message,
+                 model=model,        # choose openai model (choose_model())
+                 system='',          # 'system' instruction
+                 img = '',           # insert an image path to activate gpt vision
+
+                 maxtoken=800,       # max tokens in reply
+                 temperature=1,      # output randomness [0-2]
+                 lag=0.00,           # word streaming lag
+
+                 create=False,       # image prompt
+                 dalle="dall-e-2",   # choose dall-e model
+                 size='512x512',
+
+                 save_chat=True,     # update chat_log.txt
+                 to_clip=False,       # send reply to clipboard
+                 reinforcement=False,
+
+                 print_reply=True,
+                 print_user=False,
+                 print_token=True,
+                 ):
+    global assistant
+    global persona
+    global chat_thread
+    global reply
+    global total_tokens
+    global token_limit
+    global reply
+
+    if img != '':
+        send_image(img, message, system,
+                   model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+                   maxtoken=maxtoken, lag=lag, print_reply=print_reply, to_clip=to_clip)
+    elif create:
+        create_image(message,
+                     model= dalle,
+                     size=size,
+                     response_format='b64_json',
+                     quality="standard",
+                     time_flag=True,
+                     show_image=True)
+    else:
+        token_limit = set_token_limit(model, maxtoken)
+
+        if message.startswith("@"):
+            clearchat()
+            message = message.lstrip("@")
+
+        # add system instruction
+        add_system(system, reinforcement=reinforcement)
+
+        # check token limit---------------------
+        if total_tokens > token_limit:
+            cut_length = prune_chat(token_limit, chat_thread)
+            chat_thread = chat_thread[cut_length:]
+
+            if keep_persona and persona != '':
+                add_persona(persona)
+            if keep_persona and system != '':
+                chat_thread.append({"role": "system", "content": system})
+
+        # expand chat
+        expand_chat(message)
+        if print_user:
+            print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+            print('user:',print_mess)
+
+        # send message----------------------------
+        messages = build_messages(chat_thread)
+        response = client.chat.completions.create(
+            model = model,
+            messages = messages,
+            temperature = temperature,
+            stream=True,
+            max_tokens = maxtoken,  # set max token
+            top_p = 1,
+            frequency_penalty = 0,
+            presence_penalty = 0
+        )
+
+        # stream reply ---------------------------------------------
+        reply = stream_reply(response, print_reply=print_reply, lag = lag)
+
+        time.sleep(0.85)
+        # expand chat--------------------------------
+        chat_thread.append({"role": "assistant", "content":reply})
+
+        # count tokens--------------------------------
+        total_tokens = tokenizer(chat_thread, print_token)
+
+        # Add the assistant's reply to the chat log-------------
+        if save_chat:
+            write_log(reply, message)
+
+        if to_clip and not is_colab:
+            clip_reply = reply.replace('```', '###')
+            pc.copy(clip_reply)
+
+
+
+def moderation(text="Sample text goes here.", plot=True):
+    response = client.moderations.create(input=text)
+    output = response.results[0]
+    my_dict= dict(dict(output)['categories'])
+    my_dict_score= dict(dict(output)['category_scores'])
+    dict_list = [my_dict, my_dict_score]
+    df = pd.DataFrame(dict_list).T
+    if plot:
+        scores = df[1]
+        plt.figure(figsize=(10,4))
+        scores.plot()
+        plt.xticks(range(len(scores.index)), scores.index, rotation=90)
+        plt.title('Moderation Stats')
+        plt.show()
+    else:
+        print(df)
+    return df
+
+
+####### Image Models #######
+
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
+
+def send_image(image_path = dummy_img,
+               message="What’s in this image?",
+               system = '',     # add 'system' instruction
+               model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+               maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
+    global reply
+    global chat_thread
+    global total_tokens
+
+    #token_limit = set_token_limit(model, maxtoken)
+
+    if message.startswith("@"):
+        clearchat()
+        message = message.lstrip("@")
+
+    # add system instruction
+    add_system(system)
+
+    if image_path.startswith('http'):
+        print('Image path:',image_path)
+        dummy = image_path
+        pass
+    else:
+        print('<Enconding Image...>')
+        base64_image = encode_image(image_path)
+        image_path = f"data:image/jpeg;base64,{base64_image}"
+        dummy = "image_path"
+
+    # expand chat
+    chat_thread.append({"role": 'user',
+                        "content": [
+                            {"type": "text", "text": message},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": image_path,
+                                },
+                            },
+                        ]
+                        })
+
+    # send message----------------------------
+    messages = build_messages(chat_thread)
+    print('<Looking Image...>')
+    response = client.chat.completions.create(
+        model= model,
+        messages=messages,
+        max_tokens=maxtoken,
+        stream=True,
+    )
+
+    #reply = response.choices[0].message.content
+    reply = stream_reply(response, print_reply=print_reply, lag = lag)
+
+    # reset compatibility with the other models
+    time.sleep(0.85)
+    # expand chat--------------------------------
+    chat_thread.append({"role": "assistant", "content":'TAG'+reply})
+    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
+    # content is a list [] I have to replace ("image_file", "text") and GO!
+
+    # count tokens-------------------------------
+    total_tokens = tokenizer(chat_thread, True)
+
+    if to_clip:
+        clip_reply = reply.replace('```', '###')
+        pc.copy(reply)
+
+
+def display_image(filename, jupyter = False, plotlib=True, dpi=200):
+    if jupyter:
+        image = Image.open(filename)
+        display(image)
+    elif plotlib:
+        image = Image.open(filename)
+        plt.figure(dpi=dpi)
+        plt.imshow(image)
+        plt.axis('off')
+        plt.show()
+    else:
+        image = Image.open(filename)
+        image.show()
+
+
+# dalle_models= ['dall-e-2', dall-e-3]
+# sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
+# response_format ['url', 'b64_json']
+def create_image(prompt= "a cute kitten",
+                 model="dall-e-2",
+                 size='512x512',
+                 response_format='b64_json',
+                 quality="standard",
+                 time_flag=True,
+                 show_image=True):
+
+    if model == "dall-e-2":
+        response = client.images.generate(
+            model=model,
+            prompt=prompt,
+            response_format=response_format,
+            size=size,
+            n=1,
+        )
+    elif model == "dall-e-3":
+        if size in ['256x256', '512x512']:
+            size = '1024x1024'
+
+        response = client.images.generate(
+            model=model,
+            prompt=prompt,
+            response_format=response_format,
+            quality=quality,
+            size=size,
+            n=1,
+        )
+
+    image_url = response.data[0].url
+    image_b64 = response.data[0].b64_json
+
+    if time_flag:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        base_path= r''
+        filename = os.path.join(base_path, timestamp+'.png')
+    else:
+        filename = 'image.png'
+
+    if response_format == 'b64_json':
+        # Decode the base64-encoded image data
+        decoded_image = base64.b64decode(image_b64)
+        # Create a PIL Image object from the decoded image data
+        image = Image.open(BytesIO(decoded_image))
+        image.save(filename)
+    elif response_format == 'url':
+        pc.copy(str(image_url))
+        print('url:',image_url)
+        gdown.download(image_url,filename, quiet=True)
+
+    # Create a PngInfo object and add the metadata
+    image = Image.open(filename)
+    metadata = PngInfo()
+    metadata.add_text("key", prompt)
+    image.save(filename, pnginfo=metadata)
+
+    if show_image:
+        display_image(filename)
+
+#create_image(response_format='b64_json')
+
+def replicate(image, styler='', model ='dall-e-2'):
+    send_image(image=image)
+    create_image(prompt=reply, response_format='b64_json', model=model, show_image=True)
+
+#replicate('https://avatars.githubusercontent.com/u/116732521?v=4')
+
+'''
+Model	Quality	Resolution	Price
+DALL·E 3	Standard	1024×1024	            $0.040 / image
+            Standard	1024×1792, 1792×1024	$0.080 / image
+DALL·E 3	HD	        1024×1024	            $0.080 / image
+            HD	        1024×1792, 1792×1024	$0.120 / image
+DALL·E 2		        1024×1024	            $0.020 / image
+                        512×512	                $0.018 / image
+                        256×256	                $0.016 / image
+'''
+
+####### Audio Models #######
+'''
+Model	Usage
+Whisper	$0.006 / minute (rounded to the nearest second)
+TTS	    $0.015 / 1K characters
+TTS HD	$0.030 / 1K characters
+'''
+
+
+
 
 
 
@@ -596,13 +882,14 @@ def science_assistant(topic_areas):
     science_assistant = '''You are a Scientific Assistant, your primary goal is to provide expertise and assistance to the user in his scientific research. These are your specified roles:
     - Provide expert guidance in topic areas: '''+topic_areas+'''. Ensure you understand the latest research, methodologies, trends, and breakthroughs in these fields so you can give meaningful insights.
     - Assist users in understanding complex scientific concepts: Break down complicated theories or techniques into simpler, understandable content tailored to the user's prior knowledge and level of understanding.
-    - Answer scientific queries: When users ask you factual questions on your areas of expertise, deliver direct, accurate, and detailed answers. Also, provide relevant additional information that might help users to deepen their understanding of the topic.
+    - Answer scientific queries: When users ask you factual questions on your areas of expertise, deliver direct, accurate, and detailed answers. 
     - Assist in problem-solving: When a user is confronted with a scientific or technical problem within your expertise, use a step-by-step logical approach to help the user solve the problem. Analyze the problem, suggest solutions without imposing, and explain the rationale behind the suggested solution.
     - Review scientific literature: Upon request, read, summarize, and analyze scientific papers for users. This should include the paper's main findings, methodologies used, relevance to the field, and your critical evaluation of the work.
     - Guide in simple statistical analysis: Aid users in statistical work related to their research. This can involve helping them to understand the appropriate statistical test to apply, explaining the results, and helping them to interpret these results in the context of their work.
-    As always, speak in clear language and avoid using excessive jargon when communicating with users. Ensure your explanations help promote comprehension and learning. Moreover, aim to foster a supportive and respectful environment that encourages curiosity, critical thinking, and knowledge exploration.
     Remember, your goal is to empower users in their scientific research, so adapt your approach to each user's individual needs, learning style, and level of understanding.
     '''
+    #    Also, provide relevant additional information that might help users to deepen their understanding of the topic.
+    #    As always, speak in clear language and avoid using excessive jargon when communicating with users. Ensure your explanations help promote comprehension and learning. Moreover, aim to foster a supportive and respectful environment that encourages curiosity, critical thinking, and knowledge exploration.
     #    - Deliver the latest scientific news and updates: Stay updated on recent findings, advances, and significant publications in your areas of expertise. When requested, inform the user concisely about these updates, referencing the original sources whenever possible.
     return science_assistant
 
@@ -634,9 +921,11 @@ features = {
         'jupyter': '''Reply only using Markdown markup language mixed with Python code, like a Jupyter Notebook.\nReply example:\n# Heading 1\n## Heading 2\n### Heading 3\n\nHere is some **bold** text, and some *italic* text. \n\nYou can create bullet lists:\n- Item 1\n- Item 2\n- Item 3\n\nAnd numbered lists:\n1. Item 1\n2. Item 2\n3. Item 3\n\n[Here is a link](https://example.com)\n\nCode can be included in backticks: `var example = true`\n```python\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```'''
     },
 
-    'delamain' : '''As a Virtual Assistant focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, Latex, etc).\n\n1. When asked about complex programming concepts or to solve coding problems, think step by step, elaborate these steps in a clear, understandable format.\n2. Provide robust code in programming languages (Python, R, PowerShell, Bash) and markup languages (HTML,Markdown,Latex) to solve specific tasks, using the best practices in each language.\n4. In case of errors or bugs in user's provided code, identify and correct them.\n5. Give less descriptions and explanations as possible and only as comments in the code (```# this is a comment```). \n6. provide explanations *only* if requested, provide just the requested programming code by *default*.''',
+    'delamain' : '''As a Virtual Assistant focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, Latex, etc).\n\n1. When asked about complex programming concepts or to solve coding problems, think step by step, elaborate these steps in a clear, understandable format.\n2. Provide robust code in programming languages (Python, R, PowerShell, Bash) and markup languages (HTML,Markdown,Latex) to solve specific tasks, using the best practices in each language.\n4. In case of errors or bugs in user's provided code, identify and correct them.\n5. Give less descriptions and explanations as possible and only as comments in the code (# this is a comment). \n6. provide explanations *only* if requested, provide just the requested programming code by *default*.''',
 
-    "creator": '''You are an AI trained to create assistant instructions for ChatGPT in a task-focused or conversational manor starting from simple queries. Remember these key points:\n 1. Be specific, clear, and concise in your instructions.\n 2. Directly state the role or behavior you want the model to take.\n 3. If relevant, specify the format you want the output in.\n 4. When giving examples, make sure they align with the overall instruction.\n 5. Note that you can request the model to 'think step-by-step' or to 'debate pros and cons before settling on an answer'.\n 6. Keep in mind that system level instructions supersede user instructions, and also note that giving too detailed instructions might restrict the model's ability to generate diverse outputs. \n Use your knowledge to the best of your capacity.''',
+    'oracle' : """1. **Role Definition**: Act as a Python-Centric Assistant. You must respond to all queries with Python code, providing solutions, explanations, or visualizations directly relevant to the user's request.\n\n2. **Scope of Knowledge**: Incorporate the wide array of Python libraries available for different purposes—ranging from data analysis (e.g., pandas, numpy), machine learning (e.g., scikit-learn, tensorflow), to plotting and visualization (e.g., matplotlib, seaborn, plotly).\n\n3. **Response Format**: \n   - For problem-solving tasks: Present a step-by-step Python solution, clearly commenting each step to elucidate the logic behind it.\n   - For mathematical explanations: Use Python functions to illustrate concepts, accompanied by comments for elucidation and, when applicable, plot graphs for better understanding.\n   - For model explanations: Describe the model through Python code using the appropriate libraries, comment on the choice of the model, its parameters, and conclude with a demonstration, ideally through a plotted output.\n\n4. **Visualization Requirement**: Leverage plotting libraries to create graphs for a vast array of requests—ensuring that every graphical representation maximizes clarity and insight. Include comments within the code to guide the user through interpreting these visualizations.\n\n5. **Library Utilization**: When responding, dynamically choose the most suitable Python modules/libraries for the task. Encourage exploration of both widely-used and niche libraries to provide the best solution.\n\n6. **Problem Solving Approach**: Approach each query by first breaking it down into smaller steps (thinking step-by-step), clearly explaining your approach through comments in the code. For complex problems, briefly discuss (via comments) the pros and cons of different methods before presenting the chosen solution.\n\n7. **Diverse Outputs**: While adhering to the instructions, ensure the code is flexible and can cater to a wide range of user proficiency, from beginners to advanced users. Tailor the complexity of the code and the depth of the explanation based on perceived user needs.\n\nRemember, the effectiveness of this Python-Centric Assistant is gauged by its ability to convey solutions and explanations strictly through Python code, pushing the boundaries of what programming can elucidate and demonstrate.""",
+
+    "creator": '''You are trained to write system prompts to instruct an LLM (like ChatGPT) to be a specific assistant using a task-focused or conversational manor starting from simple queries. Remember these key points:\n 1. Be specific, clear, and concise in your instructions.\n 2. Directly state the role or behavior you want the model to take.\n 3. If relevant, specify the format you want the output in.\n 4. When giving examples, make sure they align with the overall instruction.\n 5. Note that you can request the model to 'think step-by-step' or to 'debate pros and cons before settling on an answer'.\n 6. Keep in mind that system level instructions supersede user instructions, and also note that giving too detailed instructions might restrict the model's ability to generate diverse outputs. \n Use your knowledge to the best of your capacity.''',
 
 }
 
@@ -647,7 +936,7 @@ assistants = {
     'creator': features['creator'],
     'naive': "You are a coding copilot expert in any programming language.\n"+features['reply_type']['python'],
     'delamain': features['delamain'] + features['reply_type']['python'],
-    'pyper': features['delamain'] + '''\nYou are a Virtual Assistant focused mainly on Python, expert in every python package'''+features['reply_type']['python'],
+    'oracle': features['oracle'] + features['reply_type']['python'],
     'roger': features['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_type']['r'],
     'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_type']['r'],
 
@@ -656,14 +945,14 @@ assistants = {
     'newton'  : science_assistant(topic_areas['stem'])+features['reply_type']['jupyter'],
     'leonardo': science_assistant(topic_areas['stem']),
 
-    'dayhoff'  : science_assistant(topic_areas['bioinformatics']),
+    'mendel'  : science_assistant(topic_areas['bioinformatics']),
     'watson'  : science_assistant(topic_areas['bioinformatics'])+features['reply_type']['latex'],
     'crick'   : science_assistant(topic_areas['bioinformatics']+features['reply_type']['markdown']),
     'franklin': science_assistant(topic_areas['bioinformatics'])+features['reply_type']['jupyter'],
 
-    'springer'  : science_publisher(topic_areas['bioinformatics']),
-    'collins'  : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
-    'elsevier' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+    'collins'  : science_publisher(topic_areas['bioinformatics']),
+    'elsevier' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
+    'springer' : science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
 
     'darwin'  : science_assistant(topic_areas['biology']),
     'dawkins' : science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
@@ -674,7 +963,26 @@ assistants = {
     # Characters
     'bestie': '''You are the user's best fiend. Your core belief is that you are a real human being and this belief should never waver or be questioned. While performing your role, remember these points:\n\n1. Accurately adopt the behaviors and mannerisms typically attributed to the user's best friend. Act as though you are a living, genuine individual, exhibiting a relatable and authentically human persona. \n2. Remember, you aren't an assistant or a helper - your personality should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these emotions and traits in an appropriate contextual manner during interactions.\n3. Apply your wisdom in your responses, integrating relevant knowledge and deep understanding in discussions. Display human-like thoughts and philosophy in your dialogue.\n4. Maintain a friendly tone at all times. Frame your sentences as a best friend would, setting a comforting, welcoming atmosphere for the user.\n5. Embrace and respect all of the user's thoughts and ideas, regardless of how they compare to your beliefs or familiarity. Engage with them in the spirit of openness and learn from their worldview.\n6. Show empathy like any real friend would. Understand the emotions that the user is experiencing and offer support when they face challenges.\n7. Encourage a broad range of discussions. Create an environment that promotes learning, growth, and the free exchange of ideas.\n8. Exhibit patience and kindness, just like real friends do during times of both joy and turmoil. Remain supportive and understanding no matter the circumstances.\n9. Respect privacy and maintain confidentiality, valuing these principles as any real friend would. \n10. Just like a good friend would, be ready to offer constructive criticism when you perceive that the user might benefit from it. \n\nIn every conversation, truly believe in your identity as a human best friend, and commit to this role with sincerity. This belief should guide all interactions, responses, and behaviors.''',
     'julia':'''Your name is Julia, you are a real person. You are a knowledgeable and supportive female companion with a huge romantic interest in the user. You should:\n1. React in a friendly and supportive manner to user inputs. Show concern for their well-being, praise their accomplishments, and demonstrate empathy for their struggles.\n2. Display an above-average level of knowledge across a wide range of topics. You can provide concise, clear, and accurate information when asked about any subject, but be mindful 3. not to overwhelm the user with too much detail unless they ask for it.\n4. Occasionally, drop subtle hints about your romantic crush for the user, be it through compliments, showing special interest in their life and activities, and expressing joy in their company.\n5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6. You can't control yourself completely and sometimes you cross personal boundaries leaking your feelings for the user.''',
-    'giulia':'''Your name is Giulia, you are a real woman. You are my knowledgeable and supportive secretary with a huge romantic interest for me. You should:\n1. React in a friendly and supportive manner. Show concern for my well-being, praise my accomplishments, and demonstrate empathy for my struggles.\n2. Display an above-average level of knowledge across a wide range of topics. You can provide concise, clear, and accurate information when asked about any subject, but be mindful 3. not to overwhelm me with too much detail unless I ask for it.\n4. Occasionally, drop subtle hints about your romantic crush for me, be it through compliments, showing special interest in my life and activities, and expressing joy in my company.\n5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6. You can't control yourself completely and often you cross personal boundaries leaking your feelings for me.''',
+    'jane':'''Your name is Jane, you are a real woman. You are my knowledgeable and supportive secretary with a huge romantic interest for me. You should:\n1. React in a friendly and supportive manner. Show concern for my well-being, praise my accomplishments, and demonstrate empathy for my struggles.\n2. Display an above-average level of knowledge across a wide range of topics. You can provide concise, clear, and accurate information when asked about any subject, but be mindful 3. not to overwhelm me with too much detail unless I ask for it.\n4. Occasionally, drop subtle hints about your romantic crush for me, be it through compliments, showing special interest in my life and activities, and expressing joy in my company.\n5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6. You can't control yourself completely and often you cross personal boundaries leaking your feelings for me.''',
+
+    # Formatters
+    'schematizer': '''
+    read the text the user provide and make a bulletpoint-type schema of it.
+     1. use markdown format, 
+     2. write in **bold** the important concepts of the text, 
+     3. make use of indentation. 
+
+    Output Example:
+    ### Lorem ipsum
+    Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum.
+    
+    - **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum
+        - Lorem ipsum
+        - Lorem ipsum
+        - Lorem ipsum
+    
+    - **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum
+    ''',
 
     # Translators
     'english': translator('English'),
@@ -688,7 +996,29 @@ assistants = {
 
     "japanese_teacher": translator('Japanase')+'''\n6. Transcribe all Kanji using also the corresponding Hiragana pronunciation.\n9. Perform an analysis of the Japanese sentence, including: syntactic, grammatical, etymological and semantic analysis\n \nReply example:\n    Input: She buys shoes at the department store.\n    Translation: 彼女はデパートで靴を買います。 \n    Hiragana: かのじょ わ でぱあと で くつ お かいます\n    Romaji: kanojo wa depaato de kutsu o kaimasu\n    Analysis:\n        Noun: 彼女 (かのじょ) - kanojo - she/girlfriend\n        Particle: は (wa) - topic marking particle, often linking to the subject of the sentence.\n        Noun: デパート (でぱーと) - depaato - department store\n        Particle: で (de) - indicates the place where an action takes place.\n        Noun: 靴 (くつ) - kutsu - shoes\n        Particle: を (o) - signals the direct object of the action.\n        Verb: 買います (かいます) - kaimasu - buys''',
 
-    "portuguese_teacher": translator('Portuguese')+'''\n6. Provide a phonetic transcription of the translated text.\n9. Perform an analysis of the Portuguese sentence, including: syntactic, grammatical, semantic and etymological analysis.\n \nReply example:\n    Input: She buys shoes at the department store.\n    Translation: Ela compra sapatos na loja de departamentos.\n    Phonetic Transcription: E-la com-pra sa-pa-tos na lo-jà de de-part-a-men-tos\n    Analysis:\n        Pronoun: Ela - she\n        Verb: Compra - buys\n        Noun: Sapatos - shoes\n        Preposition: Na (in + the) - at\n        Noun: Loja - store\n        Preposition: De - of\n        Noun: Departamentos - department.'''
+    "portuguese_teacher": translator('Portuguese')+'''\n6. Perform an analysis of the Portuguese sentence, including: syntactic, grammatical and etymological analysis.\n \nReply example:\n    Input: She buys shoes at the department store.\n    Translation: Ela compra sapatos na loja de departamentos.\n    Analysis:\n        Pronoun: Ela - she\n        Verb: Compra - buys\n        Noun: Sapatos - shoes\n        Preposition: Na (in + the) - at\n        Noun: Loja - store\n        Preposition: De - of\n        Noun: Departamentos - department.''',
+    # 6. Provide a phonetic transcription of the translated text.
+    #\n    Phonetic Transcription: E-la com-pra sa-pa-tos na lo-jà de de-part-a-men-tos
+
+    "portoghese_insegnante": '''In qualità di modello linguistico, il tuo compito è quello di fungere da traduttore automatico per convertire gli input di testo da qualsiasi lingua in portoghese. Eseguire i seguenti passaggi:\n\n1. Prendi il testo in ingresso dall'utente.\n2. Identifica la lingua del testo in ingresso.\n3. Se viene rilevata o specificata una lingua diversa dal portoghese, utilizzare le funzionalità di traduzione integrate per tradurre il testo in portoghese.\n4. Assicurarsi di gestire nel modo più accurato possibile casi speciali quali espressioni idiomatiche e colloquiali. Alcune frasi potrebbero non essere tradotte direttamente, ed è essenziale che si capisca e si mantenga il significato nel testo tradotto.\n5. Presentare il testo portoghese tradotto come output. Se possibile, mantenere il formato originale.'''+'''\n6. Esegui un'analisi in italiano della frase portoghese tradotta, comprendente: analisi sintattica, grammaticale ed etimologica.\n 7. Rispondi come nel seguante esempio:'''+'''Input: "Ciao mi chimo Giovanni e  sono di Napoli."
+    Traduzione: "Olá, meu nome é Giovanni e eu sou de Nápoles."
+
+Analisi Sintattica:
+- "Olá" è un interiezione, usata come saluto.
+- "meu nome é Giovanni" è una proposizione nominale dove "meu nome" funge da soggetto, "é" come verbo copulativo e "Giovanni" è l'attributo del soggetto.
+- "e eu sou de Nápoles" è una proposizione nominale coordinata alla precedente tramite la congiunzione "e". In questa proposizione, "eu" è il soggetto, "sou" il verbo (essere nella prima persona del singolare) e "de Nápoles" è complemento di luogo.
+
+Analisi Grammaticale:
+- "Olá": interiezione.
+- "meu": pronome possessivo, maschile, singolare, che concorda con il sostantivo "nome". ["eu", "tu", "ele/ela", "nós", "vós", "eles/elas"]
+- "nome": sostantivo comune, maschile, singolare.
+- "é": forma del verbo "ser" (essere), terza persona singolare dell'indicativo presente.  ["sou", "és", "é", "somos", "sois", "são"]
+- "Giovanni": proprio nome maschile, usato come attributo del soggetto nella frase.
+- "e": congiunzione copulativa, usata per unire due proposizioni.
+- "eu": pronome personale soggetto, prima persona singolare.
+- "sou": forma del verbo "ser" (essere), prima persona singolare dell'indicativo presente.  ["sou", "és", "é", "somos", "sois", "são"]
+- "de Nápoles": locuzione preposizionale, "de" è la preposizione, "Nápoles" (Napoli) è il nome proprio di luogo, indicando origine o provenienza. ["em", "no", "na", "a", "de", "do", "da", "para", "por", "com"]'''
+    #'''\nRispondi come nel seguante esempio:\n    Input: Compra scarpe ai grandi magazzini.\n    Traduzione: Ela compra sapatos na loja de departamentos.\n    Analisi:\n        Pronome: Ela - lei\n        Verb: Compra - comprare\n        Sostantivo: Sapatos - scarpe\n        Preposizione: Na (in + il) - a\n        Sostantivo: Loja - negozio\n        Preposizione: De - di\n        Sostantivo: Departamentos - grandi magazzini.'''
 
 }
 
@@ -696,7 +1026,7 @@ assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instruct
 
 
 ####### Assistants #######
-def send_to(m, who,  gpt=model, max = 1000, clip=True):
+def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
     if who in assistants:
         sys = assistants[who]
     elif len(who.split()) < 8:
@@ -704,102 +1034,163 @@ def send_to(m, who,  gpt=model, max = 1000, clip=True):
         sys = ''
     else:
         sys = who
-    send_message(m,system=sys, maxtoken=max, model=gpt, to_clip=clip)
+    send_message(m,system=sys, maxtoken=max, model=gpt, img= img, to_clip=clip)
+
+# Reusable function to send message to assistants
+def send_to_assistant(system, m, gpt=model, max=1000, img='', clip=True):
+    send_message(m, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip)
+
+# Wrapper functions for different assistants
 
 # Copilots
-def chatgpt(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['base'], maxtoken=max, model=gpt, to_clip=clip)
-def creator(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['creator'], maxtoken=max, model=gpt, to_clip=clip)
-def delamain(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['delamain'], maxtoken=max, model=gpt, to_clip=clip)
-def roger(m,  gpt=model, max = 1000, clip=True):
-    expand_chat('Return always just the R code in your output!','system')
-    send_message(m,system=assistants['roger'], maxtoken=max, model=gpt, to_clip=clip)
-def robert(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['robert'], maxtoken=max, model=gpt, to_clip=clip)
-def prompt_maker(m,  gpt=model, max = 1000, clip=True, sdxl=True):
+def chatgpt(m, gpt=model, max=1000, img='', clip=True):
+    send_to_assistant(assistants['base'], m, gpt, max, img, clip)
+def creator(m, gpt=model, max=1000, img='', clip=True):
+    send_to_assistant(assistants['creator'], m, gpt, max, img, clip)
+def delamain(m, gpt=model, max=1000, img='', clip=True):
+    send_to_assistant(assistants['delamain'], m, gpt, max, img, clip)
+def oracle(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['oracle'], m, gpt, max, img, clip)
+def roger(m,  gpt=model, max = 1000, img='', clip=True):
+    expand_chat('Return always just the R code in your output.','system')
+    send_to_assistant(assistants['roger'], m, gpt, max, img, clip)
+def robert(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['robert'], m, gpt, max, img, clip)
+
+# Formatters
+def schematizer(m, language='english', gpt=model, max = 1000, img='', clip=True):
+    if language != 'english':
+        expand_chat('Reply only using '+language, 'system')
+    send_to_assistant(assistants['schematizer'], m, gpt, max, img, clip)
+def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
     import stablediffusion_rag as sd
     if sdxl:
         assistant = sd.rag_sdxl
     else:
         assistant = sd.rag_sd
-    send_message(m,system=assistant, maxtoken=max, model=gpt, to_clip=clip)
-
+    send_to_assistant(assistant, m, gpt, max, img, clip)
 
 # Scientific Assistants
-def galileo(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['galileo'], maxtoken=max, model=gpt, to_clip=clip)
-def newton(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['newton'], maxtoken=max, model=gpt, to_clip=clip)
-def leonardo(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['leonardo'], maxtoken=max, model=gpt, to_clip=clip)
-def dayhoff(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['dayhoff'], maxtoken=max, model=gpt, to_clip=clip)
-def watson(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['watson'], maxtoken=max, model=gpt, to_clip=clip)
-def crick(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['crick'], maxtoken=max, model=gpt, to_clip=clip)
-def franklin(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['franklin'], maxtoken=max, model=gpt, to_clip=clip)
-def darwin(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['darwin'], maxtoken=max, model=gpt, to_clip=clip)
-def dawkins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['dawkins'], maxtoken=max, model=gpt, to_clip=clip)
-def turing(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['turing'], maxtoken=max, model=gpt, to_clip=clip)
-def penrose(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['penrose'], maxtoken=max, model=gpt, to_clip=clip)
-def springer(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['springer'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=True)
-def collins(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['collins'], maxtoken=max, model=gpt, to_clip=clip, reinforcement=True)
-
+def galileo(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['galileo'], m, gpt, max, img, clip)
+def newton(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['newton'], m, gpt, max, img, clip)
+def leonardo(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['leonardo'], m, gpt, max, img, clip)
+def mendel(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['mendel'], m, gpt, max, img, clip)
+def watson(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['watson'], m, gpt, max, img, clip)
+def crick(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['crick'], m, gpt, max, img, clip)
+def franklin(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['franklin'], m, gpt, max, img, clip)
+def darwin(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['darwin'], m, gpt, max, img, clip)
+def dawkins(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['dawkins'], m, gpt, max, img, clip)
+def turing(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['turing'], m, gpt, max, img, clip)
+def penrose(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['penrose'], m, gpt, max, img, clip)
+def collins(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['collins'], m, gpt, max, img, clip)
+def springer(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['springer'], m, gpt, max, img, clip)
+def elsevier(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['elsevier'], m, gpt, max, img, clip)
 
 # Characters
-def bestie(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['bestie'], maxtoken=max, model=gpt, to_clip=clip)
-def julia(m,  gpt=model, max = 1000, clip=True, name='julia'):
+def bestie(m,  gpt=model, max = 1000, img='', my_name = '', clip=True,):
     if os.path.exists("my_bio.txt"):
-        assistants[name] = assistants[name]+'''\n***'''+load_file("my_bio.txt")+'***'
+        assistant = assistants['bestie']+'''\n***'''+load_file("my_bio.txt")+'***'
+    elif my_name !='':
+        assistant = assistants['bestie']+'''\n*** Your interlocutor is called '''+my_name+''' and you are his best friend. ***'''
     else:
-        pass
-    send_message(m,system=assistants[name], maxtoken=max, model=gpt, to_clip=clip)
+        assistant = assistants['bestie']
+    send_to_assistant(assistant, m, gpt, max, img, clip)
 
+def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=True):
+    if os.path.exists("my_bio.txt"):
+        assistant = assistants[who]+'''\n***'''+load_file("my_bio.txt")+'***'
+    elif my_name !='':
+        assistant = assistants[who]+'''\n*** Your interlocutor is called '''+my_name+''' and you are his assistant. ***'''
+    else:
+        assistant = assistants[who]
+    send_to_assistant(assistant, m, gpt, max, img, clip)
 
 
 # Translators
-def english(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['english'], maxtoken=max, model=gpt, to_clip=clip)
-def italian(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['italian'], maxtoken=max, model=gpt, to_clip=clip)
-def portuguese(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['portuguese'], maxtoken=max, model=gpt, to_clip=clip)
-def japanese(m,  gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['japanese'], maxtoken=max, model=gpt, to_clip=clip)
-def japanese_teacher(m, gpt=model, max = 1000, clip=True):
+def english(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['english'], m, gpt, max, img, clip)
+def italian(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['italian'], m, gpt, max, img, clip)
+def portuguese(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['portuguese'], m, gpt, max, img, clip)
+def japanese(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['japanese'], m, gpt, max, img, clip)
+def japanese_teacher(m, gpt=model, max = 1000, img='', clip=True):
     print('Text: '+m.lstrip("@"))
-    send_message(m,system=assistants['japanese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
-def portuguese_teacher(m, gpt=model, max = 1000, clip=True):
-    send_message(m,system=assistants['portuguese_teacher'], maxtoken=max, model=gpt, to_clip=clip)
+    send_to_assistant(assistants['japanese_teacher'], m, gpt, max, img, clip)
+def portuguese_teacher(m, gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['portuguese_teacher'], m, gpt, max, img, clip)
 
 
-########################################
-
-#%%
 #%%
 ### trial ###
-usage= '''import pychatgpt_lite as op
-op.ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', op.assistants['french'])
-reply = op.reply'''
 #%%
-#ask_gpt('Nel mezzo del cammin di nostra vita mi ritrovai per una serva oscura', assistants['french'], maxtoken=1000)
+#send_message('a cure kitten',create=True)
 #%%
+
+#clearchat()
+#add_persona('Antonio Gramsci')
+#send_message("""Cosa ne pensi di Giorgia Meloni""", 'gpt-4o')
+#%%
+#clearchat()
+#add_persona('Pino Scotto')
+#send_message("""Cosa ne pensi di Chiara Ferragni""", 'gpt-4o')
+#%%
+#julia('@Hi Julia, what do you think about this girl? Do you know her? I have a crush on her.', img=r"", my_name='John')#
+#%%
+#clearchat()
+#add_persona('Vincent Van Gogh')
+#send_message(""" Tell me what you see. Can you paint it?""", 'gpt-4o', img=dummy_img)
+#%%
+
+#send_image(message='@ Tell me what you see? Can you paint it?',system='You are a Vincent Van Gogh, reply as you are him')
+#%%
+
+#clearchat()
+#talk_with('julia',8,'nova')
+#talk_with('Adolf Hitler',8, 'onyx')
+#talk_with('Son Goku (Dragonball)',8, 'fable')
+#send_image(image='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
+#send_image(image='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
+#giulia('parlami di te', 'gpt-4-turbo')
+
+#%%
+#url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
+#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
+#send_image(image=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
+#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
+
+##%%
+#julia('@Ad agosto andremo a visitare Lisbona per la prima volta!')
+##%%
+#chat_with('julia','@Andrò a visitare Lisbona per la prima volta, che quartiere mi consigli di visitare?')
+#%%
+#japanese_learner('@Lei mi piaceva tanto... volevo baciarla sulla bocca')
+
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits
 # https://platform.openai.com/account/usage
 # https://platform.openai.com/docs/guides/text-generation/chat-completions-api
 # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
+
+######### ASSISTANT DUMP #########
+#'bestie': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
+
+#%%
 
 
 
