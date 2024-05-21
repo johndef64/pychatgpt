@@ -1,5 +1,6 @@
 import os
 import io
+import sys
 import ast
 import glob
 import json
@@ -9,6 +10,8 @@ import requests
 import importlib
 import subprocess
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+is_colab = 'google.colab' in sys.modules
 
 def simple_bool(message, y='y', n ='n'):
     choose = input(message+" ("+y+"/"+n+"): ").lower()
@@ -254,7 +257,6 @@ assistant = ''
 transcript = ''
 persona = ''
 reply = ''
-clip = True
 
 total_tokens = 0  # iniziale token count
 token_limit = 0  # iniziale token limit
@@ -408,7 +410,7 @@ def ask_gpt(prompt,
             print_user = False,
             print_reply = True,
             save_chat = True,
-            to_clip = clip
+            to_clip = False
             ):
 
     global reply
@@ -447,7 +449,7 @@ def ask_gpt(prompt,
     if save_chat:
         write_log(reply, prompt)
 
-    if to_clip:
+    if to_clip and not is_colab:
         pc.copy(reply)
 
 
@@ -660,7 +662,7 @@ def send_message(message,
 
                  play= False,        # play audio response
                  save_chat=True,     # update chat_log.txt
-                 to_clip=clip,       # send reply to clipboard
+                 to_clip=False,       # send reply to clipboard
                  reinforcement=False,
 
                  print_reply=True,
@@ -740,7 +742,7 @@ def send_message(message,
         if save_chat:
             write_log(reply, message)
 
-        if to_clip:
+        if to_clip and not is_colab:
             clip_reply = reply.replace('```', '###')
             pc.copy(clip_reply)
 
