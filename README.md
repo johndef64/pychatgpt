@@ -41,6 +41,9 @@ op.send_message('Your message goes here',
                 size='512x512',
 
                 play= False,        # play audio response
+                voice='nova',       # choose voice (op.voices)
+                tts="tts-1",        # choose tts model
+				
                 save_chat=True,     # update chat_log.txt
                 to_clip=False,      # send reply to clipboard
                 reinforcement=False,

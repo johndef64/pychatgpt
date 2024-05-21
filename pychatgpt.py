@@ -661,6 +661,9 @@ def send_message(message,
                  size='512x512',
 
                  play= False,        # play audio response
+                 voice='nova',       # choose voice (op.voices)
+                 tts="tts-1",        # choose tts model
+
                  save_chat=True,     # update chat_log.txt
                  to_clip=False,       # send reply to clipboard
                  reinforcement=False,
@@ -747,7 +750,8 @@ def send_message(message,
             pc.copy(clip_reply)
 
         if play:
-            text2speech_stream(reply)
+            text2speech_stream(reply, voice=voice, model=tts)
+            #text2speech_stream(reply)
 
 
 def moderation(text="Sample text goes here.", plot=True):
@@ -1078,12 +1082,12 @@ def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1
             print('Chat Closed')
             break
         else:
-            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True)
-            text2speech_stream(reply, voice=voice, model=tts)
+            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True,
+                         play=True, voice=voice, tts=tts)
             print('')
 
 
-def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, duration=5):
+def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, write=False):
     #record_audio(duration, "input.mp3")
     loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printall)
     whisper("temp.wav", print_transcriprion=printall)
@@ -1092,14 +1096,16 @@ def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', m
     else:
         add_persona(who, language)
         system = ''
-    send_message(transcript,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False)
-    text2speech_stream(reply, voice=voice, model=tts)
+    play = not write
+    printall = printall if not write else True
+    send_message(transcript,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False,
+                 play=play, voice=voice, tts=tts)
 
-def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift'):
+def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, write=False, chat='alt' , exit='shift'):
     print('Press '+chat+' to chat, '+exit+' to exit.')
     while True:
         if kb.is_pressed(chat):
-            talk_with(who, voice=voice, language=language, gpt=gpt, tts= tts, max=max, printall=printall)
+            talk_with(who, voice=voice, language=language, gpt=gpt, tts= tts, max=max, printall=printall, write=write)
             print('Press '+chat+' to chat, '+exit+' to exit.')
         elif kb.is_pressed(exit):
             print('Chat Closed')
