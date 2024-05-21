@@ -254,6 +254,7 @@ assistant = ''
 transcript = ''
 persona = ''
 reply = ''
+clip = True
 
 total_tokens = 0  # iniziale token count
 token_limit = 0  # iniziale token limit
@@ -407,7 +408,7 @@ def ask_gpt(prompt,
             print_user = False,
             print_reply = True,
             save_chat = True,
-            to_clip = False
+            to_clip = clip
             ):
 
     global reply
@@ -659,7 +660,7 @@ def send_message(message,
 
                  play= False,        # play audio response
                  save_chat=True,     # update chat_log.txt
-                 to_clip=False,      # send reply to clipboard
+                 to_clip=clip,       # send reply to clipboard
                  reinforcement=False,
 
                  print_reply=True,
