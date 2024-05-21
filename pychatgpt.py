@@ -1112,7 +1112,6 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
             break
 
 
-
 ######## In-Build Assistants ########
 
 topic_areas ={
