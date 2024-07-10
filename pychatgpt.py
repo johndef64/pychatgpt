@@ -525,12 +525,12 @@ def pdf_to_text(pdf_path):
             text += page.extract_text()
     return text
 
-def clearchat():
+def clearchat(warning=True):
     global chat_thread
     global total_tokens
     chat_thread = []
     total_tokens = 0
-    print('*chat cleared*\n')
+    if warning: print('*chat cleared*\n')
 
 def tokenizer(text):
     return Tokenizer().tokens(text)

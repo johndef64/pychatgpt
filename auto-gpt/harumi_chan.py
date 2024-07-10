@@ -37,6 +37,10 @@ def starts_with_japanese_character(s):
     # Check if the string starts with a Japanese character (Hiragana, Katakana, CJK Unified Ideographs)
     return re.match(r'^[\u3040-\u30FF\u4E00-\u9FFF]', s) is not None
 
+def simple_bool(message, y='y', n ='n'):
+    choose = input(message+" ("+y+"/"+n+"): ").lower()
+    your_bool = choose in [y]
+    return your_bool
 #print('--------------------------------------')
 
 current_dir = ''
@@ -84,6 +88,8 @@ while True:  # external cycle
     model_id = int(input('Choose Voice:\n'+str(pd.Series(models))+':\n'))
     model = models[model_id]
 
+    translate = simple_bool('Translate?')
+
     previous_content = ''  # Initializes the previous contents of the clipboard
 
     while safe_word != 'restartnow' or 'exitnow' or 'maxtoken' or 'wake':
@@ -114,6 +120,10 @@ while True:  # external cycle
                 # request to openai
                 print(clipboard_content)
                 op.text2speech(clipboard_content, voice=voice, model=model, play=True)
+                if translate:
+                    op.clearchat(False)
+                    op.english(clipboard_content)
+                    op.text2speech(op.reply, voice=voice, model=model, play=True)
 
 
         time.sleep(1)  # Wait 1 second before checking again
