@@ -119,11 +119,11 @@ while True:  # external cycle
 
                 # request to openai
                 print(clipboard_content)
-                op.text2speech(clipboard_content, voice=voice, model=model, play=True)
+                op.text2speech_stream(clipboard_content, voice=voice, model=model)
                 if translate:
                     #op.clearchat(False)
                     op.english(clipboard_content)
-                    op.text2speech(op.reply, voice=voice, model=model, play=True)
+                    op.text2speech_stream(op.reply, voice=voice, model=model)
 
 
         time.sleep(1)  # Wait 1 second before checking again
