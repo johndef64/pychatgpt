@@ -1386,19 +1386,19 @@ def add_bio(assistant, my_name='', add = ''' and you are his best friend. ***'''
         assistant = assistant
     return assistant
 
-def bestie(m,  gpt=model, max = 1000, img='', my_name = '', clip=True,):
+def bestie(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['bestie'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
 
-def hero(m,  gpt=model, max = 1000, img='', my_name = '', clip=True,):
+def hero(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['hero'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
 
-def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=True):
+def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=False):
     assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
 
-def yoko(m,  gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=True):
+def yoko(m,  gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=False):
     assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
 

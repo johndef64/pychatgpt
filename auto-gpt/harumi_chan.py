@@ -100,19 +100,20 @@ while True:  # external cycle
                 print('<Go!>')
                 break
 
-        if clipboard_content != previous_content and clipboard_content.startswith('sys:'):
-            add = clipboard_content.replace('sys:','')
-            previous_content = clipboard_content
-            print('\n<system setting changed>\n')
+        if starts_with_japanese_character(clipboard_content):
+            if clipboard_content != previous_content and clipboard_content.startswith('sys:'):
+                add = clipboard_content.replace('sys:','')
+                previous_content = clipboard_content
+                print('\n<system setting changed>\n')
 
-        if clipboard_content != previous_content and clipboard_content != 'restartnow':  # Check if the content has changed
-            #print(clipboard_content)  # Print the content if it has changed
-            print('\n\n--------------------------------\n')
-            previous_content = clipboard_content  # Update previous content
+            if clipboard_content != previous_content and clipboard_content != 'restartnow':  # Check if the content has changed
+                #print(clipboard_content)  # Print the content if it has changed
+                print('\n\n--------------------------------\n')
+                previous_content = clipboard_content  # Update previous content
 
-            # request to openai
-            print(clipboard_content)
-            op.text2speech(clipboard_content, voice=voice, model=model, play=True)
+                # request to openai
+                print(clipboard_content)
+                op.text2speech(clipboard_content, voice=voice, model=model, play=True)
 
 
         time.sleep(1)  # Wait 1 second before checking again
