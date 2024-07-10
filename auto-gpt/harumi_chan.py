@@ -122,7 +122,7 @@ while True:  # external cycle
                 op.text2speech_stream(clipboard_content, voice=voice, model=model)
                 if translate:
                     #op.clearchat(False)
-                    op.english(clipboard_content)
+                    op.english(clipboard_content, clip=False)
                     op.text2speech_stream(op.reply, voice=voice, model=model)
 
 
