@@ -121,7 +121,7 @@ while True:  # external cycle
                 print(clipboard_content)
                 op.text2speech(clipboard_content, voice=voice, model=model, play=True)
                 if translate:
-                    op.clearchat(False)
+                    #op.clearchat(False)
                     op.english(clipboard_content)
                     op.text2speech(op.reply, voice=voice, model=model, play=True)
 
