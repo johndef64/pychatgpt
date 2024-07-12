@@ -21,6 +21,7 @@ if not os.getcwd().endswith('pychatgpt.py'):
     for file in files:
         url = handle+file
         get_gitfile(url)
+        time.sleep(1)
 
 import pychatgpt as op
 op.check_and_install_module('pyperclip')
