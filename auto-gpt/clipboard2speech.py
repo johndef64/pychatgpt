@@ -56,16 +56,7 @@ else:
 
 # Application dictionary
 dict = {
-    'title': "---------------------\nWelcome to Clipboard2 Speech!\n\nOpenai will read aloud everything you will send to clipboard.\n\nSend to clipboard:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'rest'/'wake' To temporarily suspend and wakeup the application.\n- 'sys: (new system instructions)' to change system instructions (instruct mode)'\n\nwritten by JohnDef64\n---------------------\n",
-    'language': '\nPlease choose language: \n1. English\n2. Italian\n\nLanguage number:',
-    'chat': "\nChoose chat-mode: \n1. Ask to gpt-4\n2. Ask to gpt-4 (instruct)\n3. Ask to someone\n4. Chat with gpt-4\n\nNumber:",
-    'instruct': '''\nEnter system instructions.\nexamples:\n - Answer the question and give only the correct answer:\n - Correct this code:\n  Instruction:''',
-    'instruction': "\nWho do you want to converse with?: \n1. the assistant\n2. the poet \n3. the scientist\n4. someone else\n\nNumber: ",
-    'instructions': {'assistant': "Today, you are the 'expert assistant in everything. Answer in accordance with this.",
-                     'poet': "Today, you are the greatest poet ever, inspired, profound, sensitive, visionary and creative. Answer in accordance with this.",
-                     'scientist': "Today, you are the greatest and most experienced scientist ever, analytical, precise and rational. Answer in accordance with this.",
-                     'tell me': 'Tell me who you want to talk to:'
-                     }
+    'title': "---------------------\nWelcome to Clipboard2 Speech!\n\nOpenai will read aloud everything you will send to clipboard.\n\nSend to clipboard:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'rest'/'wake' To temporarily suspend and wakeup the application.\n\nwritten by JohnDef64\n---------------------\n",
 }
 ####### text-to-speech #######
 voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
@@ -81,8 +72,9 @@ while True:  # external cycle
     voice = voices[voice_id]
     print('Using',voice,'voice')
 
-    model_id = int(input('Choose Voice:\n'+str(pd.Series(models))+':\n'))
+    model_id = int(input('Choose Model:\n'+str(pd.Series(models))+':\n'))
     model = models[model_id]
+    print('Using',model,'model')
 
     previous_content = ''  # Initializes the previous contents of the clipboard
 
