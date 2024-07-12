@@ -1483,7 +1483,7 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #yoko('@Ciao Yoko, come stai?', 'gpt-4o', who='yoko')
 
 #francois('@ ciao  ! Come va oggi, sei carico?')#, 'gpt-4o')
-copilotp('')
+
 #%%
 #creator("""@
 #Create the personality of a interesting intellectual person with social and interesting personality interested in art, cinema, photography, music. He is a poetic, dreamer, literate and a bit shy.
