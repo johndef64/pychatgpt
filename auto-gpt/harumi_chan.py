@@ -60,7 +60,7 @@ else:
 
 # Application dictionary
 dict = {
-    'title': "---------------------\nWelcome to Clipboard2 Speech!\n\nOpenai will read aloud everything you will send to clipboard.\n\nSend to clipboard:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'rest'/'wake' To temporarily suspend and wakeup the application.\n\nwritten by JohnDef64\n---------------------\n",
+    'title': "---------------------\nWelcome to Clipboard2 Speech!\n\nOpenai will read aloud every Japanese text you will send to clipboard.\n\nSend to clipboard:\n- 'restartnow' to start over the application.\n- 'exitnow' to shut down the application.\n- 'maxtoken' to set up max token in response (chat mode).\n- 'rest'/'wake' To temporarily suspend and wakeup the application.\n\nwritten by JohnDef64\n---------------------\n",
 
 }
 ####### text-to-speech #######
