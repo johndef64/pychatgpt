@@ -1207,6 +1207,7 @@ characters = {
     'penrose': science_assistant(topic_areas['computer_science']),
     'leonardo': science_assistant(topic_areas['stem']),
     'mendel'  : science_assistant(topic_areas['bioinformatics']),
+    'darwin'  : science_assistant(topic_areas['biology']),
     'delamain': instructions['delamain'] + features['reply_type']['python'],
     'none':''
 }
@@ -1463,7 +1464,7 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 
 #%%
 ### trial ###
-
+copilotp('@come fare il check se è una lista?\n ')
 #%%
 #yoko('@Ciao Yumi, come stai?', 'gpt-4o', who='yumi')
 ##%%
