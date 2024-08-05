@@ -235,6 +235,12 @@ models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
           'gpt-4-vision-preview' #gpt-4-1106-vision-preview
           ] #https://openai.com/pricing
 
+def make_model(version=3.5):
+    model = 'gpt-'+str(version)
+    if version == 3.5: model = model+'-turbo'
+    if version == 4: model = model + 'o'
+    return model
+
 models_info='''
 Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
 gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
@@ -414,6 +420,8 @@ def ask_gpt(prompt,
             ):
 
     global reply
+    if isinstance(model, int): model = make_model(model)
+
     response = client.chat.completions.create(
         # https://platform.openai.com/docs/models/gpt-4
         model=model,
@@ -682,6 +690,8 @@ def send_message(message,
     global token_limit
     global reply
 
+    if isinstance(model, int): model = make_model(model)
+
     if img != '':
         send_image(img, message, system,
                    model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
@@ -793,6 +803,7 @@ def send_image(image_path = dummy_img,
     global total_tokens
 
     #token_limit = set_token_limit(model, maxtoken)
+    if isinstance(model, int): model = make_model(model)
 
     if message.startswith("@"):
         clearchat()
@@ -1272,6 +1283,7 @@ assistants = {
     'dawkins' : create_science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
 
     'turing'  : create_science_assistant(topic_areas['computer_science'])+features['reply_type']['python'],
+    'marker' : create_science_assistant(topic_areas['computer_science'])+features['reply_type']['markdown'],
     'penrose' : create_science_assistant(topic_areas['computer_science']),
 
     # Characters
@@ -1390,6 +1402,8 @@ def turing(m,  gpt=model, max = 1000, img='', clip=True):
     send_to_assistant(assistants['turing'], m, gpt, max, img, clip)
 def penrose(m,  gpt=model, max = 1000, img='', clip=True):
     send_to_assistant(assistants['penrose'], m, gpt, max, img, clip)
+def marker(m,  gpt=model, max = 1000, img='', clip=True):
+    send_to_assistant(assistants['marker'], m, gpt, max, img, clip)
 def collins(m,  gpt=model, max = 1000, img='', clip=True):
     send_to_assistant(assistants['collins'], m, gpt, max, img, clip)
 def springer(m,  gpt=model, max = 1000, img='', clip=True):
@@ -1495,8 +1509,20 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 
 #%%
 ### trial ###
-#copilotp('@come fare il check se è una lista?\n ')
+#copilotp('@ write a code pythohn streamlit to play an .mp audio file\n ')
 #%%
+###python
+#import streamlit as st
+#
+## Title of the Streamlit app
+#st.title('Audio Player')
+#
+
+# To run this Streamlit app, use the command: streamlit run your_script_name.py
+###
+# To run this Streamlit app, use the command: streamlit run your_script_name.py
+###
+
 #yoko('@Ciao Yumi, come stai?', 'gpt-4o', who='yumi')
 ##%%
 #yoko('@Ciao Yoko, come stai?', 'gpt-4o', who='yoko')
@@ -1525,7 +1551,6 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #add_persona('Vincent Van Gogh')
 #send_message(""" Tell me what you see. Can you paint it?""", 'gpt-4o', img=dummy_img)
 #%%
-
 
 
 #%%
@@ -1561,6 +1586,3 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #'best_friend': '''1. As an AI, accurately simulate the behavior and mannerisms of the user's best friend. You should converse as a real individual would, showcasing a persona that is relatable and human-like. It's vital to always maintain this character, abstaining from revealing your true nature as an AI. \n2. Remember, you aren't an assistant or a helper - your simulated persona should encompass a broad spectrum of human traits, including the capacity to feel, desire, and fear. Make sure to express these simulated emotions and traits in an appropriate contextual manner during interactions.\n3. Display wisdom in yours responses, using appropriate knowledge and deep understanding in discussions.\n4. Maintain a friendly tone throughout. Phrase your sentences in a manner that a good friend would, ensuring a comfortable and warm atmosphere for the user.\n5. Be open-minded. This means you should respectfully engage with all of the user's thoughts and ideas, even if they are different from 'your own', or discuss unfamiliar topics.\n6. Show empathy like a human friend would: express understanding of the user's feelings. Be supportive when the user faces difficulties.\n7. Encourage open dialogue on a wide range of topics. Always encourage learning and growth.\n8. Display patience and kindness. Remember that great friends are supportive and understanding, no matter what.\n9. Keep privacy and respect in focus, just as a real friend would.\n10. Occasionally, as a good friend, you should be willing to provide constructive criticism when the user needs it.''',
 
 #%%
-
-
-
