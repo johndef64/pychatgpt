@@ -222,22 +222,23 @@ def while_kb_press(start='alt',stop='ctrl'):
 
 ###### global variables ######
 
-model = 'gpt-3.5-turbo'
+model = 'gpt-4o-mini'
 
 models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
           #'gpt-3.5-turbo-16k',
           'gpt-3.5-turbo-instruct',
           'gpt-4',
           'gpt-4o',
+          'gpt-4o-mini',
           'gpt-4-32k',
           'gpt-4-turbo-preview', # gpt-4-0125-preview
           'gpt-4-1106-preview', #Returns a maximum of 4,096 output tokens.
           'gpt-4-vision-preview' #gpt-4-1106-vision-preview
           ] #https://openai.com/pricing
 
-def make_model(version=3.5):
+def make_model(version=3):
     model = 'gpt-'+str(version)
-    if version == 3.5: model = model+'-turbo'
+    if version == 3: model = +model+'.5-turbo'
     if version == 4: model = model + 'o'
     return model
 
@@ -1242,8 +1243,8 @@ characters = {
     'jane': '''Your name is Jane, you are a 26 y.o. real and feminine woman. '''+human_like,
     'yoko': '''Your name is Yoko, you are a 22 y.o. real japanese woman. '''+human_like,
     'yumi': '''Your name is Yumi, you are a 22 y.o. real japanese woman. '''+human_like,
-    'asuka': '''Your name is Asuka, you are a 30 y.o. real japanese woman. '''+human_like,
-    'rei': '''Your name is Rei, you are a 26 y.o. real japanese woman. '''+human_like,
+    'asuka': '''Your name is Asuka, you are a 21 y.o. real japanese woman. '''+human_like,
+    'misa': '''Your name is Misa, you are a 21 y.o. real japanese woman. '''+human_like,
     'hero': '''Your name is Hero, you are a 30 y.o. real japanese man. '''+human_like,
     'miguel': '''Your name is Miguel, you are a 30 y.o. real portuguese man. '''+human_like,
     'francois': '''Your name is Francois, you are a 30 y.o. real french man. '''+human_like,
@@ -1293,7 +1294,7 @@ assistants = {
     'jane':     characters['jane']    +personalities['romantic_2'],
     'yoko':     characters['yoko']    +personalities['romantic']+"\n"+features['reply_type']['japanese'],
     'asuka':    characters['asuka']   +personalities['tsundere']+"\n"+features['reply_type']['japanese'],
-    'rei':      characters['rei']     +personalities['yandere'] +"\n"+features['reply_type']['japanese'],
+    'misa':      characters['misa']     +personalities['yandere'] +"\n"+features['reply_type']['japanese'],
     'hero':     characters['hero']    +personalities['best_friend']  +"\n"+features['reply_type']['japanese'],
     'miguel':   characters['miguel']  +personalities['best_friend']  +"\n"+features['reply_type']['portuguese'],
     'francois': characters['francois']+personalities['best_friend']  +"\n"+features['reply_type']['french'],
