@@ -634,7 +634,7 @@ def set_token_limit(model = 'gpt-3.5-turbo', maxtoken=500):
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4o' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+    if model == 'gpt-4o' or model == 'gpt-4o-mini' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
         token_limit = 128000 - (maxtoken*1.3)
     return token_limit
 
