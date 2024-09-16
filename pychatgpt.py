@@ -682,6 +682,7 @@ def send_message(message,
                  print_reply=True,
                  print_user=False,
                  print_token=True,
+                 print_debug=False
                  ):
     global assistant
     global persona
@@ -695,6 +696,7 @@ def send_message(message,
         model = make_model(model)
     else:
         model = model
+    if print_debug: print('using model: ',model)
     
     token_limit = set_token_limit(model, maxtoken)
 
