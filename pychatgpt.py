@@ -239,7 +239,7 @@ models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
 def make_model(version=3):
     model = 'gpt-'+str(version)
     if version == 3: model = +model+'.5-turbo'
-    if version == 4: model = model + 'o'
+    if version == 4: model = model + 'o-2024-08-06' #gpt-4o-2024-08-06
     return model
 
 models_info='''
@@ -628,13 +628,13 @@ def set_token_limit(model = 'gpt-3.5-turbo', maxtoken=500):
     # https://platform.openai.com/docs/models/gpt-4
     if model == 'gpt-3.5-turbo-instruct':
         token_limit = 4096 - (maxtoken*1.3)
-    if model == 'gpt-3.5-turbo'or model == 'gpt-3.5-turbo-0125':
+    if model in ['gpt-3.5-turbo', 'gpt-3.5-turbo-0125']:
         token_limit = 16384 - (maxtoken*1.3)
     if model == 'gpt-4':
         token_limit = 8192 - (maxtoken*1.3)
     if model == 'gpt-4-32k':
         token_limit = 32768 - (maxtoken*1.3)
-    if model == 'gpt-4o' or model == 'gpt-4o-mini' or model == 'gpt-4-turbo' or model == 'gpt-4-0125-preview' or model == 'gpt-4-1106-preview' or model == 'gpt-4-vision-preview':
+    if model in ['gpt-4o', 'gpt-4o-2024-08-06', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4-0125-preview', 'gpt-4-1106-preview', 'gpt-4-vision-preview']:
         token_limit = 128000 - (maxtoken*1.3)
     return token_limit
 
@@ -691,7 +691,12 @@ def send_message(message,
     global token_limit
     global reply
 
-    if isinstance(model, int): model = make_model(model)
+    if isinstance(model, int): 
+        model = make_model(model)
+    else:
+        model = model
+    
+    token_limit = set_token_limit(model, maxtoken)
 
     if img != '':
         send_image(img, message, system,
@@ -706,8 +711,6 @@ def send_message(message,
                      time_flag=True,
                      show_image=True)
     else:
-        token_limit = set_token_limit(model, maxtoken)
-
         if message.startswith("@"):
             clearchat()
             message = message.lstrip("@")
