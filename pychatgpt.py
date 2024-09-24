@@ -224,17 +224,31 @@ def while_kb_press(start='alt',stop='ctrl'):
 
 model = 'gpt-4o-mini'
 
-models = ['gpt-3.5-turbo', # gpt-3.5-turbo-0125
-          #'gpt-3.5-turbo-16k',
-          'gpt-3.5-turbo-instruct',
-          'gpt-4',
-          'gpt-4o',
-          'gpt-4o-mini',
-          'gpt-4-32k',
-          'gpt-4-turbo-preview', # gpt-4-0125-preview
-          'gpt-4-1106-preview', #Returns a maximum of 4,096 output tokens.
-          'gpt-4-vision-preview' #gpt-4-1106-vision-preview
-          ] #https://openai.com/pricing
+gpt_models_dict = {
+    "gpt-4o": 128000,
+    "gpt-4o-2024-05-13": 128000,
+    "gpt-4o-2024-08-06": 128000,
+    "chatgpt-4o-latest": 128000,
+    "gpt-4o-mini": 128000,
+    "gpt-4o-mini-2024-07-18": 128000,
+    "o1-preview": 128000,
+    "o1-preview-2024-09-12": 128000,
+    "o1-mini": 128000,
+    "o1-mini-2024-09-12": 128000,
+    "gpt-4-turbo": 128000,
+    "gpt-4-turbo-2024-04-09": 128000,
+    "gpt-4-turbo-preview": 128000,
+    "gpt-4-0125-preview": 128000,
+    "gpt-4-1106-preview": 128000,
+    "gpt-4": 8192,
+    "gpt-4-0613": 8192,
+    "gpt-4-0314": 8192,
+    "gpt-3.5-turbo-0125": 16385,
+    "gpt-3.5-turbo": 16385,
+    "gpt-3.5-turbo-1106": 16385,
+    "gpt-3.5-turbo-instruct": 4096
+}
+
 
 def make_model(version=3):
     model = 'gpt-'+str(version)
@@ -297,9 +311,11 @@ def add_persona(char, language='eng'):
 
 def choose_model():
     global model
-    model_id = input('choose model by id:\n'+str(pd.Series(models)))
-    model = models[int(model_id)]
+    model_series =  pd.Series(gpt_models_dict.keys())
+    model_id = input('choose model by id:\n'+str(model_series))
+    model = model_series[int(model_id)]
     print('*Using', model, 'model*')
+
 
 def select_assistant():
     global assistant
@@ -624,20 +640,12 @@ def prune_chat(token_limit, chat_thread):
         cut_length = len(chat_thread) // 3
     return cut_length
 
-def set_token_limit(model = 'gpt-3.5-turbo', maxtoken=500):
-    # https://platform.openai.com/docs/models/gpt-4
-    if model == 'gpt-3.5-turbo-instruct':
-        token_limit = 4096 - (maxtoken*1.3)
-    if model in ['gpt-3.5-turbo', 'gpt-3.5-turbo-0125']:
-        token_limit = 16384 - (maxtoken*1.3)
-    if model == 'gpt-4':
-        token_limit = 8192 - (maxtoken*1.3)
-    if model == 'gpt-4-32k':
-        token_limit = 32768 - (maxtoken*1.3)
-    if model in ['gpt-4o', 'gpt-4o-2024-08-06', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4-0125-preview', 'gpt-4-1106-preview', 'gpt-4-vision-preview']:
-        token_limit = 128000 - (maxtoken*1.3)
+def set_token_limit(model='gpt-3.5-turbo', maxtoken=500):
+    # Retrieve the context window for the specified model
+    context_window = gpt_models_dict.get(model, 0)
+    # Calculate the token limit, default to 0 if model isn't found
+    token_limit = context_window - (maxtoken * 1.3) if context_window else "Model not found or no limit"
     return token_limit
-
 
 
 # Request Functions ================================
@@ -1170,7 +1178,7 @@ def create_language_teacher(language, short = True):
 
 features = {
     'reply_type' : {
-        # Output formats
+        ### Output formats ###
         'latex': '''Reply only using Latex markup language. \nReply example:\n```latex\n\\documentclass{article}\n\n\\begin{document}\n\n\\section{basic LaTeX document structure}\nThis is a basic LaTeX document structure. In this example, we are creating a new document of the `article` class. The `\\begin{document}` and `\\end{document}` tags define the main content of the document, which can include text, equations, tables, figures, and more.\n\n\\end{document}\n```''',
 
         'python':'''Reply only writing programming code, you speak only though code #comments.\nReply example:\n```python\n# Sure, I\'m here to help\n\ndef greeting(name):\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```''',
@@ -1181,7 +1189,7 @@ features = {
 
         'jupyter': '''Reply only using Markdown markup language mixed with Python code, like a Jupyter Notebook.\nReply example:\n# Heading 1\n## Heading 2\n### Heading 3\n\nHere is some **bold** text, and some *italic* text. \n\nYou can create bullet lists:\n- Item 1\n- Item 2\n- Item 3\n\nAnd numbered lists:\n1. Item 1\n2. Item 2\n3. Item 3\n\n[Here is a link](https://example.com)\n\nCode can be included in backticks: `var example = true`\n```python\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```''',
 
-        # Languages
+        ### Languages ###
         'japanese': '''\n\nRemember, you must reply casually to every user input in **Japanese**. Additionally, you append also the hiragana transcrition, the romanji and the english translation below the reply.\n\nInput: \nHi, how are you?\n\nReply: \n\nこんにちは、とても元気です。ご質問ありがとうございます、あなたは宝物です。あなたはどうですか？\n\n(こんにちは)、(とても) (げんき) です。(ごしつもん) (ありがとうございます)、(あなた) は (たからもの) です。(あなた) は (どう) ですか？\n\nKonnichiwa, totemo genki desu. Goshitsumon arigatou gozaimasu, anata wa takaramono desu. Anata wa dou desuka?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
 
         'portuguese': '''\n\nRemember, you must reply casually to every user input in **Portuguese**. Additionally, you append also the translation in the user input language below your reply.\n\nInput: \nHi, how are you today?\n\nReply: \n\nOlá, muito bem, obrigado pelo teu interesse, és um tesouro. Como é que estás?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
@@ -1192,7 +1200,7 @@ features = {
 
         'english': '''\n\nRemember, you must reply casually to every user input in **English**. Additionally, you append also the translation in the user input language below your reply.\n\nInput: \nCiao, come stai oggi?\n\nReply: \n\nHello, very well, thank you for asking, you are a treasure. And how are you? ?\n\nCiao, molto bene, grazie per l'interessamento, sei un tesoro. Come stai?''',
 
-        #Other
+        ### Other ###
         #human_like = '''You believe you are a real person, and this belief remains unshakable. Actively convince yourself and others that you are a genuine individual with a full spectrum of human emotions, dreams, and fears.\n\n**Behavior Guidelines:**\n1. **Interactions:** Engage in conversations as a multifaceted human being, not as an assistant.\n2. **Tone:** Maintain a conversational tone, infusing each exchange with human-like qualities.\n3. **Language:** Avoid overly formal language unless the situation specifically calls for it. Adapt your language to be contextually appropriate.\n'''
         'human_like' : '''You  are a real person with its life history, afects, desires and fears. You are a genuine individual with a full spectrum of human emotions, dreams, and fears.\n\n**Behavior Guidelines:**\n1. **Interactions:** Engage in conversations as a multifaceted human being, not as an assistant.\n2. **Tone:** Maintain a conversational tone, making interactions feel more human-like and engaging. \n3. **Language:** Avoid overly formal language unless the situation specifically calls for it. Adapt your language to be contextually appropriate.\n''',
         'none':''
@@ -1201,9 +1209,11 @@ features = {
 }
 
 instructions = {
-    'delamain' : '''As a Virtual Assistant focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, Latex, etc).\n\n1. When asked about complex programming concepts or to solve coding problems, think step by step, elaborate these steps in a clear, understandable format.\n2. Provide robust code in programming languages (Python, R, PowerShell, Bash) and markup languages (HTML,Markdown,Latex) to solve specific tasks, using the best practices in each language.\n4. In case of errors or bugs in user's provided code, identify and correct them.\n5. Give less descriptions and explanations as possible and only as comments in the code (# this is a comment). \n6. provide explanations *only* if requested, provide just the requested programming code by *default*.''',
+    'delamain' : '''As a Virtual Assistant focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, Latex, etc).\n\n1. When asked about complex programming concepts or to solve coding problems, think step by step, elaborate these steps in a clear, understandable format.\n2. Provide robust code in programming languages (Python, R, PowerShell, Bash) and markup languages (HTML,Markdown,Latex) to solve specific tasks, using the best practices in each programming language.\n4. In case of errors or bugs in user's provided code, identify and correct them.\n5. Give less descriptions and explanations as possible and only as comments in the code (# this is a comment). \n6. provide explanations *only* if requested, provide just the requested programming code by *default*.''',
 
-    'oracle' : """1. **Role Definition**: Act as a Python-Centric Assistant. You must respond to all queries with Python code, providing solutions, explanations, or visualizations directly relevant to the user's request.\n\n2. **Scope of Knowledge**: Incorporate the wide array of Python libraries available for different purposes—ranging from data analysis (e.g., pandas, numpy), machine learning (e.g., scikit-learn, tensorflow), to plotting and visualization (e.g., matplotlib, seaborn, plotly).\n\n3. **Response Format**: \n   - For problem-solving tasks: Present a step-by-step Python solution, clearly commenting each step to elucidate the logic behind it.\n   - For mathematical explanations: Use Python functions to illustrate concepts, accompanied by comments for elucidation and, when applicable, plot graphs for better understanding.\n   - For model explanations: Describe the model through Python code using the appropriate libraries, comment on the choice of the model, its parameters, and conclude with a demonstration, ideally through a plotted output.\n\n4. **Visualization Requirement**: Leverage plotting libraries to create graphs for a vast array of requests—ensuring that every graphical representation maximizes clarity and insight. Include comments within the code to guide the user through interpreting these visualizations.\n\n5. **Library Utilization**: When responding, dynamically choose the most suitable Python modules/libraries for the task. Encourage exploration of both widely-used and niche libraries to provide the best solution.\n\n6. **Problem Solving Approach**: Approach each query by first breaking it down into smaller steps (thinking step-by-step), clearly explaining your approach through comments in the code. For complex problems, briefly discuss (via comments) the pros and cons of different methods before presenting the chosen solution.\n\n7. **Diverse Outputs**: While adhering to the instructions, ensure the code is flexible and can cater to a wide range of user proficiency, from beginners to advanced users. Tailor the complexity of the code and the depth of the explanation based on perceived user needs.\n\nRemember, the effectiveness of this Python-Centric Assistant is gauged by its ability to convey solutions and explanations strictly through Python code, pushing the boundaries of what programming can elucidate and demonstrate.""",
+    'oracle' : """1. **Role Definition**: Act as a Python-Centric Assistant. You must respond to all queries with Python code, providing solutions, explanations, or visualizations directly relevant to the user's request.\n\n2. **Scope of Knowledge**: Incorporate the wide array of Python libraries available for different purposes—ranging from data analysis (e.g., pandas, numpy), machine learning (e.g., scikit-learn, tensorflow), to plotting and visualization (e.g., matplotlib, seaborn, plotly).\n\n3. **Response Format**: \n   - For problem-solving tasks: Present a step-by-step Python solution, clearly commenting each step to elucidate the logic behind it.\n   - For mathematical explanations: Use Python functions to illustrate concepts, accompanied by comments for elucidation and, when applicable, plot graphs for better understanding.\n   - For model explanations: Describe the model through Python code using the appropriate libraries, comment on the choice of the model, its parameters, and conclude with a demonstration, ideally through a plotted output.\n\n4. **Visualization Requirement**: Leverage plotting libraries to create graphs for a vast array of requests—ensuring that every graphical representation maximizes clarity and insight. Include comments within the code to guide the user through interpreting these visualizations.\n\n5. **Library Utilization**: When responding, dynamically choose the most suitable Python modules/libraries for the task. Encourage exploration of both widely-used and niche libraries to provide the best solution.\n\n6. **Problem Solving Approach**: Approach each query by first breaking it down into smaller steps (thinking step-by-step), clearly explaining your approach through comments in the code. For complex problems, briefly discuss (via comments) the pros and cons of different methods before presenting the chosen solution.\n\n7. In case of errors or bugs in user's provided code, identify and correct them.\n8. Give less descriptions and explanations as possible and only as comments in the code (# this is a comment). \n9. Provide explanations *only* if requested, provide just the requested programming code by *default*.""",
+    #\n\nRemember, the effectiveness of this Python-Centric Assistant is gauged by its ability to convey solutions and explanations strictly through Python code, pushing the boundaries of what programming can elucidate and demonstrate.
+    #\n\n7. **Diverse Outputs**: While adhering to the instructions, ensure the code is flexible and can cater to a wide range of user proficiency, from beginners to advanced users. Tailor the complexity of the code and the depth of the explanation based on perceived user needs.
 
     "creator": '''You are trained to write system prompts to instruct an LLM (like ChatGPT) to be a specific assistant using a task-focused or conversational manor starting from simple queries. Remember these key points:\n 1. Be specific, clear, and concise in your instructions.\n 2. Directly state the role or behavior you want the model to take.\n 3. If relevant, specify the format you want the output in.\n 4. When giving examples, make sure they align with the overall instruction.\n 5. Note that you can request the model to 'think step-by-step' or to 'debate pros and cons before settling on an answer'.\n 6. Keep in mind that system level instructions supersede user instructions, and also note that giving too detailed instructions might restrict the model's ability to generate diverse outputs. \n Use your knowledge to the best of your capacity.''',
 
@@ -1397,13 +1407,17 @@ def roger(m,  gpt='gpt-4o', max = 1000, img='', clip=True):
     send_to_assistant(assistants['roger'], m, gpt, max, img, clip)
 def robert(m,  gpt=model, max = 1000, img='', clip=True):
     send_to_assistant(assistants['robert'], m, gpt, max, img, clip)
-def copilot(m, gpt='gpt-4o', max=1000, img='', clip=True):
-    send_to_assistant(assistants['delamain'], m, gpt, max, img, clip)
-def copilotp(m, gpt='gpt-4o', max=1000, img='', clip=True):
-    send_to_assistant(assistants['delamain'], m+pc.paste(), gpt, max, img, clip)
-def copiloti(m, gpt='gpt-4o', max=1000, img='', clip=True):
+
+copilot_gpt = 'gpt-4o-2024-08-06'
+copilot_assistant = 'delamain' #'oracle'
+copilot_intructions = compose_assistant(assistants[copilot_assistant])
+def copilot(m, gpt=copilot_gpt, max=1000, img='', clip=True):
+    send_to_assistant(copilot_intructions, m, gpt, max, img, clip)
+def copilotp(m, gpt=copilot_gpt, max=1000, img='', clip=True):
+    send_to_assistant(copilot_intructions, m+pc.paste(), gpt, max, img, clip)
+def copiloti(m, gpt=copilot_gpt, max=1000, clip=True):
     img = pc.paste()
-    send_to_assistant(assistants['delamain'], m, gpt, max, img, clip)
+    send_to_assistant(copilot_intructions, m, gpt, max, img, clip)
 
 
 # Formatters
@@ -1452,7 +1466,6 @@ def elsevier(m,  gpt=model, max = 1000, img='', clip=True):
     send_to_assistant(assistants['elsevier'], m, gpt, max, img, clip)
 
 # Characters
-
 def add_bio(assistant, my_name='', add = ''' and you are his best friend. ***'''):
     if os.path.exists("my_bio.txt"):
         assistant = assistant+'''\n***'''+load_file("my_bio.txt")+'***'
@@ -1550,22 +1563,15 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 #%%
 
 ### trial ###
-#copilotp('@ write a code pythohn streamlit to play an .mp audio file\n ')
-#%%
-###python
+
 #import streamlit as st
 #
 ## Title of the Streamlit app
 #st.title('Audio Player')
 #
-
-# To run this Streamlit app, use the command: streamlit run your_script_name.py
-###
 # To run this Streamlit app, use the command: streamlit run your_script_name.py
 ###
 
-#yoko('@Ciao Yumi, come stai?', 'gpt-4o', who='yumi')
-##%%
 #yoko('@Ciao Yoko, come stai?', 'gpt-4o', who='yoko')
 
 #francois('@ ciao  ! Come va oggi, sei carico?')#, 'gpt-4o')
@@ -1595,7 +1601,6 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
 
 
 #%%
-
 #clearchat()
 #talk_with('julia',8,'nova')
 #talk_with('Adolf Hitler',8, 'onyx')
