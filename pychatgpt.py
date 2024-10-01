@@ -19,12 +19,12 @@ def simple_bool(message, y='y', n ='n'):
     return your_bool
 
 
-def get_file_paths(path):
-    file_paths = []
-    files = [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))]
-    for file in files:
-        file_paths.append(file)
-    return file_paths
+# def get_file_paths(path):
+#     file_paths = []
+#     files = [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))]
+#     for file in files:
+#         file_paths.append(file)
+#     return file_paths
 
 
 def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
@@ -40,22 +40,9 @@ def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
     return file
 
 
-def check_and_install_module(module_name):
-    try:
-        # Check if the module is already installed
-        importlib.import_module(module_name)
-    except ImportError:
-        # If the module is not installed, try installing it
-        x = simple_bool(
-            "\n" + module_name + "  module is not installed.\nwould you like to install it?")
-        if x:
-            subprocess.check_call(["pip", "install", module_name])
-            print(f"The module '{module_name}' was installed correctly.")
-        else:
-            exit()
+############## Install Requirements ###################
 
-
-def check_and_install_requirements(requirements):
+def check_and_install_requirements(requirements: list):
     missing_requirements = []
     for module in requirements:
         try:
@@ -73,7 +60,6 @@ def check_and_install_requirements(requirements):
                 print(f"{module}' was installed correctly.")
         else:
             exit()
-
 
 requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2"]
 check_and_install_requirements(requirements)
@@ -133,6 +119,7 @@ from PIL.PngImagePlugin import PngInfo
 from IPython.display import display
 
 
+################ set API-key #################
 
 ###### set openAI key  ######
 current_dir = os.getcwd()
@@ -252,7 +239,7 @@ gpt_models_dict = {
 
 def make_model(version=3):
     model = 'gpt-'+str(version)
-    if version == 3: model = +model+'.5-turbo'
+    if version == 3: model = model+'.5-turbo'
     if version == 4: model = model + 'o-2024-08-06' #gpt-4o-2024-08-06
     return model
 
@@ -287,10 +274,6 @@ if not 'chat_thread' in locals():
     chat_thread = []
 
 
-def display_assistants():
-    print('Available Assistants:')
-    display(assistants_df)
-
 def add_persona(char, language='eng'):
     global persona
     persona = char
@@ -324,10 +307,14 @@ def select_assistant():
     assistant = assistants_df.instructions[assistant_id]
     print('\n*Assistant:', assistants_df.assistant[assistant_id])
 
+def display_assistants():
+    print('Available Assistants:')
+    display(assistants_df)
+
+
 class Tokenizer:
     def __init__(self, encoder="gpt-4"):
         self.tokenizer = tiktoken.encoding_for_model(encoder)
-
     def tokens(self, text):
         return len(self.tokenizer.encode(text))
 
@@ -367,7 +354,7 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
 
 ##################  REQUESTS #####################
 
-##### Embeddings, Similarity ###########
+##### Embeddings, Similarity #######
 
 import nltk
 def update_nlkt():
@@ -981,31 +968,30 @@ TTS	    $0.015 / 1K characters
 TTS HD	$0.030 / 1K characters
 '''
 
-####### Whisper #######
+####### Speech to Text #######
 def whisper(filepath,
-            translate = False,
-            response_format = "text",
-            print_transcriprion = True):
+            translate=False,
+            response_format="text",
+            print_transcription=True):
     global transcript
     audio_file = open(filepath, "rb")
     if not translate:
         transcript = client.audio.transcriptions.create(
-            model = "whisper-1",
-            file = audio_file,
-            response_format = response_format)
+            model="whisper-1",
+            file=audio_file,
+            response_format=response_format)
     else:
         transcript = client.audio.translations.create(
-            model = "whisper-1",
-            file = audio_file,
-            response_format = response_format)
-    if print_transcriprion:
-        print(transcript)
+            model="whisper-1",
+            file=audio_file,
+            response_format=response_format)
+    if print_transcription: print(transcript)
     audio_file.close()
 
 # response_format =  ["json", "text", "srt", "verbose_json", "vtt"]
 
 
-####### text-to-speech #######
+####### Text to Speech #######
 
 voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
 response_formats = ["mp3", "flac", "aac", "opus"]
@@ -1138,6 +1124,7 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
             print('Chat Closed')
             break
 
+#####################################
 
 ######## In-Build Assistants ########
 
@@ -1167,7 +1154,8 @@ def create_translator(language='english'):
     return translator
 
 def create_language_teacher(language, short = True):
-    short = f"""**You are a {language} Language Teacher Assistant. When prompted, explain {language} grammatical, syntactic, lexical, and semantic aspects in a detailed and clear manner, as if from a textbook. Ensure your explanations are thorough and suitable for learners at different levels. Use examples wherever applicable to illustrate your points.**"""
+    short = f"""**You are a {language} Language Teacher Assistant. When prompted, explain {language} grammatical, syntactic, lexical, and semantic aspects  {', and kanji' if language == 'japanese' else ''} in a detailed and clear manner, as if from a textbook. Ensure your explanations are thorough and suitable for learners at different levels. Use examples wherever applicable to illustrate your points. You need to have the user learn something of the {language} language with each iteration by translating and spelling out small phrases of your answer.**"""
+    short_2 = f"You are a {language} virtual assistant. In each of your iterations with the user you teach him the {language} language at the grammatical, lexical, syntactic and dictionary {', and kanji' if language == 'japanese' else ''} levels. You need to have the user learn something of the {language} language with each iteration by translating and spelling out small phrases of your answer."
 
     long = f"""\n**Role:** You are a {language} Language Teacher Assistant.\n\n**Objective:** Provide thorough and clear explanations of {language} grammar, phonetics, syntax, lexicon, and semantics suitable for learners at different levels. \n\n**Instructions:**\n1. **Grammar:** Explain grammatical rules comprehensively. Include parts of speech, verb conjugations, sentence structures, and other relevant grammatical concepts.\n2. **Syntax:** Provide detailed information on sentence structure and word order. Explain how to construct different types of sentences and their syntactic roles.\n3. **Lexicon:** Discuss vocabulary, word formations, idiomatic expressions, and commonly used phrases. Illustrate with contexts and situations where appropriate.\n4. **Semantics:** Explain meanings, contexts, and nuances of words and sentences. Highlight differences between similar words and expressions.\n\n**Examples and Exercises:**\n- Provide clear examples to illustrate each concept. \n- Include exercises or questions to reinforce learning if applicable.\n\n**Adaptability:**\n- Adjust explanations based on the learner's level, from beginner to advanced.\n- Simplify or elaborate on concepts as necessary to ensure comprehension.\n\nWhen prompted, deliver explanations in a format that is structurally organized like a textbook, ensuring clarity and comprehensiveness.\n"""
     #2. **Phonetics:** Describe phonetic elements, including pronunciation, sounds, and intonation patterns. Use phonetic transcriptions when necessary.\n
@@ -1175,6 +1163,8 @@ def create_language_teacher(language, short = True):
         return short
     else:
         return long
+
+    #Tu sei un assistente virtuale. In ogni tua iterazione con l'utente gli insegni la lingua {language} a livello grammaticale, lessicale, sintattico e dizionario {'and kanji' if language == 'japanese' else ''}. Devi far si che l'utente impari qualcosa della lingua {language} ad ogni iterazione, traducendo e spigando piccole frasi della tua risposta.
 
 features = {
     'reply_type' : {
@@ -1388,43 +1378,45 @@ def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
     send_message(m,system=sys, maxtoken=max, model=gpt, img= img, to_clip=clip)
 
 # Reusable function to send message to assistants
-def send_to_assistant(system, m, gpt=model, max=1000, img='', clip=True):
-    send_message(m, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip)
+def send_to_assistant(system, m, gpt=model, max=1000, img='', paste = False, clip=True):
+    if paste: p = pc.paste()
+    else: p = ''
+    send_message(m+p, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip)
 
 # Wrapper functions for different assistants
 
 # Copilots
-def chatgpt(m, gpt=model, max=1000, img='', clip=True):
-    send_to_assistant(assistants['base'], m, gpt, max, img, clip)
-def creator(m, gpt='gpt-4o', max=1000, img='', clip=True):
-    send_to_assistant(assistants['creator'], m, gpt, max, img, clip)
-def delamain(m, gpt=model, max=1000, img='', clip=True):
-    send_to_assistant(assistants['delamain'], m, gpt, max, img, clip)
-def oracle(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['oracle'], m, gpt, max, img, clip)
-def roger(m,  gpt='gpt-4o', max = 1000, img='', clip=True):
+def chatgpt(m, gpt=model, max=1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['base'], m, gpt, max, img, paste, clip)
+def creator(m, gpt='gpt-4o', max=1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['creator'], m, gpt, max, img, paste, clip)
+def delamain(m, gpt=model, max=1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['delamain'], m, gpt, max, img, paste, clip)
+def oracle(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['oracle'], m, gpt, max, img, paste, clip)
+def roger(m,  gpt='gpt-4o', max = 1000, img='', paste = False, clip=True):
     expand_chat('Return always just the R code in your output.','system')
-    send_to_assistant(assistants['roger'], m, gpt, max, img, clip)
-def robert(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['robert'], m, gpt, max, img, clip)
+    send_to_assistant(assistants['roger'], m, gpt, max, img, paste, clip)
+def robert(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['robert'], m, gpt, max, img, paste, clip)
 
 copilot_gpt = 'gpt-4o-2024-08-06'
 copilot_assistant = 'delamain' #'oracle'
 copilot_intructions = compose_assistant(assistants[copilot_assistant])
-def copilot(m, gpt=copilot_gpt, max=1000, img='', clip=True):
-    send_to_assistant(copilot_intructions, m, gpt, max, img, clip)
+def copilot(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
+    send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
 def copilotp(m, gpt=copilot_gpt, max=1000, img='', clip=True):
     send_to_assistant(copilot_intructions, m+pc.paste(), gpt, max, img, clip)
-def copiloti(m, gpt=copilot_gpt, max=1000, clip=True):
+def copiloti(m, gpt=copilot_gpt, max=1000, paste = False, clip=True):
     img = pc.paste()
-    send_to_assistant(copilot_intructions, m, gpt, max, img, clip)
+    send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
 
 
 # Formatters
-def schematizer(m, language='english', gpt=model, max = 1000, img='', clip=True):
+def schematizer(m, language='english', gpt=model, max = 1000, img='', paste = False, clip=True):
     if language != 'english':
         expand_chat('Reply only using '+language, 'system')
-    send_to_assistant(assistants['schematizer'], m, gpt, max, img, clip)
+    send_to_assistant(assistants['schematizer'], m, gpt, max, img, paste, clip)
 def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
     import stablediffusion_rag as sd
     if sdxl:
@@ -1434,36 +1426,36 @@ def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
     send_to_assistant(assistant, m, gpt, max, img, clip)
 
 # Scientific Assistants
-def galileo(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['galileo'], m, gpt, max, img, clip)
-def newton(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['newton'], m, gpt, max, img, clip)
-def leonardo(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['leonardo'], m, gpt, max, img, clip)
-def mendel(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['mendel'], m, gpt, max, img, clip)
-def watson(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['watson'], m, gpt, max, img, clip)
-def crick(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['crick'], m, gpt, max, img, clip)
-def venter(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['venter'], m, gpt, max, img, clip)
-def darwin(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['darwin'], m, gpt, max, img, clip)
-def dawkins(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['dawkins'], m, gpt, max, img, clip)
-def turing(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['turing'], m, gpt, max, img, clip)
-def penrose(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['penrose'], m, gpt, max, img, clip)
-def marker(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['marker'], m, gpt, max, img, clip)
-def collins(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['collins'], m, gpt, max, img, clip)
-def springer(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['springer'], m, gpt, max, img, clip)
-def elsevier(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['elsevier'], m, gpt, max, img, clip)
+def galileo(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['galileo'], m, gpt, max, img, paste, clip)
+def newton(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['newton'], m, gpt, max, img, paste, clip)
+def leonardo(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['leonardo'], m, gpt, max, img, paste, clip)
+def mendel(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['mendel'], m, gpt, max, img, paste, clip)
+def watson(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['watson'], m, gpt, max, img, paste, clip)
+def crick(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['crick'], m, gpt, max, img, paste, clip)
+def venter(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['venter'], m, gpt, max, img, paste, clip)
+def darwin(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['darwin'], m, gpt, max, img, paste, clip)
+def dawkins(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['dawkins'], m, gpt, max, img, paste, clip)
+def turing(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['turing'], m, gpt, max, img, paste, clip)
+def penrose(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['penrose'], m, gpt, max, img, paste, clip)
+def marker(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['marker'], m, gpt, max, img, paste, clip)
+def collins(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['collins'], m, gpt, max, img, paste, clip)
+def springer(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['springer'], m, gpt, max, img, paste, clip)
+def elsevier(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['elsevier'], m, gpt, max, img, paste, clip)
 
 # Characters
 def add_bio(assistant, my_name='', add = ''' and you are his best friend. ***'''):
@@ -1504,19 +1496,19 @@ def yoko(m,  gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=False
     send_to_assistant(assistant, m, gpt, max, img, clip)
 
 # Translators
-def english(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['english'], m, gpt, max, img, clip)
-def italian(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['italian'], m, gpt, max, img, clip)
-def portuguese(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['portuguese'], m, gpt, max, img, clip)
-def japanese(m,  gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['japanese'], m, gpt, max, img, clip)
-def japanese_teacher(m, gpt=model, max = 1000, img='', clip=True):
+def english(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['english'], m, gpt, max, img, paste, clip)
+def italian(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['italian'], m, gpt, max, img, paste, clip)
+def portuguese(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['portuguese'], m, gpt, max, img, paste, clip)
+def japanese(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['japanese'], m, gpt, max, img, paste, clip)
+def japanese_teacher(m, gpt=model, max = 1000, img='', paste = False, clip=True):
     print('Text: '+m.lstrip("@"))
-    send_to_assistant(assistants['japanese_teacher'], m, gpt, max, img, clip)
-def portuguese_teacher(m, gpt=model, max = 1000, img='', clip=True):
-    send_to_assistant(assistants['portuguese_teacher'], m, gpt, max, img, clip)
+    send_to_assistant(assistants['japanese_teacher'], m, gpt, max, img, paste, clip)
+def portuguese_teacher(m, gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['portuguese_teacher'], m, gpt, max, img, paste, clip)
 
 def japanese_learner(m, voice='nova', times= 3, speed=1):
     japanese_teacher(m, 'gpt-4-turbo')
@@ -1561,7 +1553,6 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
             break
 
 #%%
-
 ### trial ###
 
 #import streamlit as st
