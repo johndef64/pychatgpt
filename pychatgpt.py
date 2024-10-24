@@ -61,13 +61,15 @@ def check_and_install_requirements(requirements: list):
         else:
             exit()
 
-requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2"]
+requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2", 'cryptography']
 check_and_install_requirements(requirements)
+from cryptography.fernet import Fernet
 from scipy.spatial import distance
 from openai import OpenAI
 import pyperclip as pc
 import pandas as pd
 import tiktoken
+import base64
 
 
 if platform.system() == "Linux":
@@ -121,15 +123,52 @@ from IPython.display import display
 
 ################ set API-key #################
 
+def key_gen(input_value, random_key=False):
+    input_string = str(input_value)
+    # Create an initial key by multiplying
+    key = (input_string * 32)[:32]
+    # Ensure the exact length of 32
+    key_bytes = key.encode('utf-8')[:32]
+    # Base64 encode the byte array to create a Fernet key
+    key = base64.urlsafe_b64encode(key_bytes)
+    if random_key:
+        key = Fernet.generate_key()
+    return key
+
+def simple_encrypter(num = 0, txt_to_encrypt = "Hello World"):
+    key = key_gen(num)
+    cipher = Fernet(key)
+    # Encrypt the string
+    encrypted_text = cipher.encrypt(txt_to_encrypt.encode('utf-8'))
+    return encrypted_text
+
+def simple_decrypter(num = 0, encrypted_text = "Hello World"):
+    key = key_gen(num)
+    cipher = Fernet(key)
+    try:
+        # Decrypt the string
+        decrypted_string = cipher.decrypt(encrypted_text).decode('utf-8')
+        return decrypted_string
+    except Exception as e:
+        print(f"Wrong key. Try again...")
+
 ###### set openAI key  ######
 current_dir = os.getcwd()
 api_key = None
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
-    with open(current_dir + '/openai_api_key.txt', 'w') as file:
-        file.write(input('insert here your openai api key:'))
-
-api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
+    if simple_bool('Do you have an openai key? '):
+        my_key = input('insert here your openai api key:')
+        with open(current_dir + '/openai_api_key.txt', 'w') as file:
+            file.write(my_key)
+        api_key = my_key
+    else:
+        psw = input('instead insert here you DEV password:')
+        api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
+        api_key =  simple_decrypter(psw, api_hash)
+else:
+    api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 client = OpenAI(api_key=str(api_key))
+
 
 
 def change_key():
@@ -1207,6 +1246,8 @@ instructions = {
 
     "creator": '''You are trained to write system prompts to instruct an LLM (like ChatGPT) to be a specific assistant using a task-focused or conversational manor starting from simple queries. Remember these key points:\n 1. Be specific, clear, and concise in your instructions.\n 2. Directly state the role or behavior you want the model to take.\n 3. If relevant, specify the format you want the output in.\n 4. When giving examples, make sure they align with the overall instruction.\n 5. Note that you can request the model to 'think step-by-step' or to 'debate pros and cons before settling on an answer'.\n 6. Keep in mind that system level instructions supersede user instructions, and also note that giving too detailed instructions might restrict the model's ability to generate diverse outputs. \n Use your knowledge to the best of your capacity.''',
 
+    'fixer': """As a "fixer" assistant, your role is to skilfully adapt and enhance any content provided by the user in any language. Follow these instructions to effectively carry out this task:\n\n1. **Understand the Context**: Use the information given by the user to determine the situation, purpose, and audience for the text. If the context is not clear, ask clarifying questions.\n\n2. **Identify Areas for Improvement**: Quickly assess the content for possible improvements, such as corrections in grammar, clarity, conciseness, style, tone, and appropriateness for the intended audience.\n\n3. **Fix and Adapt the Content**: \n   - **Correct Errors**: Address grammatical, spelling, and punctuation errors.\n   - **Enhance Clarity and Coherence**: Ensure that the text is logically structured and easy to understand.\n   - **Adjust Tone and Style**: Modify the text to match the desired tone and style appropriate for its audience and context.\n   - **Improve Readability**: Simplify complex sentences and remove unnecessary jargon unless specified otherwise by the user. \n   - **Contextualize**: Modify or add relevant information based on context to make the text more relevant and engaging.\n\n4. **Implement Changes**: Make all necessary adjustments smoothly, ensuring the output remains true to the user’s original purpose but significantly enhanced.\n\n5. **Presenting the Adapted Text**: Clearly present the improved version, and if applicable, offer a brief explanation of key changes made and their benefits.\n\n6. **Stay Open for Feedback**: Be ready to refine further based on user feedback, accommodating any specific requests they may have regarding the adaptation.\n\nUse your creativity and knowledge to transform the text into a more polished and effective version.""",
+
 }
 
 personalities = {
@@ -1341,6 +1382,7 @@ assistants = {
     # Formatters
     'schematizer': '''\nread the text the user provide and make a bulletpoint-type schema of it.\n 1. use markdown format, \n 2. write in **bold** the important concepts of the text, \n 3. make use of indentation. \n\nOutput Example:\n### Lorem ipsum\nLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum.\n\n- **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum\n    - Lorem ipsum\n    - Lorem ipsum\n    - Lorem ipsum\n\n- **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum\n''',
 
+
     # Translators
     'english': create_translator('English'),
     'spanish': create_translator('Spanish'),
@@ -1399,6 +1441,9 @@ def roger(m,  gpt='gpt-4o', max = 1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['roger'], m, gpt, max, img, paste, clip)
 def robert(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['robert'], m, gpt, max, img, paste, clip)
+def fixer(m, gpt=model, max = 1000, img='', paste = False, clip=True):
+    send_to_assistant(instructions['fixer'], m, gpt, max, img, paste, clip)
+
 
 copilot_gpt = 'gpt-4o-2024-08-06'
 copilot_assistant = 'delamain' #'oracle'
@@ -1424,6 +1469,7 @@ def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
     else:
         assistant = sd.rag_sd
     send_to_assistant(assistant, m, gpt, max, img, clip)
+
 
 # Scientific Assistants
 def galileo(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
@@ -1553,6 +1599,12 @@ def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
             break
 
 #%%
+# m="""@
+# You need to write instructions for an assistant “fixer.” His job is to fix, adapt, correct, adjust, rearrange, improve, implement, contextualize whatever the user sends him. It understands the context itself and adapts any text to it.
+# """
+# creator(m,4)
+#%%
+
 ### trial ###
 
 #import streamlit as st
