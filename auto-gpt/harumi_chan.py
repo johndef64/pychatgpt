@@ -5,7 +5,6 @@ import requests
 import pandas as pd
 
 
-
 # check requirements
 def get_gitfile(url, flag='', dir = os.getcwd()):
     url = url.replace('blob','raw')
