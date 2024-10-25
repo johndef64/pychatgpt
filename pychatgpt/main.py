@@ -72,14 +72,6 @@ import tiktoken
 import base64
 
 
-if platform.system() == "Linux":
-    # If Pyperclip could not find a copy/paste mechanism for your system, install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
-    subprocess.check_call(["sudo","apt-get", "update"])
-    subprocess.check_call(["sudo","apt", "install", "xsel"])
-    subprocess.check_call(["sudo","apt", "install", "xclip"])
-else:
-    pass
-
 # Funzione per controllare se pyperclip funziona nel sistema
 def check_copy_paste():
     try:
@@ -91,6 +83,17 @@ def check_copy_paste():
         return False
 
 has_copy_paste = check_copy_paste()
+
+if not has_copy_paste:
+    print('''Warning: your system not have a copy/paste mechanism. This function has been disabled for your case but you can try this out:
+    
+if platform.system() == "Linux":
+    # Try to install "xsel" or "xclip" on system and reboot Python IDLE3, then import pyperclip.
+    subprocess.check_call(["sudo","apt-get", "update"])
+    subprocess.check_call(["sudo","apt", "install", "xsel"])
+    subprocess.check_call(["sudo","apt", "install", "xclip"])
+    ''')
+
 
 ### audio requirements
 audio_requirements = ["pygame", "sounddevice", "soundfile", "keyboard"]
