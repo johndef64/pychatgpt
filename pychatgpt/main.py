@@ -1224,7 +1224,7 @@ def schematizer(m, language='english', gpt=model, max = 1000, img='', paste = Fa
         expand_chat('Reply only using '+language, 'system')
     send_to_assistant(assistants['schematizer'], m, gpt, max, img, paste, clip)
 def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
-    import sd_rag as sd
+    import stablediff_rag as sd
     if sdxl:
         assistant = sd.rag_sdxl
     else:
