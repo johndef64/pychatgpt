@@ -7,11 +7,11 @@ Now implemented with vision, hearing and drawing functions.
 
 ## Installation
 
-Install package with pip 
+Install package with pip: 
 
-` pip install git+https://github.com/johndef64/pychatgpt.git  `.
+` pip install git+https://github.com/johndef64/pychatgpt.git  `
 
-To use this module, you need to have an **OpenAI API key**. You have to provide your API key when requested once and it will be stored automatically in a file called `openai_api_key.txt` in your working directory.
+To use this module, you need an **OpenAI API key**. You have to provide your API key when requested once and it will be stored as `openai_api_key.txt` in your working directory.
 
 ## Usage
 `import pychatgpt as op`
