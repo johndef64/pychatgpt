@@ -80,6 +80,17 @@ if platform.system() == "Linux":
 else:
     pass
 
+# Funzione per controllare se pyperclip funziona nel sistema
+def check_copy_paste():
+    try:
+        pyperclip.copy("test")
+        test_text = pyperclip.paste()
+        if test_text == "test":
+            return True
+    except pyperclip.PyperclipException:
+        return False
+
+has_copy_paste = check_copy_paste()
 
 ### audio requirements
 audio_requirements = ["pygame", "sounddevice", "soundfile", "keyboard"]
@@ -500,7 +511,7 @@ def ask_gpt(prompt,
     if save_chat:
         write_log(reply, prompt)
 
-    if to_clip and not is_colab:
+    if to_clip and has_copy_paste:
         pc.copy(reply)
 
 
@@ -797,7 +808,7 @@ def send_message(message,
         if save_chat:
             write_log(reply, message)
 
-        if to_clip and not is_colab:
+        if to_clip and has_copy_paste:
             clip_reply = reply.replace('```', '###')
             pc.copy(clip_reply)
 
@@ -898,7 +909,7 @@ def send_image(image_path = dummy_img,
     # count tokens-------------------------------
     total_tokens = chat_tokenizer(chat_thread, True)
 
-    if to_clip:
+    if to_clip and has_copy_paste:
         reply = reply.replace('```', '###')
         pc.copy(reply)
 
@@ -967,7 +978,8 @@ def create_image(prompt= "a cute kitten",
         image = Image.open(BytesIO(decoded_image))
         image.save(filename)
     elif response_format == 'url':
-        pc.copy(str(image_url))
+        if has_copy_paste:
+            pc.copy(str(image_url))
         print('url:',image_url)
         gdown.download(image_url,filename, quiet=True)
 
