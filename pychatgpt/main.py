@@ -1164,7 +1164,7 @@ def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-
             break
 
 #####################################
-#from .assistants import *
+from .assistants import *
 
 assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
 
