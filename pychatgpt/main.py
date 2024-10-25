@@ -83,11 +83,11 @@ else:
 # Funzione per controllare se pyperclip funziona nel sistema
 def check_copy_paste():
     try:
-        pyperclip.copy("test")
-        test_text = pyperclip.paste()
+        pc.copy("test")
+        test_text = pc.paste()
         if test_text == "test":
             return True
-    except pyperclip.PyperclipException:
+    except pc.PyperclipException:
         return False
 
 has_copy_paste = check_copy_paste()
