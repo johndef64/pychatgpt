@@ -19,14 +19,6 @@ def simple_bool(message, y='y', n ='n'):
     return your_bool
 
 
-# def get_file_paths(path):
-#     file_paths = []
-#     files = [os.path.join(path, file) for file in os.listdir(path) if os.path.isfile(os.path.join(path, file))]
-#     for file in files:
-#         file_paths.append(file)
-#     return file_paths
-
-
 def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
     file_pattern = os.path.join(path, "*." + ext) if ext else os.path.join(path, "*")
     files = glob.glob(file_pattern)
@@ -69,7 +61,6 @@ from openai import OpenAI
 import pyperclip as pc
 import pandas as pd
 import tiktoken
-import base64
 
 
 # Function to check whether pyperclip works in the system
@@ -176,7 +167,7 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
             file.write(my_key)
         api_key = my_key
     else:
-        psw = input('instead insert here you DEV password:')
+        psw = input('if not, you can insert here you DEV password:')
         api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
         api_key =  simple_decrypter(psw, api_hash)
 else:
@@ -343,7 +334,7 @@ def add_persona(char, language='eng'):
 
 
 
-###### base functions ######
+###### Base Functions ######
 
 def choose_model():
     global model
@@ -404,6 +395,7 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
     with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
         file.write('Auto-GPT\n\nchat LOG:\n')
         print(str('\nchat_log.txt created at ' + os.getcwd()))
+
 
 ##################  REQUESTS #####################
 
@@ -510,7 +502,7 @@ def ask_gpt(prompt,
 
     time.sleep(1)
 
-    # Add the assistant's reply to the chat log-------------
+    # Add the assistant's reply to the chat log
     if save_chat:
         write_log(reply, prompt)
 
@@ -689,7 +681,7 @@ def set_token_limit(model='gpt-3.5-turbo', maxtoken=500):
 
 
 # Request Functions ================================
-def chat_loop(who='',system='',gpt='gpt-4o', max=1000, language='eng', exit_chat= 'stop', printall=True):
+def chat_loop(who='',system='',gpt=model, max=1000, language='eng', exit_chat= 'stop', printall=True):
     print('Send "'+exit_chat+'" to exit chat.')
     if who in assistants:
         system = assistants[who]
