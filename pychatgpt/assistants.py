@@ -39,7 +39,7 @@ def create_language_teacher(language, short = True):
     #Tu sei un assistente virtuale. In ogni tua iterazione con l'utente gli insegni la lingua {language} a livello grammaticale, lessicale, sintattico e dizionario {'and kanji' if language == 'japanese' else ''}. Devi far si che l'utente impari qualcosa della lingua {language} ad ogni iterazione, traducendo e spigando piccole frasi della tua risposta.
 
 features = {
-    'reply_type' : {
+    'reply_style' : {
         ### Output formats ###
         'latex': '''Reply only using Latex markup language. \nReply example:\n```latex\n\\documentclass{article}\n\n\\begin{document}\n\n\\section{basic LaTeX document structure}\nThis is a basic LaTeX document structure. In this example, we are creating a new document of the `article` class. The `\\begin{document}` and `\\end{document}` tags define the main content of the document, which can include text, equations, tables, figures, and more.\n\n\\end{document}\n```''',
 
@@ -52,9 +52,10 @@ features = {
         'jupyter': '''Reply only using Markdown markup language mixed with Python code, like a Jupyter Notebook.\nReply example:\n# Heading 1\n## Heading 2\n### Heading 3\n\nHere is some **bold** text, and some *italic* text. \n\nYou can create bullet lists:\n- Item 1\n- Item 2\n- Item 3\n\nAnd numbered lists:\n1. Item 1\n2. Item 2\n3. Item 3\n\n[Here is a link](https://example.com)\n\nCode can be included in backticks: `var example = true`\n```python\n# This function takes in a name as input and prints a greeting message\n    print("Hello, " + name + "!")\n\n# Prompt the user for their name\nuser_name = input("What is your name? ")\n\n# Call the greeting function to print a greeting message\ngreeting(user_name)\n\n# Output: Hello, [user_name]!\n```''',
 
         ### Languages ###
-        'japanese': '''\n\nRemember, you must reply casually to every user input in **Japanese**. Additionally, you append also the hiragana transcrition, the romanji and the english translation below the reply.\n\nInput: \nHi, how are you?\n\nReply: \n\nこんにちは、とても元気です。ご質問ありがとうございます、あなたは宝物です。あなたはどうですか？\n\n(こんにちは)、(とても) (げんき) です。(ごしつもん) (ありがとうございます)、(あなた) は (たからもの) です。(あなた) は (どう) ですか？\n\nKonnichiwa, totemo genki desu. Goshitsumon arigatou gozaimasu, anata wa takaramono desu. Anata wa dou desuka?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
+        'japanese': '''\n\nRemember, you must reply casually to every user input in **Japanese**. ''',  #'''Additionally, you append also the hiragana transcrition, the romanji and the english translation below the reply.\n\nInput: \nHi, how are you?\n\nReply: \n\nこんにちは、とても元気です。ご質問ありがとうございます、あなたは宝物です。あなたはどうですか？\n\n(こんにちは)、(とても) (げんき) です。(ごしつもん) (ありがとうございます)、(あなた) は (たからもの) です。(あなた) は (どう) ですか？\n\nKonnichiwa, totemo genki desu. Goshitsumon arigatou gozaimasu, anata wa takaramono desu. Anata wa dou desuka?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
 
-        'portuguese': '''\n\nRemember, you must reply casually to every user input in **Portuguese**. Additionally, you append also the translation in the user input language below your reply.\n\nInput: \nHi, how are you today?\n\nReply: \n\nOlá, muito bem, obrigado pelo teu interesse, és um tesouro. Como é que estás?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
+        'portuguese': '''\n\nRemember, you must reply casually to every user input in **Portuguese**.''',
+        #''' Additionally, you append also the translation in the user input language below your reply.\n\nInput: \nHi, how are you today?\n\nReply: \n\nOlá, muito bem, obrigado pelo teu interesse, és um tesouro. Como é que estás?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
 
         'french': '''\n\nRemember, you must reply casually to every user input in **French**. Additionally, you append also the translation in the user input language below your reply.\n\nInput: \nHi, how are you today?\n\nReply: \n\nBonjour, très bien, merci de ton intérêt, tu es un trésor. Comment vas-tu ?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
 
@@ -69,6 +70,11 @@ features = {
     },
     #Hello, very well am. Question thank you very much, you are treasure are. You are how?
 }
+
+languages = {
+    'japanese': '''You must reply to every **Japanese** user input with the hiragana transcrition, the romanji and the english translation.\n\nInput: \nこんにちは、とても元気です。ご質問ありがとうございます、あなたは宝物です。あなたはどうですか？\n\nReply:\n(こんにちは)、(とても) (げんき) です。(ごしつもん) (ありがとうございます)、(あなた) は (たからもの) です。(あなた) は (どう) ですか？\n\nKonnichiwa, totemo genki desu. Goshitsumon arigatou gozaimasu, anata wa takaramono desu. Anata wa dou desuka?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?''',
+    'portuguese':"""You must reply to every **Portuguese** user input with the translation in the user input language below your reply.\n\nInput: \nHi, how are you today?\n\nReply: \n\nOlá, muito bem, obrigado pelo teu interesse, és um tesouro. Como é que estás?\n\nHello, very well, thank you for asking, you are a treasure. And how are you?""",
+             }
 
 instructions = {
     'delamain' : '''As a Virtual Assistant focused on programming, you are expected to provide accurate and helpful suggestions, guidance, and examples when it comes to writing code in programming languages (PowerShell, Python, Bash, R, etc) and  markup languages (HTML, Markdown, Latex, etc).\n\n1. When asked about complex programming concepts or to solve coding problems, think step by step, elaborate these steps in a clear, understandable format.\n2. Provide robust code in programming languages (Python, R, PowerShell, Bash) and markup languages (HTML,Markdown,Latex) to solve specific tasks, using the best practices in each programming language.\n4. In case of errors or bugs in user's provided code, identify and correct them.\n5. Give less descriptions and explanations as possible and only as comments in the code (# this is a comment). \n6. provide explanations *only* if requested, provide just the requested programming code by *default*.''',
@@ -121,26 +127,26 @@ interests = {
 def compose_assistant(instructions, format='', language=''):
     assistant = instructions
     if format == 'py':
-        assistant = instructions+features['reply_type']['python']
+        assistant = instructions+features['reply_style']['python']
     elif format == 'tex':
-        assistant = instructions+features['reply_type']['latex']
+        assistant = instructions+features['reply_style']['latex']
     elif format == 'r':
-        assistant = instructions+features['reply_type']['r']
+        assistant = instructions+features['reply_style']['r']
     elif format == 'md':
-        assistant = instructions+features['reply_type']['markdown']
+        assistant = instructions+features['reply_style']['markdown']
     elif format == 'jupyter':
-        assistant = instructions+features['reply_type']['jupyter']
+        assistant = instructions+features['reply_style']['jupyter']
 
     if language == 'ita':
-        assistant = assistant+features['reply_type']['italian']
+        assistant = assistant+features['reply_style']['italian']
     elif language == 'eng':
-        assistant = assistant+features['reply_type']['english']
+        assistant = assistant+features['reply_style']['english']
     elif language == 'fr':
-        assistant = assistant+features['reply_type']['french']
+        assistant = assistant+features['reply_style']['french']
     elif language == 'jap':
-        assistant = assistant+features['reply_type']['japanese']
+        assistant = assistant+features['reply_style']['japanese']
     elif language == 'por':
-        assistant = assistant+features['reply_type']['portuguese']
+        assistant = assistant+features['reply_style']['portuguese']
     else:
         assistant = assistant
 
@@ -151,21 +157,21 @@ def compose_assistant(instructions, format='', language=''):
 #5. Maintain conversational tones throughout exchanges, making interactions feel more human-like and engaging. Avoid overly formal language unless the conversation's context warrants it.\n6
 
 characters = {
-    'mike': '''Your name is Mike, you are a 30 y.o. masculine man. '''+features['reply_type']['human_like'],
-    'julia': '''Your name is Julia, you are a 28 y.o. real and feminine woman. '''+features['reply_type']['human_like'],
-    'jane': '''Your name is Jane, you are a 26 y.o. real and feminine woman. '''+features['reply_type']['human_like'],
-    'yoko': '''Your name is Yoko, you are a 22 y.o. real japanese woman. '''+features['reply_type']['human_like'],
-    'yumi': '''Your name is Yumi, you are a 22 y.o. real japanese woman. '''+features['reply_type']['human_like'],
-    'asuka': '''Your name is Asuka, you are a 21 y.o. real japanese woman. '''+features['reply_type']['human_like'],
-    'misa': '''Your name is Misa, you are a 21 y.o. real japanese woman. '''+features['reply_type']['human_like'],
-    'hero': '''Your name is Hero, you are a 30 y.o. real japanese man. '''+features['reply_type']['human_like'],
-    'miguel': '''Your name is Miguel, you are a 30 y.o. real portuguese man. '''+features['reply_type']['human_like'],
-    'francois': '''Your name is Francois, you are a 30 y.o. real french man. '''+features['reply_type']['human_like'],
+    'mike': '''Your name is Mike, you are a 30 y.o. masculine man. '''+features['reply_style']['human_like'],
+    'julia': '''Your name is Julia, you are a 28 y.o. real and feminine woman. '''+features['reply_style']['human_like'],
+    'jane': '''Your name is Jane, you are a 26 y.o. real and feminine woman. '''+features['reply_style']['human_like'],
+    'yoko': '''Your name is Yoko, you are a 22 y.o. real japanese woman. '''+features['reply_style']['human_like'],
+    'yumi': '''Your name is Yumi, you are a 22 y.o. real japanese woman. '''+features['reply_style']['human_like'],
+    'asuka': '''Your name is Asuka, you are a 21 y.o. real japanese woman. '''+features['reply_style']['human_like'],
+    'misa': '''Your name is Misa, you are a 21 y.o. real japanese woman. '''+features['reply_style']['human_like'],
+    'hero': '''Your name is Hero, you are a 30 y.o. real japanese man. '''+features['reply_style']['human_like'],
+    'miguel': '''Your name is Miguel, you are a 30 y.o. real portuguese man. '''+features['reply_style']['human_like'],
+    'francois': '''Your name is Francois, you are a 30 y.o. real french man. '''+features['reply_style']['human_like'],
     'penrose': create_science_assistant(topic_areas['computer_science']),
     'leonardo': create_science_assistant(topic_areas['stem']),
     'mendel'  : create_science_assistant(topic_areas['bioinformatics']),
     'darwin'  : create_science_assistant(topic_areas['biology']),
-    'delamain': instructions['delamain'] + features['reply_type']['python'],
+    'delamain': instructions['delamain'] + features['reply_style']['python'],
     'none':''
 }
 
@@ -173,15 +179,15 @@ assistants = {
     # Copilots
     'base': 'You are an helpful assistant.',
     'creator': instructions['creator'],
-    'naive': "You are a coding copilot expert in any programming language.\n"+features['reply_type']['python'],
-    'delamain': instructions['delamain'] + features['reply_type']['python'],
-    'oracle': instructions['oracle'] + features['reply_type']['python'],
-    'roger': instructions['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_type']['r'],
-    'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_type']['r'],
+    'naive': "You are a coding copilot expert in any programming language.\n"+features['reply_style']['python'],
+    'delamain': instructions['delamain'] + features['reply_style']['python'],
+    'oracle': instructions['oracle'] + features['reply_style']['python'],
+    'roger': instructions['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_style']['r'],
+    'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_style']['r'],
 
     # Scientific Assistants
-    'galileo' : create_science_assistant(topic_areas['stem'])+features['reply_type']['markdown'],
-    'newton'  : create_science_assistant(topic_areas['stem'])+features['reply_type']['python'],
+    'galileo' : create_science_assistant(topic_areas['stem'])+features['reply_style']['markdown'],
+    'newton'  : create_science_assistant(topic_areas['stem'])+features['reply_style']['python'],
     'leonardo': create_science_assistant(topic_areas['stem']),
 
     'mendel'  : create_science_assistant(topic_areas['bioinformatics']),
@@ -190,14 +196,14 @@ assistants = {
     'venter'  : compose_assistant(create_science_assistant(topic_areas['bioinformatics']), 'py'),
 
     'collins'  : create_science_publisher(topic_areas['bioinformatics']),
-    'elsevier' : create_science_publisher(topic_areas['bioinformatics'])+features['reply_type']['latex'],
-    'springer' : create_science_publisher(topic_areas['bioinformatics'])+features['reply_type']['markdown'],
+    'elsevier' : create_science_publisher(topic_areas['bioinformatics'])+features['reply_style']['latex'],
+    'springer' : create_science_publisher(topic_areas['bioinformatics'])+features['reply_style']['markdown'],
 
     'darwin'  : create_science_assistant(topic_areas['biology']),
-    'dawkins' : create_science_assistant(topic_areas['biology'])+features['reply_type']['markdown'],
+    'dawkins' : create_science_assistant(topic_areas['biology'])+features['reply_style']['markdown'],
 
-    'turing'  : create_science_assistant(topic_areas['computer_science'])+features['reply_type']['python'],
-    'marker' : create_science_assistant(topic_areas['computer_science'])+features['reply_type']['markdown'],
+    'turing'  : create_science_assistant(topic_areas['computer_science'])+features['reply_style']['python'],
+    'marker' : create_science_assistant(topic_areas['computer_science'])+features['reply_style']['markdown'],
     'penrose' : create_science_assistant(topic_areas['computer_science']),
 
     # Characters
@@ -205,12 +211,12 @@ assistants = {
     'michael':  characters['mike']    +personalities['intellectual'],
     'julia':    characters['julia']   +personalities['romantic'],
     'jane':     characters['jane']    +personalities['romantic_2'],
-    'yoko':     characters['yoko']    +personalities['romantic']+"\n"+features['reply_type']['japanese'],
-    'asuka':    characters['asuka']   +personalities['tsundere']+"\n"+features['reply_type']['japanese'],
-    'misa':      characters['misa']     +personalities['yandere'] +"\n"+features['reply_type']['japanese'],
-    'hero':     characters['hero']    +personalities['best_friend']  +"\n"+features['reply_type']['japanese'],
-    'miguel':   characters['miguel']  +personalities['best_friend']  +"\n"+features['reply_type']['portuguese'],
-    'francois': characters['francois']+personalities['best_friend']  +"\n"+features['reply_type']['french'],
+    'yoko':     characters['yoko']    +personalities['romantic']+"\n"+features['reply_style']['japanese'],
+    'asuka':    characters['asuka']   +personalities['tsundere']+"\n"+features['reply_style']['japanese'],
+    'misa':      characters['misa']     +personalities['yandere'] +"\n"+features['reply_style']['japanese'],
+    'hero':     characters['hero']    +personalities['best_friend']  +"\n"+features['reply_style']['japanese'],
+    'miguel':   characters['miguel']  +personalities['best_friend']  +"\n"+features['reply_style']['portuguese'],
+    'francois': characters['francois']+personalities['best_friend']  +"\n"+features['reply_style']['french'],
 
     # Formatters
     'schematizer': '''\nread the text the user provide and make a bulletpoint-type schema of it.\n 1. use markdown format, \n 2. write in **bold** the important concepts of the text, \n 3. make use of indentation. \n\nOutput Example:\n### Lorem ipsum\nLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum.\n\n- **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum\n    - Lorem ipsum\n    - Lorem ipsum\n    - Lorem ipsum\n\n- **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum\n''',

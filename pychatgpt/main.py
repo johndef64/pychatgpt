@@ -1188,10 +1188,10 @@ def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
     send_message(m,system=sys, maxtoken=max, model=gpt, img= img, to_clip=clip)
 
 # Reusable function to send message to assistants
-def send_to_assistant(system, m, gpt=model, max=1000, img='', paste = False, clip=True):
+def send_to_assistant(system, m, gpt=model, max=1000, img='', paste = False, clip=True, token=False):
     if paste: p = pc.paste()
     else: p = ''
-    send_message(m+p, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip)
+    send_message(m+p, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip, print_token=token)
 
 # Wrapper functions for different assistants
 
@@ -1308,6 +1308,9 @@ def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=Fal
 def yoko(m,  gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=False):
     assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
+    print('\n')
+    ask_gpt(reply, languages['japanese'], model=gpt)
+
 
 # Translators
 def english(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
