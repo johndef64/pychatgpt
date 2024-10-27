@@ -175,6 +175,7 @@ characters = {
     'none':''
 }
 
+
 assistants = {
     'none': '',
     # Copilots
