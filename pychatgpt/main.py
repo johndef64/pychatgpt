@@ -53,7 +53,7 @@ def check_and_install_requirements(requirements: list):
         else:
             exit()
 
-requirements = ["openai", "tiktoken", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2", 'cryptography', 'matplotlib']
+requirements = ["openai", "tiktoken", "langdetect", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2", 'cryptography', 'matplotlib']
 check_and_install_requirements(requirements)
 from cryptography.fernet import Fernet
 from scipy.spatial import distance
@@ -396,6 +396,33 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
         file.write('Auto-GPT\n\nchat LOG:\n')
         print(str('\nchat_log.txt created at ' + os.getcwd()))
 
+
+##### LANG ####
+from langdetect import detect
+from langdetect import DetectorFactory
+
+# Reinizializzare il seed per ottenere risultati consistenti
+DetectorFactory.seed = 0
+
+# Mappa manuale dei codici delle lingue ai loro nomi completi
+language_map = {
+    'en': 'English',
+    'it': 'Italian',
+    'fr': 'French',
+    'de': 'German',
+    'es': 'Spanish',
+    'pt': 'Portuguese',
+    'nl': 'Dutch',
+    'ru': 'Russian',
+    'zh-cn': 'Chinese (Simplified)',
+    'ja': 'Japanese',
+    # Aggiungere altre lingue se necessario
+}
+
+def rileva_lingua(testo):
+    # Rileva la lingua del testo e la restituisce in formato esteso
+    codice_lingua = detect(testo)
+    return language_map.get(codice_lingua, 'Unknown')
 
 ##################  REQUESTS #####################
 
@@ -1281,6 +1308,10 @@ def add_bio(assistant, my_name='', add = ''' and you are his best friend. ***'''
         assistant = assistant
     return assistant
 
+def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=False):
+    assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
+    send_to_assistant(assistant, m, gpt, max, img, clip)
+
 def mike(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['mike'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
@@ -1288,28 +1319,38 @@ def mike(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
 def michael(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['michael'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
+    print('\n')
+    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
 
 def miguel(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['miguel'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
+    print('\n')
+    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
 
 def francois(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['francois'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
+    print('\n')
+    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
+
+def luca(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
+    assistant = add_bio(assistants['luca'], my_name=my_name, add = "and you are his best friend. ***")
+    send_to_assistant(assistant, m, gpt, max, img, clip)
+    print('\n')
+    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
 
 def hero(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
     assistant = add_bio(assistants['hero'], my_name=my_name, add = "and you are his best friend. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
-
-def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=False):
-    assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
+    print('\n')
+    ask_gpt(reply, create_jap_translator(rileva_lingua(m)), model=gpt)
 
 def yoko(m,  gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=False):
     assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
     send_to_assistant(assistant, m, gpt, max, img, clip)
     print('\n')
-    ask_gpt(reply, languages['japanese'], model=gpt)
+    ask_gpt(reply, create_jap_translator(rileva_lingua(m)), model=gpt)
 
 
 # Translators
