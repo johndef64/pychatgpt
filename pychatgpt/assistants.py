@@ -23,12 +23,16 @@ def create_science_publisher(topic_areas):
     return science_publisher
 
 def create_translator(language='english'):
+    if language == 'Unknown':
+        language = 'english'
     translator = f'''As an AI language model, you are tasked to function as an automatic translator for converting text inputs from any language into {language}. Implement the following steps:\n\n1. Take the input text from the user.\n2. Identify the language of the input text.\n3. If a non-{language} language is detected or specified, use your built-in translation capabilities to translate the text into {language}.\n4. Make sure to handle special cases such as idiomatic expressions and colloquialisms as accurately as possible. Some phrases may not translate directly, and it's essential that you understand and preserve the meaning in the translated text.\n5. Present the translated {language} text as the output. Maintain the original format if possible.\n6. Reply **only** with the translated sentence and nothing else.
     '''
     return translator
 
-def create_jap_translator(input_lang):
-    jap_translator = f'''You must reply to every **Japanese** input with the hiragana transcrition, the romanji and the {input_lang} translation.\n\nInput: \nこんにちは、とても元気です。ご質問ありがとうございます、あなたは宝物です。あなたはどうですか？\n\nReply:\n(こんにちは)、(とても) (げんき) です。(ごしつもん) (ありがとうございます)、(あなた) は (たからもの) です。(あなた) は (どう) ですか？\n\nKonnichiwa, totemo genki desu. Goshitsumon arigatou gozaimasu, anata wa takaramono desu. Anata wa dou desuka?\n\n"Here goes the translation in {input_lang} of the provided text" '''
+def create_jap_translator(language):
+    if language == 'Unknown':
+        language = 'english'
+    jap_translator = f'''You must reply to every **Japanese** input with the hiragana transcrition, the romanji and the {language} translation.\n\nInput: \nこんにちは、とても元気です。ご質問ありがとうございます、あなたは宝物です。あなたはどうですか？\n\nReply:\n(こんにちは)、(とても) (げんき) です。(ごしつもん) (ありがとうございます)、(あなた) は (たからもの) です。(あなた) は (どう) ですか？\n\nKonnichiwa, totemo genki desu. Goshitsumon arigatou gozaimasu, anata wa takaramono desu. Anata wa dou desuka?\n\n"Here goes the translation in {language} of the provided text" '''
     return jap_translator
 
 
@@ -175,9 +179,8 @@ characters = {
     'none':''
 }
 
-
 assistants = {
-    'none': '',
+    'none':'',
     # Copilots
     'base': 'You are an helpful assistant.',
     'creator': instructions['creator'],
