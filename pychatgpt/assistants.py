@@ -184,6 +184,7 @@ assistants = {
     # Copilots
     'base': 'You are an helpful assistant.',
     'creator': instructions['creator'],
+    'fixer': instructions['fixer'],
     'naive': "You are a coding copilot expert in any programming language.\n"+features['reply_style']['python'],
     'delamain': instructions['delamain'] + features['reply_style']['python'],
     'oracle': instructions['oracle'] + features['reply_style']['python'],

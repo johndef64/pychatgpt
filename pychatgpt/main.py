@@ -398,31 +398,31 @@ if not os.path.isfile(current_dir + '/chat_log.txt'):
 
 
 ##### LANG ####
-from langdetect import detect
-from langdetect import DetectorFactory
-
-# Reinizializzare il seed per ottenere risultati consistenti
-DetectorFactory.seed = 0
-
-# Mappa manuale dei codici delle lingue ai loro nomi completi
-language_map = {
-    'en': 'English',
-    'it': 'Italian',
-    'fr': 'French',
-    'de': 'German',
-    'es': 'Spanish',
-    'pt': 'Portuguese',
-    'nl': 'Dutch',
-    'ru': 'Russian',
-    'zh-cn': 'Chinese (Simplified)',
-    'ja': 'Japanese',
-    # Aggiungere altre lingue se necessario
-}
+from langdetect import detect, DetectorFactory
 
 def rileva_lingua(testo):
+    # Reinizializzare il seed per ottenere risultati consistenti
+    DetectorFactory.seed = 0
+
+    # Mappa manuale dei codici delle lingue ai loro nomi completi
+    language_map = {
+        'en': 'English',
+        'it': 'Italian',
+        'fr': 'French',
+        'de': 'German',
+        'es': 'Spanish',
+        'pt': 'Portuguese',
+        'nl': 'Dutch',
+        'ru': 'Russian',
+        'zh-cn': 'Chinese (Simplified)',
+        'ja': 'Japanese',
+        # Aggiungere altre lingue se necessario
+    }
+
     # Rileva la lingua del testo e la restituisce in formato esteso
     codice_lingua = detect(testo)
     return language_map.get(codice_lingua, 'Unknown')
+
 
 ##################  REQUESTS #####################
 
@@ -1223,26 +1223,27 @@ def send_to_assistant(system, m, gpt=model, max=1000, img='', paste = False, cli
 # Wrapper functions for different assistants
 
 # Copilots
+copilot_gpt = 'gpt-4o-2024-08-06'
+copilot_assistant = 'delamain' #'oracle'
+copilot_intructions = compose_assistant(assistants[copilot_assistant])
+
 def chatgpt(m, gpt=model, max=1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['base'], m, gpt, max, img, paste, clip)
-def creator(m, gpt='gpt-4o', max=1000, img='', paste = False, clip=True):
+def creator(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['creator'], m, gpt, max, img, paste, clip)
+def fixer(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
+    send_to_assistant(assistants['fixer'], m, gpt, max, img, paste, clip)
 def delamain(m, gpt=model, max=1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['delamain'], m, gpt, max, img, paste, clip)
 def oracle(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['oracle'], m, gpt, max, img, paste, clip)
-def roger(m,  gpt='gpt-4o', max = 1000, img='', paste = False, clip=True):
+def roger(m,  gpt=copilot_gpt, max = 1000, img='', paste = False, clip=True):
     expand_chat('Return always just the R code in your output.','system')
     send_to_assistant(assistants['roger'], m, gpt, max, img, paste, clip)
 def robert(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['robert'], m, gpt, max, img, paste, clip)
-def fixer(m, gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(instructions['fixer'], m, gpt, max, img, paste, clip)
 
 
-copilot_gpt = 'gpt-4o-2024-08-06'
-copilot_assistant = 'delamain' #'oracle'
-copilot_intructions = compose_assistant(assistants[copilot_assistant])
 def copilot(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
     send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
 def copilotp(m, gpt=copilot_gpt, max=1000, img='', clip=True):
