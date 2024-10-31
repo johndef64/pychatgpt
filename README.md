@@ -8,18 +8,18 @@ Now implemented with vision, hearing and drawing functions.
 ## Installation
 
 Install package with pip: 
-
-` pip install git+https://github.com/johndef64/pychatgpt.git  `
+```bash
+pip install git+https://github.com/johndef64/pychatgpt.git
+```
 
 To use this module, you need an **OpenAI API key**. You have to provide your API key when requested once and it will be stored as `openai_api_key.txt` in your working directory.
 
 ## Usage
-`import pychatgpt as op`
 
 The module provides the following main functions:
 
 1. `op.ask_gpt(prompt, *parameters*)`:  
-This basic function takes a prompt as input and generates a single response from the GPT chosen model. It returns the generated response and logs the conversation in the `chat_log.txt` file.
+This basic function takes a prompt as input and generates a single response from the GPT chosen model. It returns the generated response and update `chat_log.json`.
 You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 
 2. `op.send_message(message,*parameters*)`:  

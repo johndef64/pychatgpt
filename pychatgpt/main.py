@@ -391,10 +391,31 @@ def get_chat():
 
 
 # inizialize log:-----------------------------------
-if not os.path.isfile(current_dir + '/chat_log.txt'):
-    with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
-        file.write('Auto-GPT\n\nchat LOG:\n')
-        print(str('\nchat_log.txt created at ' + os.getcwd()))
+import json
+
+# Funzione per salvare una lista di dizionari in un file JSON con indentazione
+def salva_in_json(lista_dict, nome_file):
+    with open(nome_file, 'w', encoding='utf-8') as file_json:
+        json.dump(lista_dict, file_json, indent=4)
+        file_json.close()
+
+# Funzione per aggiornare il file JSON con un nuovo input
+def aggiorna_json(nuovo_dict, nome_file):
+    try:
+        with open(nome_file, 'r', encoding='utf-8') as file_json:
+            data = json.load(file_json)
+    except FileNotFoundError:
+        data = []
+    data.append(nuovo_dict)
+    with open(nome_file, 'w', encoding='utf-8') as file_json:
+        json.dump(data, file_json, ensure_ascii=False,  indent=4)
+
+if not os.path.isfile(current_dir + '/chat_log.json'):
+    #with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
+    #    file.write('Auto-GPT\n\nchat LOG:\n')
+    #    print(str('\nchat_log.txt created at ' + os.getcwd()))
+    salva_in_json(chat_thread, 'chat_log.json')
+
 
 
 ##### LANG ####
@@ -530,8 +551,10 @@ def ask_gpt(prompt,
     time.sleep(1)
 
     # Add the assistant's reply to the chat log
-    if save_chat:
-        write_log(reply, prompt)
+    #if save_chat:
+    #    #write_log(reply, prompt)
+    #    update_log(chat_thread[-2])
+    #    update_log(chat_thread[-1])
 
     if to_clip and has_copy_paste:
         pc.copy(reply)
@@ -557,18 +580,16 @@ def build_messages(chat):
     return messages
 
 
-def save_chat(path='chats/'):
-    filename = input('chat name:')
-    directory = 'chats'
-    formatted_json = json.dumps(chat_thread, indent=4)
-    if not os.path.exists(directory):
-        os.mkdir(directory)
-    with open(path+filename+'.json', 'w', encoding= 'utf-8') as file:
-        file.write(formatted_json)
-        file.close()
+
+def save_chat(path='chats/', chatname = '', prompt=True):
+    if prompt:
+        chatname = input('chat name:')
+    if not os.path.exists('chats'):
+        os.mkdir('chats')
+    salva_in_json(chat_thread, path+chatname+'.json')
 
 
-def load_chat(contains= '', path='chats/'):
+def load_chat(contains= '', path='chats/', log= True):
     global chat_thread
     files_df = display_files_as_pd(path, ext='json',contains=contains)
     files_df = files_df.sort_values().reset_index(drop=True)
@@ -578,7 +599,9 @@ def load_chat(contains= '', path='chats/'):
     with open(path+filename,'r') as file:
         chat_thread = ast.literal_eval(file.read())
         file.close()
-    print('*chat',filename,'loaded*')
+    if log: print('*chat',filename,'loaded*')
+
+
 
 def load_file(file='', path=os.getcwd()):
     with open(os.path.join(path, file),'r', encoding='utf-8') as file:
@@ -633,18 +656,21 @@ def chat_tokenizer(chat_thread, print_token=True):
         print('\n <prompt tokens:', str(total_tokens)+'>')
     return total_tokens
 
-def write_log(reply, message, filename='chat_log.txt'):
-    with open(filename, 'a', encoding= 'utf-8') as file:
-        file.write('---------------------------')
-        file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-        if persona != '' and persona.find(',') != -1:
-            comma_ind = persona.find(',')
-            persona_p = persona[:comma_ind]
-        elif persona != '' and persona.find(',') == -1:
-            persona_p = persona
-        else:
-            persona_p = model
-        file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+# def write_log(reply, message, filename='chat_log.txt'):
+#     with open(filename, 'a', encoding= 'utf-8') as file:
+#         file.write('---------------------------')
+#         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
+#         if persona != '' and persona.find(',') != -1:
+#             comma_ind = persona.find(',')
+#             persona_p = persona[:comma_ind]
+#         elif persona != '' and persona.find(',') == -1:
+#             persona_p = persona
+#         else:
+#             persona_p = model
+#         file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
+
+def update_log(nuovo_dict):
+    aggiorna_json(nuovo_dict, 'chat_log.json')
 
 
 # Accessory Request Functions ================================
@@ -828,7 +854,9 @@ def send_message(message,
 
         # Add the assistant's reply to the chat log-------------
         if save_chat:
-            write_log(reply, message)
+            #write_log(reply, message)
+            update_log(chat_thread[-2])
+            update_log(chat_thread[-1])
 
         if to_clip and has_copy_paste:
             clip_reply = reply.replace('```', '###')
