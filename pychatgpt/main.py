@@ -1265,18 +1265,18 @@ def delamain(m, gpt=model, max=1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['delamain'], m, gpt, max, img, paste, clip)
 def oracle(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['oracle'], m, gpt, max, img, paste, clip)
-def roger(m,  gpt=copilot_gpt, max = 1000, img='', paste = False, clip=True):
+def R(m,  gpt=copilot_gpt, max = 1000, img='', paste = False, clip=True):
     expand_chat('Return always just the R code in your output.','system')
     send_to_assistant(assistants['roger'], m, gpt, max, img, paste, clip)
-def robert(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
+def Rt(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['robert'], m, gpt, max, img, paste, clip)
 
 
-def copilot(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
+def C(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
     send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
-def copilotp(m, gpt=copilot_gpt, max=1000, img='', clip=True):
+def Cp(m, gpt=copilot_gpt, max=1000, img='', clip=True):
     send_to_assistant(copilot_intructions, m+pc.paste(), gpt, max, img, clip)
-def copiloti(m, gpt=copilot_gpt, max=1000, paste = False, clip=True):
+def Ci(m, gpt=copilot_gpt, max=1000, paste = False, clip=True):
     img = pc.paste()
     send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
 
