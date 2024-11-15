@@ -656,6 +656,16 @@ copilot_gpt = 'gpt-4o-2024-08-06'
 copilot_assistant = 'delamain' #'oracle'
 copilot_intructions = compose_assistant(assistants[copilot_assistant])
 
+def add_bio(assistant, my_name='', add = ''' and you are his best friend. ***'''):
+    if os.path.exists("my_bio.txt"):
+        assistant = assistant+'''\n***'''+load_file("my_bio.txt")+'***'
+    elif my_name !='':
+        assistant = assistant+'''\n*** Your interlocutor is called '''+ my_name + add
+    else:
+        assistant = assistant
+    return assistant
+
+
 #%%
 
 ###### global variables ######
@@ -1353,55 +1363,47 @@ class GPT:
 
 
     # Characters
-    def add_bio(self, assistant, my_name='', add = ''' and you are his best friend. ***'''):
-        if os.path.exists("my_bio.txt"):
-            assistant = self.assistant+'''\n***'''+load_file("my_bio.txt")+'***'
-        elif my_name !='':
-            assistant = self.assistant+'''\n*** Your interlocutor is called '''+ my_name + add
-        else:
-            assistant = self.assistant
-        return assistant
 
     def julia(self, m, gpt=model, max = 1000, img='', who='julia', my_name = '', clip=False):
-        assistant = self.add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
+        assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
 
     def mike(self, m, gpt=model, max = 1000, img='', my_name = '', clip=False,):
-        assistant = self.add_bio(assistants['mike'], my_name=my_name, add = "and you are his best friend. ***")
+        assistant = add_bio(assistants['mike'], my_name=my_name, add = "and you are his best friend. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
 
     def michael(self, m, gpt=model, max = 1000, img='', my_name = '', clip=False,):
-        assistant = self.add_bio(assistants['michael'], my_name=my_name, add = "and you are his best friend. ***")
+        assistant = add_bio(assistants['michael'], my_name=my_name, add = "and you are his best friend. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
         print('\n')
         self.ask_gpt(self.reply, create_translator(rileva_lingua(m)), model=gpt)
 
     def miguel(self, m, gpt=model, max = 1000, img='', my_name = '', clip=False,):
-        assistant = self.add_bio(assistants['miguel'], my_name=my_name, add = "and you are his best friend. ***")
+        assistant = add_bio(assistants['miguel'], my_name=my_name, add = "and you are his best friend. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
         print('\n')
         self.ask_gpt(self.reply, create_translator(rileva_lingua(m)), model=gpt)
 
     def francois(self, m, gpt=model, max = 1000, img='', my_name = '', clip=False,):
-        assistant = self.add_bio(assistants['francois'], my_name=my_name, add = "and you are his best friend. ***")
+        assistant = add_bio(assistants['francois'], my_name=my_name, add = "and you are his best friend. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
         print('\n')
         self.ask_gpt(self.reply, create_translator(rileva_lingua(m)), model=gpt)
 
     def luca(self, m, gpt=model, max = 1000, img='', my_name = '', clip=False,):
-        assistant = self.add_bio(assistants['luca'], my_name=my_name, add = "and you are his best friend. ***")
+        assistant = add_bio(assistants['luca'], my_name=my_name, add = "and you are his best friend. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
         print('\n')
         self.ask_gpt(self.reply, create_translator(rileva_lingua(m)), model=gpt)
 
     def hero(self, m, gpt=model, max = 1000, img='', my_name = '', clip=False,):
-        assistant = self.add_bio(assistants['hero'], my_name=my_name, add = "and you are his best friend. ***")
+        assistant = add_bio(assistants['hero'], my_name=my_name, add = "and you are his best friend. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
         print('\n')
         self.ask_gpt(self.reply, create_jap_translator(rileva_lingua(m)), model=gpt)
 
     def yoko(self, m, gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=False):
-        assistant = self.add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
+        assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
         self.send_to_assistant(assistant, m, gpt, max, img, clip)
         print('\n')
         self.ask_gpt(self.reply, create_jap_translator(rileva_lingua(m)), model=gpt)
