@@ -51,7 +51,7 @@ def check_and_install_requirements(requirements: list):
                 subprocess.check_call(["pip", "install", module])
                 print(f"{module}' was installed correctly.")
         else:
-            exit()
+            print("Waring: missing modules")#exit()
 
 requirements = ["openai", "tiktoken", "langdetect", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2", 'cryptography', 'matplotlib']
 check_and_install_requirements(requirements)
@@ -638,6 +638,15 @@ def clearchat(warning=True):
     chat_thread = []
     total_tokens = 0
     if warning: print('*chat cleared*\n')
+
+def show_chat():
+    global chat_thread
+    print(chat_thread)
+
+def pop_chat():
+    global chat_thread
+    chat_thread = chat_thread.pop()
+    print(chat_thread)
 
 def tokenizer(text):
     return Tokenizer().tokens(text)
@@ -1254,6 +1263,7 @@ def send_to_assistant(system, m, gpt=model, max=1000, img='', paste = False, cli
 copilot_gpt = 'gpt-4o-2024-08-06'
 copilot_assistant = 'delamain' #'oracle'
 copilot_intructions = compose_assistant(assistants[copilot_assistant])
+
 
 def chatgpt(m, gpt=model, max=1000, img='', paste = False, clip=True):
     send_to_assistant(assistants['base'], m, gpt, max, img, paste, clip)
