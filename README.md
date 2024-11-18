@@ -1,4 +1,4 @@
-# PyChatGPT: Python Module
+# PyChatGPT 2.0: Python Module
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) 
 
 `pychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
@@ -28,7 +28,8 @@ This function is implemented with GPT vision, Text2Speech and Dall-E functionali
 Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
 ```python
-import pychatgpt as op
+from pychatgpt import GPT
+op = GPT()
 
 op.send_message('Your message goes here',
                 model='gpt-3.5-turbo', # choose openai model 
@@ -50,7 +51,9 @@ op.send_message('Your message goes here',
                 to_clip=False,      # send reply to clipboard
                 reinforcement=False,
                 
-                print_reply=True, print_user=False, print_token=True,
+                print_reply=True, 
+                print_user=False,
+                print_token=True,
                 )
 ```
 ```python
@@ -58,8 +61,24 @@ op.add_persona('Elon Musk')
 op.send_message("""What do you think about OpenAI?""", 'gpt-4o')
 ```
 ```python
-op.add_persona('Vincent Van Gogh')
-op.send_message("""Tell me what you see. Can you paint it?""", 'gpt-4o', img=op.dummy_img)
+op.chat('Your message goes here',
+        max=1000,
+        img='',
+        paste=False,
+        clip=True,
+        token=False,
+        translate = False,
+        create=False)
+```
+
+```python
+elon = GPT('Elon Musk')
+elon.chat("""What do you think about OpenAI?""")
+```
+
+```python
+vincent = GPT('Vincent Van Gogh')
+vincent.chat("""Tell me what you see. Can you paint it?""", img=vincent.dummy_img)
 ```
         
 3. `op.send_image(url,*parameters*)` insert in your chat context gpt-vision, activate  a multimodal chat  
@@ -98,33 +117,36 @@ voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
 response_formats = ["mp3", "flac", "aac", "opus"]
 ```
 
-6. Chat With...
+6. Speak With...
 ```python
-op.chat_with(who='',  
-             message='', 
-             system='',  
-             voice='nova', 
-             language='eng', 
-             gpt='gpt-4-turbo', 
-             tts= 'tts-1', 
-             max=1000, 
-             printall=False)
+op.speak(who='',  
+         message='', 
+         system='',  
+         voice='nova', 
+         language='eng', 
+         gpt='gpt-4-turbo', 
+         tts= 'tts-1', 
+         max=1000, 
+         printall=False)
 
 # Use an in-build assistant or any character of your choice, example:
-op.chat_with('Scorates', 'Tell me about the Truth.', 'onyx')
+socrates = GPT('Socrates')
+socrates.speak('Tell me about the Truth.', 'onyx')
 
 # Endless chat, keyboard controlled
-op.chat_with_loop(who='', system='', voice='nova',  gpt='gpt-4-turbo', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
+socrates.speak_loop(who='', system='', voice='nova',  gpt='gpt-4o', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
 ```
 7. Talk With...
 ```python
-op.talk_with(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False)
+dua = GPT('Dua Lipa')
+dua.talk(voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False)
 
 # Endless talk, keyboard controlled
-op.talk_with_loop(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
+dua.talk_loop(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
 ```
 ```python
-op.talk_with_loop('Friedrich Nietzsche', 'onyx')
+nietzsche = GPT('Friedrich Nietzsche')
+nietzsche.talk_loop('onyx')
 ```
 
 The module also provides additional utility functions for managing the conversation, such as clearing the chat history, setting a persona, and setting system instructions, save/load chats.
@@ -141,12 +163,14 @@ To set-up multiple conversations or change the API-key, follow the example propo
 ## In-Build Assistants
 ```python
 op.display_assistants()
-
+```
+```python
+from pychatgpt import delamain
 # Call an assistant simply by name
-op.delamain('your message',
-            gpt='gpt-4o', 
-            max = 1000, 
-            clip=True)  
+delamain.chat('your message',
+              gpt='gpt-4o', 
+              max = 1000, 
+              clip=True)  
 
 #n.b. assistants sends reply to clipboard by default
 ```

@@ -548,103 +548,7 @@ TTS	    $0.015 / 1K characters
 TTS HD	$0.030 / 1K characters
 '''
 
-####### Speech to Text #######
-def whisper(filepath,
-            translate=False,
-            response_format="text",
-            print_transcription=True):
-    #global transcript
-    audio_file = open(filepath, "rb")
-    if not translate:
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file,
-            response_format=response_format)
-    else:
-        transcript = client.audio.translations.create(
-            model="whisper-1",
-            file=audio_file,
-            response_format=response_format)
-    if print_transcription: print(transcript)
-    audio_file.close()
-    return transcript
 
-# response_format =  ["json", "text", "srt", "verbose_json", "vtt"]
-
-
-####### Text to Speech #######
-
-voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
-response_formats = ["mp3", "flac", "aac", "opus"]
-def text2speech(text,
-                voice="alloy",
-                filename="speech.mp3",
-                model="tts-1",
-                speed=1,
-                play=False):
-    if os.path.exists(filename):
-        os.remove(filename)
-    spoken_response = client.audio.speech.create(
-        model=model, # tts-1 or tts-1-hd
-        voice=voice,
-        input=text,
-        speed=speed
-    )
-    spoken_response.stream_to_file(filename)
-    if play:
-        play_audio(filename)
-
-
-def text2speech_stream(text,
-                       voice="alloy",
-                       model="tts-1",
-                       speed=1):
-    spoken_response = client.audio.speech.create(
-        model=model,
-        voice=voice,
-        response_format="opus",
-        input=text,
-        speed=speed
-    )
-
-    # Create a buffer using BytesIO to store the data
-    buffer = io.BytesIO()
-
-    # Iterate through the 'spoken_response' data in chunks of 4096 bytes and write each chunk to the buffer
-    for chunk in spoken_response.iter_bytes(chunk_size=4096):
-        buffer.write(chunk)
-
-    # Set the position in the buffer to the beginning (0) to be able to read from the start
-    buffer.seek(0)
-
-    with sf.SoundFile(buffer, 'r') as sound_file:
-        data = sound_file.read(dtype='int16')
-        sd.play(data, sound_file.samplerate)
-        sd.wait()
-
-
-#if "silence.mp3" not in os.listdir():
-#    text2speech(' ',filename="silence.mp3")
-
-def speech2speech(voice= 'nova', tts= 'tts-1',
-                  filename="speech2speech.mp3",
-                  translate=False, play=True, info =True, duration=5):
-    #record_audio(duration=duration, filename="audio.mp3")
-    loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=info)
-    transcript = whisper('temp.wav', translate=translate)
-    text2speech(transcript, voice=voice, model= tts, filename=filename, play=play)
-
-def speech2speech_loop(voice='nova', filename="speech2speech.mp3",
-                       translate=False, play=True, tts= 'tts-1',
-                       chat='alt' , exit='shift'):
-    print('Press '+chat+' to record, '+exit+' to exit.')
-    while True:
-        if kb.is_pressed(chat):
-            speech2speech(voice= voice, tts= tts, filename=filename, translate=translate, play=play, info=False)
-            print('Press '+chat+' to record, '+exit+' to exit.')
-        elif kb.is_pressed(exit):
-            print('Loop Stopped')
-            break
 
 
 
@@ -1037,7 +941,7 @@ class GPT:
                 pc.copy(clip_reply)
 
             if play:
-                text2speech_stream(self.reply, voice=voice, model=tts)
+                self.text2speech_stream(self.reply, voice=voice, model=tts)
                 #text2speech_stream(reply)
 
 
@@ -1181,6 +1085,107 @@ class GPT:
         self.create_image(prompt=self.reply, response_format='b64_json', model=model, show_image=True)
 
 
+    ####### Speech to Text #######
+    def whisper(self, filepath,
+                translate=False,
+                response_format="text",
+                print_transcription=True):
+        #global transcript
+        audio_file = open(filepath, "rb")
+        if not translate:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+                response_format=response_format)
+        else:
+            transcript = client.audio.translations.create(
+                model="whisper-1",
+                file=audio_file,
+                response_format=response_format)
+        if print_transcription: print(transcript)
+        audio_file.close()
+        return transcript
+
+    # response_format =  ["json", "text", "srt", "verbose_json", "vtt"]
+
+
+    ####### Text to Speech #######
+
+    voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+    response_formats = ["mp3", "flac", "aac", "opus"]
+    def text2speech(self,
+                    text,
+                    voice="alloy",
+                    filename="speech.mp3",
+                    model="tts-1",
+                    speed=1,
+                    play=False):
+        if os.path.exists(filename):
+            os.remove(filename)
+        spoken_response = client.audio.speech.create(
+            model=model, # tts-1 or tts-1-hd
+            voice=voice,
+            input=text,
+            speed=speed
+        )
+        spoken_response.stream_to_file(filename)
+        if play:
+            play_audio(filename)
+
+
+    def text2speech_stream(self,
+                           text,
+                           voice="alloy",
+                           model="tts-1",
+                           speed=1):
+        spoken_response = client.audio.speech.create(
+            model=model,
+            voice=voice,
+            response_format="opus",
+            input=text,
+            speed=speed
+        )
+
+        # Create a buffer using BytesIO to store the data
+        buffer = io.BytesIO()
+
+        # Iterate through the 'spoken_response' data in chunks of 4096 bytes and write each chunk to the buffer
+        for chunk in spoken_response.iter_bytes(chunk_size=4096):
+            buffer.write(chunk)
+
+        # Set the position in the buffer to the beginning (0) to be able to read from the start
+        buffer.seek(0)
+
+        with sf.SoundFile(buffer, 'r') as sound_file:
+            data = sound_file.read(dtype='int16')
+            sd.play(data, sound_file.samplerate)
+            sd.wait()
+
+
+    #if "silence.mp3" not in os.listdir():
+    #    text2speech(' ',filename="silence.mp3")
+
+    def speech2speech(self, voice= 'nova', tts= 'tts-1',
+                      filename="speech2speech.mp3",
+                      translate=False, play=True, info =True, duration=5):
+        #record_audio(duration=duration, filename="audio.mp3")
+        loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=info)
+        transcript = self.whisper('temp.wav', translate=translate)
+        self.text2speech(transcript, voice=voice, model= tts, filename=filename, play=play)
+
+    def speech2speech_loop(self, voice='nova', filename="speech2speech.mp3",
+                           translate=False, play=True, tts= 'tts-1',
+                           chat='alt' , exit='shift'):
+        print('Press '+chat+' to record, '+exit+' to exit.')
+        while True:
+            if kb.is_pressed(chat):
+                self.speech2speech(voice= voice, tts= tts, filename=filename, translate=translate, play=play, info=False)
+                print('Press '+chat+' to record, '+exit+' to exit.')
+            elif kb.is_pressed(exit):
+                print('Loop Stopped')
+                break
+
+
 
     ###### Talk With ######
     def speak(self,
@@ -1198,7 +1203,7 @@ class GPT:
         else:
             system = system
         self.send_message(message,system=system, model=gpt, maxtoken=max, print_reply=printall, print_token=False)
-        text2speech_stream(self.reply, voice=voice, model=tts)
+        self.text2speech_stream(self.reply, voice=voice, model=tts)
 
 
     def speak_loop(self,
@@ -1232,7 +1237,7 @@ class GPT:
 
         #record_audio(duration, "input.mp3")
         loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printall)
-        transcript = whisper("temp.wav", print_transcription=printall)
+        transcript = self.whisper("temp.wav", print_transcription=printall)
 
         who = self.assistant
         if who in assistants:
