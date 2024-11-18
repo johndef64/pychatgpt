@@ -369,6 +369,7 @@ def aggiorna_json(nuovo_dict, nome_file):
             json.dump([], json_file)  # Save empty list as JSON
     with open('chat_log.json', 'r') as json_file:
         data = json.load(json_file)
+
     data.append(nuovo_dict)
     with open(nome_file, 'w', encoding='utf-8') as file_json:
         json.dump(data, file_json, ensure_ascii=False,  indent=4)
@@ -377,9 +378,11 @@ def update_log(nuovo_dict):
     aggiorna_json(nuovo_dict, 'chat_log.json')
 
 # inizialize log:-----------------------------------
-if not os.path.isfile(current_dir + '/chat_log.json'):
-    salva_in_json({}, 'chat_log.json')
-
+# if not os.path.isfile(current_dir + '/chat_log.json'):
+#     salva_in_json({}, 'chat_log.json')
+if not os.path.exists('chat_log.json'):
+    with open('chat_log.json', 'w') as json_file:
+        json.dump([], json_file)  # Save empty list as JSON
 
 
 ##### LANG #####
