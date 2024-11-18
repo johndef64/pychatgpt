@@ -362,7 +362,7 @@ def salva_in_json(lista_dict, nome_file):
         json.dump(lista_dict, file_json, indent=4)
         file_json.close()
 
-# Funzione per aggiornare il file JSON con un nuovo input
+#Funzione per aggiornare il file JSON con un nuovo input
 def aggiorna_json(nuovo_dict, nome_file):
     try:
         with open(nome_file, 'r', encoding='utf-8') as file_json:
@@ -721,6 +721,11 @@ class GPT:
         self.translate = translate
         self.translate_jap = translate_jap
         self.dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
+
+        if not os.path.exists('chat_log.json'):
+            with open('chat_log.json', 'w') as json_file:
+                json.dump([], json_file)  # Save empty list as JSON
+
 
 
 
