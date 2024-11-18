@@ -694,7 +694,8 @@ models_info='''
 class GPT:
     def __init__(self,
                  assistant='',
-                 persona='',
+                 #persona='',
+                 format='',
                  translate=False,
                  translate_jap=False,
                  model='gpt-4o-mini',
@@ -703,20 +704,22 @@ class GPT:
                  bio=False
                  ):
         self.assistant = assistant
-        self.persona = persona
+        #self.persona = persona
+        if isinstance(model, int): self.model = make_model(model)
         self.model = model
         self.talk_model = talk_model
         self.transcript = ''
-        self.user_name=user_name
+        self.format = format
+        self.user_name = user_name
         self.bio = bio
         self.reply = ''
 
         self.total_tokens = 0  # iniziale token count
         self.token_limit = 0  # iniziale token limit
+        self.chat_thread = [] # iniziale chat thread
         self.keep_persona = True
         self.translate = translate
         self.translate_jap = translate_jap
-        self.chat_thread = []
         self.dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
 
 
@@ -778,15 +781,15 @@ class GPT:
 
     def ask(self,
             prompt,
-            system= 'you are an helpful assistant',
+            system='you are an helpful assistant',
             #model = model,
-            maxtoken = 800,
-            lag = 0.00,
-            temperature = 1,
-            print_user = False,
-            print_reply = True,
-            save_chat = True,
-            to_clip = False
+            maxtoken=800,
+            lag=0.00,
+            temperature=1,
+            print_user=False,
+            print_reply=True,
+            save_chat=True,
+            to_clip=False
             ):
 
         model = self.model
@@ -801,11 +804,11 @@ class GPT:
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt}
             ],
-            temperature = temperature,
-            max_tokens = maxtoken,
-            top_p = 1,
-            frequency_penalty = 0,
-            presence_penalty = 0)
+            temperature=temperature,
+            max_tokens=maxtoken,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0)
 
         if print_user:
             print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
@@ -910,29 +913,23 @@ class GPT:
         return self.reply
 
     def add_system(self, system='', reinforcement=False):
-        if not reinforcement:
-            sys_duplicate = []
-            for entry in self.chat_thread:
-                x = system == entry.get('content')
-                sys_duplicate.append(x)
-                if x:
-                    break
-        else:
-            sys_duplicate = [False]
-
-        if system != '' and not any(sys_duplicate):
+        if system in assistants :
+            system = self.assistant
+        if not any(item == {"role": "system", "content": system} for item in self.chat_thread) or reinforcement:
             self.chat_thread.append({"role": "system", "content": system})
 
-        if self.assistant != '' and not any(sys_duplicate):
-            self.chat_thread.append({"role": "system", "content": self.assistant})
-
+    def add_format(self, format):
+        reply_styles = features['reply_style']
+        if any(item == {"role": "system", "content": reply_styles} for item in self.chat_thread):
+            self.chat_thread = [item for item in self.chat_thread if item != {"role": "system", "content": reply_styles}]
+        self.chat_thread.append({"role": "system", "content": reply_styles[format]})
 
     # Request Functions ================================
 
     def send_message(self, message,
                      model=model,        # choose openai model (choose_model())
                      system='',          # 'system' instruction
-                     img = '',           # insert an image path to activate gpt vision
+                     img='',           # insert an image path to activate gpt vision
 
                      maxtoken=800,       # max tokens in reply
                      temperature=1,      # output randomness [0-2]
@@ -942,7 +939,7 @@ class GPT:
                      dalle="dall-e-2",   # choose dall-e model
                      size='512x512',
 
-                     play= False,        # play audio response
+                     play=False,        # play audio response
                      voice='nova',       # choose voice (op.voices)
                      tts="tts-1",        # choose tts model
 
@@ -956,8 +953,7 @@ class GPT:
                      print_debug=False
                      ):
 
-        if isinstance(model, int):
-            model = make_model(model)
+        if isinstance(model, int): model = make_model(model)
 
         if print_debug: print('using model: ',model)
 
@@ -981,7 +977,10 @@ class GPT:
                          show_image=True)
         else:
             # add system instruction
-            self.add_system(system, reinforcement=reinforcement)
+            if system != '':
+                self.add_system(system, reinforcement=reinforcement)
+            if self.format !='':
+                self.add_format(self.format)
 
             # check token limit---------------------
             if self.total_tokens > token_limit:
@@ -1002,14 +1001,14 @@ class GPT:
             # send message----------------------------
             messages = self.build_messages(self.chat_thread)
             response = client.chat.completions.create(
-                model = model,
-                messages = messages,
-                temperature = temperature,
+                model=model,
+                messages=messages,
+                temperature=temperature,
                 stream=True,
-                max_tokens = maxtoken,  # set max token
-                top_p = 1,
-                frequency_penalty = 0,
-                presence_penalty = 0
+                max_tokens=maxtoken,  # set max token
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
             )
 
             # stream reply ---------------------------------------------
@@ -1258,7 +1257,7 @@ class GPT:
     ####### Assistants #######
     def chat(self,
              m,
-             max=1000, img='', paste = False, clip=True, token=False, translate = False, create=False):
+             max=1000, img='', paste=False, clip=True, token=False, translate = False, create=False):
         gpt = self.model
         who = self.assistant
         if who in assistants:
@@ -1302,9 +1301,7 @@ class GPT:
         self.chat(m=m, max=max, img=img, paste=paste, clip=clip, token=token, translate=translate, create=create)
 
     def chat_loop(self,
-                  #who='',
                   system='',
-                  #gpt = model,
                   max=1000, language='eng', exit_chat= 'stop', printall=True):
         gpt = self.model
         who = self.assistant
@@ -1374,22 +1371,21 @@ C = GPT(assistant='roger')
 
 
 # Scientific Assistants
-galileo = GPT(assistant='galileo')
-newton = GPT(assistant='newton')
 leonardo = GPT(assistant='leonardo')
+newton = GPT(assistant='leonardo', format='python')
+galileo = GPT(assistant='leonardo', format='markdown')
 mendel = GPT(assistant='mendel')
-watson = GPT(assistant='watson')
-crick = GPT(assistant='crick')
-venter = GPT(assistant='venter')
-watson = GPT(assistant='watson')
+watson = GPT(assistant='mendel', format='latex')
+venter = GPT(assistant='mendel', format='python')
+crick = GPT(assistant='mendel', format='markdown')
 darwin = GPT(assistant='darwin')
-dawkins = GPT(assistant='dawkins')
-turing = GPT(assistant='turing')
+dawkins = GPT(assistant='darwin', format='markdown')
 penrose = GPT(assistant='penrose')
-marker = GPT(assistant='marker')
+turing = GPT(assistant='penrose', format='python')
+marker = GPT(assistant='penrose', format='markdown')
 collins = GPT(assistant='collins')
-springer = GPT(assistant='springer')
-elsevier = GPT(assistant='elsevier')
+elsevier = GPT(assistant='collins', format='latex')
+springer = GPT(assistant='collins', format='markdown')
 
 
 # Characters
