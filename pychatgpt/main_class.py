@@ -696,6 +696,7 @@ class GPT:
                  assistant='',
                  persona='',
                  translate=False,
+                 translate_jap=False,
                  model='gpt-4o-mini',
                  talk_model='gpt-4o-2024-08-06',
                  user_name = '',
@@ -714,6 +715,7 @@ class GPT:
         self.token_limit = 0  # iniziale token limit
         self.keep_persona = True
         self.translate = translate
+        self.translate_jap = translate_jap
         self.chat_thread = []
         self.dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
 
@@ -1284,9 +1286,13 @@ class GPT:
                           to_clip=clip,
                           print_token=token,
                           create=create)
+
         if translate or self.translate:
+            translator = create_translator(rileva_lingua(m))
+            if self.translate_jap:
+                translator = create_jap_translator(rileva_lingua(m))
             print('\n')
-            self.ask(self.reply, create_translator(rileva_lingua(m)))
+            self.ask(self.reply, translator)
 
     def chatp(self, m, max=1000, img='', clip=True, token=False, translate= False, create=False):
         self.chat(m=m, max=max, img=img, paste=True, clip=clip, token=token, translate=translate, create=create)
@@ -1393,8 +1399,8 @@ michael = GPT(assistant='michael', translate=True, bio=True)
 miguel = GPT(assistant='miguel', translate=True, bio=True)
 francois = GPT(assistant='francois', translate=True, bio=True)
 luca = GPT(assistant='luca', translate=True, bio=True)
-hero = GPT(assistant='hero', translate=True, bio=True)
-yoko = GPT(assistant='yoko', translate=True, bio=True)
+hero = GPT(assistant='hero', translate=True, translate_jap=True, bio=True)
+yoko = GPT(assistant='yoko', translate=True, translate_jap=True, bio=True)
 
 # Languages
 japanese_teacher = GPT(assistant='japanese_teacher')

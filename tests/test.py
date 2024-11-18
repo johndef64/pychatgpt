@@ -1,47 +1,24 @@
-from pychatgpt import luca, michael, yoko, C, Cp, chatgpt, show_chat, pc, GPT
-
-#%%
-def test_assistant(assistant_, m):
-    if assistant_ == 'luca':
-        luca(m)
-    elif assistant_ == 'michael':
-        michael(m)
-    elif assistant_ == 'yoko':
-        yoko(m)
-    elif assistant_ == 'copilot':
-        C(m)
-    else:
-        chatgpt(m)
-#%%
-
-test_assistant('michael', 'ciao Michael, come stai oggi?')
-#%%
-show_chat()
-#%%
-yoko('ciao Yoko come stai?')
+from pychatgpt import julia, yoko, C, GPT
 
 
+#%%
+julia.model = 4
+julia.chat('come stai oggi?')
+#%%
+julia.chat('Cosè questo?', img=julia.dummy_img)
+#%%
+julia.chat_thread
+#%%
+#%%
+julia.create_image("Crea ua bella fan art di Sailor Mercury", model='dall-e-3')
+#%%
+yoko.model = 4
+yoko.chat('@Che gusto di gelato ti piace?')
 
-
-#%% Alternative architecture:
-
-# Crea un'istanza della classe GPT
-op = GPT()
-michael = GPT().michael
-michael('@mi chiamo Giovanni ')
-#%%
-michael('Come mi chiamo Bro?')
 #%%
 
+C.chatp('correggi questo codice: \n')
 #%%
-# Usa il metodo galileo sull'istanza
-op.julia('My name is John')
-print()
-op.julia('I live in New York City')
-print()
-op.julia('Who am I?')
-#%%
-op.chat_thread
-#%%
-print()
-op.julia('What is this?', img=op.dummy_img)
+
+topo_gigio = GPT(assistant='Topo Gigio')
+topo_gigio.chat('ciao come stai?')
