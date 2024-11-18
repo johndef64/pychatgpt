@@ -262,29 +262,29 @@ def while_kb_press(start='alt',stop='ctrl'):
 
 
 gpt_models_dict = {
-        "gpt-4o": 128000,
-        "gpt-4o-2024-05-13": 128000,
-        "gpt-4o-2024-08-06": 128000,
-        "chatgpt-4o-latest": 128000,
-        "gpt-4o-mini": 128000,
-        "gpt-4o-mini-2024-07-18": 128000,
-        "o1-preview": 128000,
-        "o1-preview-2024-09-12": 128000,
-        "o1-mini": 128000,
-        "o1-mini-2024-09-12": 128000,
-        "gpt-4-turbo": 128000,
-        "gpt-4-turbo-2024-04-09": 128000,
-        "gpt-4-turbo-preview": 128000,
-        "gpt-4-0125-preview": 128000,
-        "gpt-4-1106-preview": 128000,
-        "gpt-4": 8192,
-        "gpt-4-0613": 8192,
-        "gpt-4-0314": 8192,
-        "gpt-3.5-turbo-0125": 16385,
-        "gpt-3.5-turbo": 16385,
-        "gpt-3.5-turbo-1106": 16385,
-        "gpt-3.5-turbo-instruct": 4096
-    }
+    "gpt-4o": 128000,
+    "gpt-4o-2024-05-13": 128000,
+    "gpt-4o-2024-08-06": 128000,
+    "chatgpt-4o-latest": 128000,
+    "gpt-4o-mini": 128000,
+    "gpt-4o-mini-2024-07-18": 128000,
+    "o1-preview": 128000,
+    "o1-preview-2024-09-12": 128000,
+    "o1-mini": 128000,
+    "o1-mini-2024-09-12": 128000,
+    "gpt-4-turbo": 128000,
+    "gpt-4-turbo-2024-04-09": 128000,
+    "gpt-4-turbo-preview": 128000,
+    "gpt-4-0125-preview": 128000,
+    "gpt-4-1106-preview": 128000,
+    "gpt-4": 8192,
+    "gpt-4-0613": 8192,
+    "gpt-4-0314": 8192,
+    "gpt-3.5-turbo-0125": 16385,
+    "gpt-3.5-turbo": 16385,
+    "gpt-3.5-turbo-1106": 16385,
+    "gpt-3.5-turbo-instruct": 4096
+}
 
 class Tokenizer:
     def __init__(self, encoder="gpt-4"):
@@ -364,11 +364,11 @@ def salva_in_json(lista_dict, nome_file):
 
 #Funzione per aggiornare il file JSON con un nuovo input
 def aggiorna_json(nuovo_dict, nome_file):
-    try:
-        with open(nome_file, 'r', encoding='utf-8') as file_json:
-            data = json.load(file_json)
-    except FileNotFoundError:
-        data = []
+    if not os.path.exists('chat_log.json'):
+        with open('chat_log.json', 'w') as json_file:
+            json.dump([], json_file)  # Save empty list as JSON
+    with open('chat_log.json', 'r') as json_file:
+        data = json.load(json_file)
     data.append(nuovo_dict)
     with open(nome_file, 'w', encoding='utf-8') as file_json:
         json.dump(data, file_json, ensure_ascii=False,  indent=4)
@@ -874,16 +874,16 @@ class GPT:
 
         if img != '':
             self.send_image(img, message, system,
-                       model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                       maxtoken=maxtoken, lag=lag, print_reply=print_reply, to_clip=to_clip)
+                            model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+                            maxtoken=maxtoken, lag=lag, print_reply=print_reply, to_clip=to_clip)
         elif create:
             self.create_image(message,
-                         model=dalle,
-                         size=size,
-                         response_format='b64_json',
-                         quality="standard",
-                         time_flag=True,
-                         show_image=True)
+                              model=dalle,
+                              size=size,
+                              response_format='b64_json',
+                              quality="standard",
+                              time_flag=True,
+                              show_image=True)
         else:
             # add system instruction
             if system != '':
@@ -975,16 +975,16 @@ class GPT:
 
         # expand chat
         self.chat_thread.append({"role": 'user',
-                            "content": [
-                                {"type": "text", "text": message},
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": image_path,
-                                    },
-                                },
-                            ]
-                            })
+                                 "content": [
+                                     {"type": "text", "text": message},
+                                     {
+                                         "type": "image_url",
+                                         "image_url": {
+                                             "url": image_path,
+                                         },
+                                     },
+                                 ]
+                                 })
 
         # send message----------------------------
         messages = self.build_messages(self.chat_thread)
