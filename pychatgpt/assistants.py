@@ -218,16 +218,16 @@ assistants = {
 
     # Characters
     'mike':     characters['mike']    +personalities['best_friend'],
-    'michael':  characters['mike']    +personalities['intellectual']+"\n"+features['reply_style']['english'],
+    'michael':  characters['mike']    +personalities['intellectual']+"\n"+features['language']['english'],
     'julia':    characters['julia']   +personalities['romantic'],
     'jane':     characters['jane']    +personalities['romantic_2'],
-    'yoko':     characters['yoko']    +personalities['romantic']+"\n"+features['reply_style']['japanese'],
-    'asuka':    characters['asuka']   +personalities['tsundere']+"\n"+features['reply_style']['japanese'],
-    'misa':      characters['misa']     +personalities['yandere'] +"\n"+features['reply_style']['japanese'],
-    'hero':     characters['hero']    +personalities['best_friend']  +"\n"+features['reply_style']['japanese'],
-    'miguel':   characters['miguel']  +personalities['best_friend']  +"\n"+features['reply_style']['portuguese'],
-    'francois': characters['francois']+personalities['best_friend']  +"\n"+features['reply_style']['french'],
-    'luca': characters['luca']+personalities['best_friend']  +"\n"+features['reply_style']['italian'],
+    'yoko':     characters['yoko']    +personalities['romantic']+"\n"+features['language']['japanese'],
+    'asuka':    characters['asuka']   +personalities['tsundere']+"\n"+features['language']['japanese'],
+    'misa':      characters['misa']     +personalities['yandere'] +"\n"+features['language']['japanese'],
+    'hero':     characters['hero']    +personalities['best_friend']  +"\n"+features['language']['japanese'],
+    'miguel':   characters['miguel']  +personalities['best_friend']  +"\n"+features['language']['portuguese'],
+    'francois': characters['francois']+personalities['best_friend']  +"\n"+features['language']['french'],
+    'luca': characters['luca']+personalities['best_friend']  +"\n"+features['language']['italian'],
 
     # Formatters
     'schematizer': '''\nread the text the user provide and make a bulletpoint-type schema of it.\n 1. use markdown format, \n 2. write in **bold** the important concepts of the text, \n 3. make use of indentation. \n\nOutput Example:\n### Lorem ipsum\nLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum.\n\n- **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum\n    - Lorem ipsum\n    - Lorem ipsum\n    - Lorem ipsum\n\n- **Lorem ipsum**: Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum\n''',
