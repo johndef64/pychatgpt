@@ -169,7 +169,7 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         api_key = my_key
     else:
         psw = input('if not, you can insert here you DEV password:')
-        api_key =  simple_decrypter(psw, api_hash)
+        api_key = simple_decrypter(psw, api_hash)
 else:
     api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 client = OpenAI(api_key=str(api_key))
@@ -294,7 +294,7 @@ def tokenizer(text):
     return Tokenizer().tokens(text)
 
 
-def get_gitfile(url, flag='', dir = os.getcwd()):
+def get_gitfile(url, flag='', dir=os.getcwd()):
     url = url.replace('blob','raw')
     response = requests.get(url)
     file_name = flag + url.rsplit('/',1)[1]
@@ -363,9 +363,9 @@ def salva_in_json(lista_dict, nome_file):
 #Funzione per aggiornare il file JSON con un nuovo input
 def aggiorna_json(nuovo_dict, nome_file):
     if not os.path.exists('chat_log.json'):
-        with open('chat_log.json', 'w') as json_file:
+        with open('chat_log.json', encoding='utf-8') as json_file:
             json.dump([], json_file)  # Save empty list as JSON
-    with open('chat_log.json', 'r') as json_file:
+    with open('chat_log.json', 'r', encoding='utf-8') as json_file:
         data = json.load(json_file)
 
     data.append(nuovo_dict)
@@ -599,23 +599,26 @@ models_info='''
 class GPT:
     def __init__(self,
                  assistant='',
-                 #persona='',
+                 persona='',
                  format='',
                  translate=False,
                  translate_jap=False,
+                 save_log=True,
+                 to_clip=True,
+                 print_token=True,
                  model='gpt-4o-mini',
                  talk_model='gpt-4o-2024-08-06',
-                 user_name = '',
+                 user_name='',
                  bio=False
                  ):
         self.assistant = assistant
-        #self.persona = persona
-        if isinstance(model, int): self.model = make_model(model)
-        self.model = model
-        self.talk_model = talk_model
+        self.persona = persona
         self.transcript = ''
         self.format = format
         self.user_name = user_name
+        self.save_log = save_log
+        self.to_clip = to_clip
+        self.print_token = print_token
         self.bio = bio
         self.reply = ''
 
@@ -631,8 +634,39 @@ class GPT:
             with open('chat_log.json', 'w') as json_file:
                 json.dump([], json_file)  # Save empty list as JSON
 
+        # init model
+        if isinstance(model, int):
+            self.model = make_model(model)
+        else:
+            self.model = model
+        self.talk_model = talk_model
 
+        # init assistant
+        who = self.assistant
+        if self.assistant in assistants:
+            self.add_system(assistants[who])
+        elif len(who.split()) < 8:
+            self.add_persona(who)
+        elif len(who.split()) >= 8:
+            self.add_system(self.assistant)
+        else:
+            pass
 
+        if self.bio:
+            self.add_bio()#add = "and you are his assistant. ***")
+            # "and you are his best friend. ***")
+
+    def add_system(self, system='', reinforcement=False):
+        if system in assistants :
+            system = self.assistant
+        if not any(item == {"role": "system", "content": system} for item in self.chat_thread) or reinforcement:
+            self.chat_thread.append({"role": "system", "content": system})
+
+    def add_format(self, format_):
+        reply_styles = features['reply_style']
+        if any(item == {"role": "system", "content": reply_styles} for item in self.chat_thread):
+            self.chat_thread = [item for item in self.chat_thread if item != {"role": "system", "content": reply_styles}]
+        self.chat_thread.append({"role": "system", "content": reply_styles[format_]})
 
     def add_persona(self, char, language='eng'):
         self.persona = char
@@ -655,103 +689,7 @@ class GPT:
             self.expand_chat('''*** Your interlocutor is called '''+ self.user_name + add+'***', 'system')
 
 
-    ###### Base Functions ######
-
-    def choose_model(self):
-        model_series =  pd.Series(gpt_models_dict.keys())
-        model_id = input('choose model by id:\n'+str(model_series))
-        model = model_series[int(model_id)]
-        self.model = model
-        print('*Using', model, 'model*')
-
-
-    def select_assistant(self):
-        self.clearchat()
-        assistant_id = int(input('choose by id:\n'+str(assistants_df)))
-        assistant = assistants_df.instructions[assistant_id]
-        self.assistant = assistant
-        print('\n*Assistant:', assistants_df.assistant[assistant_id])
-
-    def clearchat(self, warning=True):
-        self.chat_thread = []
-        self.total_tokens = 0
-        if warning: print('*chat cleared*\n')
-
-
-    def display_assistants(self):
-        print('Available Assistants:')
-        display(assistants_df)
-
-
-
-
-    ##################  REQUESTS #####################
-
-    ###### Question-Answer-GPT ######
-
-    def ask(self,
-            prompt,
-            system='you are an helpful assistant',
-            #model = model,
-            maxtoken=800,
-            lag=0.00,
-            temperature=1,
-            print_user=False,
-            print_reply=True,
-            save_chat=True,
-            to_clip=False
-            ):
-
-        model = self.model
-        reply = self.reply
-        if isinstance(model, int): model = make_model(model)
-
-        response = client.chat.completions.create(
-            # https://platform.openai.com/docs/models/gpt-4
-            model=model,
-            stream=True,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=temperature,
-            max_tokens=maxtoken,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0)
-
-        if print_user:
-            print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
-            print('user:',print_mess,'\n...')
-
-        collected_messages = []
-        for chunk in response:
-            chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-            collected_messages.append(chunk_message)
-            if print_reply:
-                if chunk_message is not None:
-                    time.sleep(lag)
-                    print(chunk_message, end='')
-
-            reply = ''.join(collected_messages).strip()
-
-        time.sleep(1)
-
-        # Add the assistant's reply to the chat log
-        #if save_chat:
-        #    #write_log(reply, prompt)
-        #    update_log(chat_thread[-2])
-        #    update_log(chat_thread[-1])
-
-        if to_clip and has_copy_paste:
-            pc.copy(reply)
-
-
-
-    ############ Chat GPT ############
-
     def expand_chat(self, message, role="user"):
-        #print('default setting (role = "user") to change role replace with "assistant" or "system"')
         if message.startswith("@"):
             self.clearchat()
             message = message.lstrip("@")
@@ -765,22 +703,22 @@ class GPT:
             messages.append({"role": message["role"], "content": message["content"]})
         return messages
 
-    def save_chat(self, path='chats/', chatname = '', prompt=True):
+    def save_chat(self, path='chats/', chat_name='', prompt=True):
         if prompt:
-            chatname = input('chat name:')
+            chat_name = input('chat name:')
         if not os.path.exists('chats'):
             os.mkdir('chats')
-        salva_in_json(self.chat_thread, path+chatname+'.json')
+        salva_in_json(self.chat_thread, path+chat_name+'.json')
 
 
-    def load_chat(self, contains= '', path='chats/', log= True):
+    def load_chat(self, contains='', path='chats/', log=True):
         files_df = display_files_as_pd(path, ext='json',contains=contains)
         files_df = files_df.sort_values().reset_index(drop=True)
         files_df_rep = files_df.str.replace('.json','',regex =True)
         files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
         filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))])
         with open(path+filename,'r') as file:
-            chat_thread = ast.literal_eval(file.read())
+            self.chat_thread = ast.literal_eval(file.read())
             file.close()
         if log: print('*chat',filename,'loaded*')
 
@@ -790,8 +728,6 @@ class GPT:
     def pop_chat(self):
         self.chat_thread = self.chat_thread.pop()
         print(self.chat_thread)
-
-
 
     def chat_tokenizer(self, print_token=True):
         context_fix = (str(self.chat_thread).replace("{'role': 'system', 'content':", "")
@@ -822,19 +758,102 @@ class GPT:
         self.reply = ''.join(collected_messages).strip()
         return self.reply
 
-    def add_system(self, system='', reinforcement=False):
-        if system in assistants :
-            system = self.assistant
-        if not any(item == {"role": "system", "content": system} for item in self.chat_thread) or reinforcement:
-            self.chat_thread.append({"role": "system", "content": system})
 
-    def add_format(self, format):
-        reply_styles = features['reply_style']
-        if any(item == {"role": "system", "content": reply_styles} for item in self.chat_thread):
-            self.chat_thread = [item for item in self.chat_thread if item != {"role": "system", "content": reply_styles}]
-        self.chat_thread.append({"role": "system", "content": reply_styles[format]})
 
-    # Request Functions ================================
+    ###### Base Functions ######
+
+    def choose_model(self):
+        model_series =  pd.Series(gpt_models_dict.keys())
+        model_id = input('choose model by id:\n'+str(model_series))
+        model = model_series[int(model_id)]
+        self.model = model
+        print('*Using', model, 'model*')
+
+
+    def select_assistant(self):
+        self.clearchat(keep_system=False)
+        assistant_id = int(input('choose by id:\n'+str(assistants_df)))
+        assistant = assistants_df.instructions[assistant_id]
+        self.assistant = assistant
+        print('\n*Assistant:', assistants_df.assistant[assistant_id])
+
+    def clearchat(self, warning=True, keep_system=True):
+        if keep_system:
+            self.chat_thread = [line for line in self.chat_thread if line.get("role") == "system"]
+        else:
+            self.chat_thread = []
+        self.total_tokens = 0
+        if warning: print('*chat cleared*\n')
+
+
+    def display_assistants(self):
+        print('Available Assistants:')
+        display(assistants_df)
+
+
+
+
+    ##################  REQUESTS #####################
+
+    ###### Question-Answer-GPT ######
+
+    def ask(self,
+            prompt,
+            system='you are an helpful assistant',
+            #model = model,
+            maxtoken=800,
+            lag=0.00,
+            temperature=1,
+            print_user=False,
+            print_reply=True
+            ):
+
+        model = self.model
+        if isinstance(model, int): model = make_model(model)
+
+        response = client.chat.completions.create(
+            # https://platform.openai.com/docs/models/gpt-4
+            model=model,
+            stream=True,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=temperature,
+            max_tokens=maxtoken,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0)
+
+        if print_user:
+            print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
+            print('user:',print_mess,'\n...')
+
+        collected_messages = []
+        for chunk in response:
+            chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+            collected_messages.append(chunk_message)
+            if print_reply:
+                if chunk_message is not None:
+                    time.sleep(lag)
+                    print(chunk_message, end='')
+
+            self.reply = ''.join(collected_messages).strip()
+
+        time.sleep(0.85)
+
+        # Add the assistant's reply to the chat log
+        #if save_chat:
+        #    #write_log(reply, prompt)
+        #    update_log(chat_thread[-2])
+        #    update_log(chat_thread[-1])
+
+        if self.to_clip and has_copy_paste:
+            pc.copy(self.reply)
+
+
+
+    ############ Chat GPT ############
 
     def send_message(self, message,
                      model=model,        # choose openai model (choose_model())
@@ -853,8 +872,6 @@ class GPT:
                      voice='nova',       # choose voice (op.voices)
                      tts="tts-1",        # choose tts model
 
-                     save_chat=True,     # update chat_log.txt
-                     to_clip=False,       # send reply to clipboard
                      reinforcement=False,
 
                      print_reply=True,
@@ -864,7 +881,6 @@ class GPT:
                      ):
 
         if isinstance(model, int): model = make_model(model)
-
         if print_debug: print('using model: ',model)
 
         token_limit = set_token_limit(model, maxtoken)
@@ -876,7 +892,7 @@ class GPT:
         if img != '':
             self.send_image(img, message, system,
                             model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                            maxtoken=maxtoken, lag=lag, print_reply=print_reply, to_clip=to_clip)
+                            maxtoken=maxtoken, lag=lag, print_reply=print_reply)
         elif create:
             self.create_image(message,
                               model=dalle,
@@ -889,7 +905,7 @@ class GPT:
             # add system instruction
             if system != '':
                 self.add_system(system, reinforcement=reinforcement)
-            if self.format !='':
+            if self.format != '':
                 self.add_format(self.format)
 
             # check token limit---------------------
@@ -932,12 +948,12 @@ class GPT:
             self.total_tokens = self.chat_tokenizer(print_token)
 
             # Add the assistant's reply to the chat log-------------
-            if save_chat:
+            if self.save_log:
                 #write_log(reply, message)
                 update_log(self.chat_thread[-2])
                 update_log(self.chat_thread[-1])
 
-            if to_clip and has_copy_paste:
+            if self.to_clip and has_copy_paste:
                 clip_reply = self.reply.replace('```', '###')
                 pc.copy(clip_reply)
 
@@ -953,7 +969,7 @@ class GPT:
                    message="What’s in this image?",
                    system='',     # add 'system' instruction
                    model="gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                   maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
+                   maxtoken=1000, lag=0.00, print_reply=True):
         if image_path == '':
             image_path = self.dummy_img
 
@@ -1010,7 +1026,7 @@ class GPT:
         # count tokens-------------------------------
         self.total_tokens = self.chat_tokenizer(True)
 
-        if to_clip and has_copy_paste:
+        if self.to_clip and has_copy_paste:
             clip_reply = self.reply.replace('```', '###')
             pc.copy(clip_reply)
 
@@ -1094,15 +1110,9 @@ class GPT:
         #global transcript
         audio_file = open(filepath, "rb")
         if not translate:
-            transcript = client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file,
-                response_format=response_format)
+            transcript = client.audio.transcriptions.create( model="whisper-1", file=audio_file, response_format=response_format)
         else:
-            transcript = client.audio.translations.create(
-                model="whisper-1",
-                file=audio_file,
-                response_format=response_format)
+            transcript = client.audio.translations.create( model="whisper-1", file=audio_file, response_format=response_format)
         if print_transcription: print(transcript)
         audio_file.close()
         return transcript
@@ -1187,7 +1197,6 @@ class GPT:
                 break
 
 
-
     ###### Talk With ######
     def speak(self,
               message='',
@@ -1264,36 +1273,25 @@ class GPT:
                 break
 
 
-
     ####### Assistants #######
     def chat(self,
              m,
-             max=1000, img='', paste=False, clip=True, token=False, translate = False, create=False):
-        gpt = self.model
-        who = self.assistant
-        if who in assistants:
-            sys = assistants[who]
-        elif len(who.split()) < 8:
-            self.add_persona(who)
-            sys = ''
-        else:
-            sys = who
+             gpt=None,
+             max=1000, img='', paste=False, token=False, translate=False, create=False):
 
-        if paste:
-            p = pc.paste()
-        else:
-            p = ''
+        gpt = gpt or self.model
+
+        p = pc.paste() if paste else ''
 
         if self.bio:
             self.add_bio()#add = "and you are his assistant. ***")
             # "and you are his best friend. ***")
 
         self.send_message(m+p,
-                          system=sys,
+                          #system=sys,
                           maxtoken=max,
                           model=gpt,
-                          img= img,
-                          to_clip=clip,
+                          img=img,
                           print_token=token,
                           create=create)
 
@@ -1304,12 +1302,19 @@ class GPT:
             print('\n')
             self.ask(self.reply, translator)
 
-    def chatp(self, m, max=1000, img='', clip=True, token=False, translate= False, create=False):
-        self.chat(m=m, max=max, img=img, paste=True, clip=clip, token=token, translate=translate, create=create)
+    ct = chat
 
-    def chati(self, m, max=1000,  paste=False, clip=True, token=False, translate= False, create=False):
-        img = pc.paste()
-        self.chat(m=m, max=max, img=img, paste=paste, clip=clip, token=token, translate=translate, create=create)
+    def cp(self, *args, **kwargs):
+        # Passes all positional and keyword arguments to the chat method, setting paste to True
+        kwargs['paste'] = True  # Ensure paste is always set to True
+        self.chat(*args, **kwargs)
+
+    def ci(self, *args, **kwargs):
+        kwargs['img'] = pc.paste()
+        self.chat(*args, **kwargs)
+
+    # def cp(self, m, max=1000, img='', clip=True, token=False, translate= False, create=False):
+    #     self.chat(m=m, max=max, img=img, paste=True, clip=clip, token=token, translate=translate, create=create)
 
     def chat_loop(self,
                   system='',
