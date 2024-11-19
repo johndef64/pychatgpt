@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='pychatgpt',
+    name='mychatgpt',
     version='0.1',
     packages=find_packages(),  # Automatically find packages in your project
     install_requires=[         # Optional: specify dependencies
@@ -15,7 +15,7 @@ setup(
     #},
     author='JohnDef64',
     #author_email='youremail@example.com',
-    description="""pychatgpt is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.""",
+    description="""mychatgpt is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.""",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/johndef64/pychatgpt',

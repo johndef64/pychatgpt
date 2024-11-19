@@ -1,4 +1,4 @@
-from pychatgpt import julia, yoko, watson, C, GPT
+from mychatgpt import julia, yoko, watson, C, GPT
 
 julia.chat('How are you today?')
 #%%
