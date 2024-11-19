@@ -1,5 +1,5 @@
 # MyChatGPT 2.0: Python Module
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) [![PyPI Latest Release](https://img.shields.io/pypi/v/mychatgpt.svg)](https://pypi.org/project/mychatgpt/) 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/mychatgpt/blob/main/notebooks/mychatgpt_trial.ipynb) [![PyPI Latest Release](https://img.shields.io/pypi/v/mychatgpt.svg)](https://pypi.org/project/mychatgpt/) 
 
 `mychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
 
@@ -33,41 +33,32 @@ Use `op.send_message(message)` keeping the default *parameters* or change them a
 
 ```python
 from mychatgpt import GPT
-op = GPT()
 
-op.send_message('Your message goes here',
-                model='gpt-3.5-turbo', # choose openai model 
-                system='',          # add 'system' instruction
-                img = '',           # insert an image path to activate gpt vision
-                maxtoken=800,       # max tokens in reply
-                temperature=1,      # output randomness [0-2]
-                lag=0.00,           # word streaming lag
+op = GPT(assistant='',            # in-build assistant name 
+         persona='',              # any known character
+         format='',               # output format (latex,python,markdown)
+         translate=False,         # translate outputs
+         translate_jap=False,     # translate in jap outputs
+         save_log=True,           # save log file
+         to_clip=True,            # send reply t clipboard
+         print_token=True,        # print token count
+         model='gpt-4o-mini',     # set openai main model
+         talk_model='gpt-4o-2024-08-06', # set openai speak model
+         dalle="dall-e-2",        # set dall-e model
+         image_size='512x512',    # set generated image size
+         )
 
-                create=False,       # image prompt
-                dalle="dall-e-2",   # choose dall-e model
-                size='512x512',
+op.chat('Your message goes here', 
+        max=1000,          # max tokens in reply
+        img='',            # insert an image path to activate gpt vision
+        paste=False,       # append clipboard to message
+        create=False       # create an image
+        )
 
-                play= False,        # play audio response
-                voice='nova',       # choose voice (op.voices)
-                tts="tts-1",        # choose tts model
-				reinforcement=False,
-                
-                print_reply=True, 
-                print_user=False,
-                print_token=True,
-                )
 ```
 ```python
 op.add_persona('Elon Musk')
-op.send_message("""What do you think about OpenAI?""", 'gpt-4o')
-```
-```python
-op.chat('Your message goes here',
-        max=1000,
-        img='',
-        paste=False,
-        translate = False,
-        create=False)
+op.chat("""What do you think about OpenAI?""")
 ```
 
 ```python
@@ -87,7 +78,7 @@ op.send_image(image="https://repo.com/image.jpg",
               system = '',     # add 'system' instruction
               model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
               maxtoken=1000, 
-              lag=0.00, printreply=True, to_clip=True)
+              lag=0.00, printreply=True)
 ```
 4. `op.create_image(prompt,*parameters*)`
 ```python
@@ -118,22 +109,19 @@ response_formats = ["mp3", "flac", "aac", "opus"]
 
 6. Speak With...
 ```python
-op.speak(who='',  
-         message='', 
-         system='',  
+op.speak(message='',
+         system='',
          voice='nova', 
          language='eng', 
-         gpt='gpt-4-turbo', 
-         tts= 'tts-1', 
-         max=1000, 
-         printall=False)
+         tts= 'tts-1', max=1000, printall=False)
 
 # Use an in-build assistant or any character of your choice, example:
 socrates = GPT('Socrates')
 socrates.speak('Tell me about the Truth.', 'onyx')
 
 # Endless chat, keyboard controlled
-socrates.speak_loop(who='', system='', voice='nova',  gpt='gpt-4o', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
+socrates.speak_loop(system='',
+                    voice='nova', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
 ```
 7. Talk With...
 ```python
@@ -141,7 +129,7 @@ dua = GPT('Dua Lipa')
 dua.talk(voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False)
 
 # Endless talk, keyboard controlled
-dua.talk_loop(who, voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
+dua.talk_loop(voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
 ```
 ```python
 nietzsche = GPT('Friedrich Nietzsche')
@@ -157,14 +145,14 @@ The module also provides additional utility functions for managing the conversat
 5. `load_chat()`
 6. `load_file()`
 
-To set-up multiple conversations or change the API-key, follow the example proposed in [pychatgpt_trial.ipynb](https://github.com/johndef64/pychatgpt/blob/main/pychatgpt_trial.ipynb)
+To set-up multiple conversations or change the API-key, follow the example proposed in [mychatgpt_trial.ipynb](https://github.com/johndef64/mychatgpt/blob/main/mychatgpt_trial.ipynb)
 
 ## In-Build Assistants
 ```python
 op.display_assistants()
 ```
 ```python
-from pychatgpt import delamain
+from mychatgpt import delamain
 # Call an assistant simply by name
 delamain.chat('your message',
               gpt='gpt-4o', 
@@ -202,7 +190,6 @@ The code in this module assumes that the conversation history is stored in a glo
 Using `op.send_message()`, the code checks if the total number of tokens exceeds the model's maximum context length (gpt 3.5 turbo-16k: 16,384 tokens). If it does, a warning message indicates that the token limit is being reached and then then the first part of the conversation will automatically be deleted to make room for the next interaction.
 
 ## 
-
 
 
 

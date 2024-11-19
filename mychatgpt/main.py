@@ -608,6 +608,8 @@ class GPT:
                  print_token=True,
                  model='gpt-4o-mini',
                  talk_model='gpt-4o-2024-08-06',
+                 dalle="dall-e-2",
+                 image_size='512x512',
                  user_name='',
                  bio=False
                  ):
@@ -640,6 +642,8 @@ class GPT:
         else:
             self.model = model
         self.talk_model = talk_model
+        self.dalle = dalle
+        self.image_size = image_size
 
         # init assistant
         who = self.assistant
@@ -691,7 +695,7 @@ class GPT:
 
     def expand_chat(self, message, role="user"):
         if message.startswith("@"):
-            self.clearchat()
+            self.clear_chat()
             message = message.lstrip("@")
             self.chat_thread.append({"role": role, "content": message})
         else:
@@ -771,13 +775,13 @@ class GPT:
 
 
     def select_assistant(self):
-        self.clearchat(keep_system=False)
+        self.clear_chat(keep_system=False)
         assistant_id = int(input('choose by id:\n'+str(assistants_df)))
         assistant = assistants_df.instructions[assistant_id]
         self.assistant = assistant
         print('\n*Assistant:', assistants_df.assistant[assistant_id])
 
-    def clearchat(self, warning=True, keep_system=True):
+    def clear_chat(self, warning=True, keep_system=True):
         if keep_system:
             self.chat_thread = [line for line in self.chat_thread if line.get("role") == "system"]
         else:
@@ -866,7 +870,7 @@ class GPT:
 
                      create=False,       # image prompt
                      dalle="dall-e-2",   # choose dall-e model
-                     size='512x512',
+                     image_size='512x512',
 
                      play=False,        # play audio response
                      voice='nova',       # choose voice (op.voices)
@@ -883,10 +887,15 @@ class GPT:
         if isinstance(model, int): model = make_model(model)
         if print_debug: print('using model: ',model)
 
+        if dalle != self.dalle:
+            dalle = self.dalle
+        if image_size != self.image_size:
+            image_size = self.image_size
+
         token_limit = set_token_limit(model, maxtoken)
 
         if message.startswith("@"):
-            self.clearchat()
+            self.clear_chat()
             message = message.lstrip("@")
 
         if img != '':
@@ -896,7 +905,7 @@ class GPT:
         elif create:
             self.create_image(message,
                               model=dalle,
-                              size=size,
+                              size=image_size,
                               response_format='b64_json',
                               quality="standard",
                               time_flag=True,
@@ -974,7 +983,7 @@ class GPT:
             image_path = self.dummy_img
 
         if message.startswith("@"):
-            self.clearchat()
+            self.clear_chat()
             message = message.lstrip("@")
 
         # add system instruction
@@ -1201,7 +1210,7 @@ class GPT:
     def speak(self,
               message='',
               system='',
-              voice='nova', language='eng', tts= 'tts-1',  max=1000, printall=False):
+              voice='nova', language='eng', tts= 'tts-1', max=1000, printall=False):
 
         gpt = self.talk_model
 

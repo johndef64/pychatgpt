@@ -1,7 +1,7 @@
 # pygpt64/__init__.py
 
 # Definisci la versione del pacchetto
-__version__ = '0.1'
+__version__ = '0.3'
 
 # Importa i simboli necessari dai moduli interni
 from .main import *
