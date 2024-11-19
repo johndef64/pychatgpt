@@ -160,6 +160,7 @@ def simple_decrypter(num = 0, encrypted_text = "Hello World"):
 ###### set openAI key  ######
 current_dir = os.getcwd()
 api_key = None
+api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
     if simple_bool('Do you have an openai key? '):
         my_key = input('insert here your openai api key:')
@@ -168,13 +169,10 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         api_key = my_key
     else:
         psw = input('if not, you can insert here you DEV password:')
-        api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
         api_key =  simple_decrypter(psw, api_hash)
 else:
     api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 client = OpenAI(api_key=str(api_key))
-
-
 
 def change_key():
     global client
