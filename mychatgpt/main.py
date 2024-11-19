@@ -160,6 +160,7 @@ def simple_decrypter(num = 0, encrypted_text = "Hello World"):
 ###### set openAI key  ######
 current_dir = os.getcwd()
 api_key = None
+api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
     if simple_bool('Do you have an openai key? '):
         my_key = input('insert here your openai api key:')
@@ -168,13 +169,10 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         api_key = my_key
     else:
         psw = input('if not, you can insert here you DEV password:')
-        api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
-        api_key =  simple_decrypter(psw, api_hash)
+        api_key = simple_decrypter(psw, api_hash)
 else:
     api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 client = OpenAI(api_key=str(api_key))
-
-
 
 def change_key():
     global client
@@ -196,6 +194,16 @@ def play_audio(file_name):
         pygame.time.Clock().tick(10)
     pygame.mixer.music.stop()
     pygame.mixer.quit() # Close the file after music play ends
+
+def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
+    print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
+    while True:
+        if kb.is_pressed(repeat):
+            play_audio(audio_file)
+            #print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
+        elif kb.is_pressed(exit):
+            print('Chat Closed')
+            break
 
 
 def record_audio(duration=5, filename="recorded_audio.mp3"): # duration: in seconds
@@ -251,10 +259,6 @@ def while_kb_press(start='alt',stop='ctrl'):
             print("Finished loop.")
 
 
-###### global variables ######
-
-model = 'gpt-4o-mini'
-
 gpt_models_dict = {
     "gpt-4o": 128000,
     "gpt-4o-2024-05-13": 128000,
@@ -280,90 +284,17 @@ gpt_models_dict = {
     "gpt-3.5-turbo-instruct": 4096
 }
 
-
-def make_model(version=3):
-    model = 'gpt-'+str(version)
-    if version == 3: model = model+'.5-turbo'
-    if version == 4: model = model + 'o-2024-08-06' #gpt-4o-2024-08-06
-    return model
-
-models_info='''
-Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
-gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
-gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
-gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
-gpt-4o	                gpt-4o-2024-05-13          128K       $0.01   	        $0.02   
-gpt-4-turbo             gpt-4-turbo-2024-04-09     128K       $0.01   	        $0.03   
-gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
-gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
-gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
-
-Vision pricing 
-500x500   = ld: $0.000425
-500x500   = hd: $0.001275
-1000x1000 = ld: $0.000425 
-1000x1000 = hd: $0.003825 
-'''
-
-assistant = ''
-transcript = ''
-persona = ''
-reply = ''
-
-total_tokens = 0  # iniziale token count
-token_limit = 0  # iniziale token limit
-keep_persona = True
-
-if not 'chat_thread' in locals():
-    chat_thread = []
-
-
-def add_persona(char, language='eng'):
-    global persona
-    persona = char
-    persona_dict = {
-        'character': "You are now impersonating "+persona+". Please reflect "+persona+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+persona+"'s character. You are NOT an assistant or a helper but a real person.",
-        'personaggio': "Stai impersonando "+persona+", . Ricorda di riflettere i tratti di "+persona+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+persona+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'
-    }
-    if language == 'eng':
-        chat_thread.append({"role": "system",
-                            "content": persona_dict['character']})
-    if language == 'ita':
-        chat_thread.append({"role": "system",
-                            "content": persona_dict['personaggio']})
-
-
-
-###### Base Functions ######
-
-def choose_model():
-    global model
-    model_series =  pd.Series(gpt_models_dict.keys())
-    model_id = input('choose model by id:\n'+str(model_series))
-    model = model_series[int(model_id)]
-    print('*Using', model, 'model*')
-
-
-def select_assistant():
-    global assistant
-    clearchat()
-    assistant_id = int(input('choose by id:\n'+str(assistants_df)))
-    assistant = assistants_df.instructions[assistant_id]
-    print('\n*Assistant:', assistants_df.assistant[assistant_id])
-
-def display_assistants():
-    print('Available Assistants:')
-    display(assistants_df)
-
-
 class Tokenizer:
     def __init__(self, encoder="gpt-4"):
         self.tokenizer = tiktoken.encoding_for_model(encoder)
     def tokens(self, text):
         return len(self.tokenizer.encode(text))
 
+def tokenizer(text):
+    return Tokenizer().tokens(text)
 
-def get_gitfile(url, flag='', dir = os.getcwd()):
+
+def get_gitfile(url, flag='', dir=os.getcwd()):
     url = url.replace('blob','raw')
     response = requests.get(url)
     file_name = flag + url.rsplit('/',1)[1]
@@ -389,9 +320,39 @@ def get_chat():
     url = handle + file
     get_gitfile(url, dir=os.getcwd()+'/chats')
 
+### file manager ###
 
-# inizialize log:-----------------------------------
-import json
+def load_file(file='', path=os.getcwd()):
+    with open(os.path.join(path, file),'r', encoding='utf-8') as file:
+        my_file = file.read()#ast.literal_eval(file.read())
+        file.close()
+    return my_file
+
+def load_choosen_file(path=os.getcwd(), ext='', contains=''):
+    files_df = display_files_as_pd(path, ext=ext, contains=contains)
+    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
+    my_file = load_file(filename, path)
+    return my_file
+
+def load_multiple_files(file_list):
+    loaded_files = {}
+    for file_name in file_list:
+        loaded_files[os.path.basename(file_name).split('.')[0]] = load_file(file=file_name)
+    print('Loaded Files:', list(loaded_files.keys()))
+    return loaded_files
+
+
+def pdf_to_text(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            page = reader.pages[page_num]
+            text += page.extract_text()
+    return text
+
+#%%
+
 
 # Funzione per salvare una lista di dizionari in un file JSON con indentazione
 def salva_in_json(lista_dict, nome_file):
@@ -399,26 +360,30 @@ def salva_in_json(lista_dict, nome_file):
         json.dump(lista_dict, file_json, indent=4)
         file_json.close()
 
-# Funzione per aggiornare il file JSON con un nuovo input
+#Funzione per aggiornare il file JSON con un nuovo input
 def aggiorna_json(nuovo_dict, nome_file):
-    try:
-        with open(nome_file, 'r', encoding='utf-8') as file_json:
-            data = json.load(file_json)
-    except FileNotFoundError:
-        data = []
+    if not os.path.exists('chat_log.json'):
+        with open('chat_log.json', encoding='utf-8') as json_file:
+            json.dump([], json_file)  # Save empty list as JSON
+    with open('chat_log.json', 'r', encoding='utf-8') as json_file:
+        data = json.load(json_file)
+
     data.append(nuovo_dict)
     with open(nome_file, 'w', encoding='utf-8') as file_json:
         json.dump(data, file_json, ensure_ascii=False,  indent=4)
 
-if not os.path.isfile(current_dir + '/chat_log.json'):
-    #with open(current_dir + '/chat_log.txt', 'w', encoding= 'utf-8') as file:
-    #    file.write('Auto-GPT\n\nchat LOG:\n')
-    #    print(str('\nchat_log.txt created at ' + os.getcwd()))
-    salva_in_json(chat_thread, 'chat_log.json')
+def update_log(nuovo_dict):
+    aggiorna_json(nuovo_dict, 'chat_log.json')
+
+# inizialize log:-----------------------------------
+# if not os.path.isfile(current_dir + '/chat_log.json'):
+#     salva_in_json({}, 'chat_log.json')
+if not os.path.exists('chat_log.json'):
+    with open('chat_log.json', 'w') as json_file:
+        json.dump([], json_file)  # Save empty list as JSON
 
 
-
-##### LANG ####
+##### LANG #####
 from langdetect import detect, DetectorFactory
 
 def rileva_lingua(testo):
@@ -444,8 +409,6 @@ def rileva_lingua(testo):
     codice_lingua = detect(testo)
     return language_map.get(codice_lingua, 'Unknown')
 
-
-##################  REQUESTS #####################
 
 ##### Embeddings, Similarity #######
 
@@ -502,223 +465,7 @@ text-embedding-3-large	  9,615	        64.6%	                    8191
 text-embedding-ada-002	  12,500	    61.0%	                    8191
 '''
 
-###### Question-Answer-GPT ######
-
-def ask_gpt(prompt,
-            system= 'you are an helpful assistant',
-            model = model,
-            maxtoken = 800,
-            lag = 0.00,
-            temperature = 1,
-            print_user = False,
-            print_reply = True,
-            save_chat = True,
-            to_clip = False
-            ):
-
-    global reply
-    if isinstance(model, int): model = make_model(model)
-
-    response = client.chat.completions.create(
-        # https://platform.openai.com/docs/models/gpt-4
-        model=model,
-        stream=True,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": prompt}
-        ],
-        temperature = temperature,
-        max_tokens = maxtoken,
-        top_p = 1,
-        frequency_penalty = 0,
-        presence_penalty = 0)
-
-    if print_user:
-        print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
-        print('user:',print_mess,'\n...')
-
-    collected_messages = []
-    for chunk in response:
-        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message)
-        if print_reply:
-            if chunk_message is not None:
-                time.sleep(lag)
-                print(chunk_message, end='')
-
-        reply = ''.join(collected_messages).strip()
-
-    time.sleep(1)
-
-    # Add the assistant's reply to the chat log
-    #if save_chat:
-    #    #write_log(reply, prompt)
-    #    update_log(chat_thread[-2])
-    #    update_log(chat_thread[-1])
-
-    if to_clip and has_copy_paste:
-        pc.copy(reply)
-
-
-############ Chat GPT ############
-
-def expand_chat(message, role="user"):
-    global chat_thread
-    #print('default setting (role = "user") to change role replace with "assistant" or "system"')
-    if message.startswith("@"):
-        clearchat()
-        message = message.lstrip("@")
-        chat_thread.append({"role": role, "content": message})
-    else:
-        chat_thread.append({"role": role, "content": message})
-
-
-def build_messages(chat):
-    messages = []
-    for message in chat:
-        messages.append({"role": message["role"], "content": message["content"]})
-    return messages
-
-
-
-def save_chat(path='chats/', chatname = '', prompt=True):
-    if prompt:
-        chatname = input('chat name:')
-    if not os.path.exists('chats'):
-        os.mkdir('chats')
-    salva_in_json(chat_thread, path+chatname+'.json')
-
-
-def load_chat(contains= '', path='chats/', log= True):
-    global chat_thread
-    files_df = display_files_as_pd(path, ext='json',contains=contains)
-    files_df = files_df.sort_values().reset_index(drop=True)
-    files_df_rep = files_df.str.replace('.json','',regex =True)
-    files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
-    filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))])
-    with open(path+filename,'r') as file:
-        chat_thread = ast.literal_eval(file.read())
-        file.close()
-    if log: print('*chat',filename,'loaded*')
-
-
-
-def load_file(file='', path=os.getcwd()):
-    with open(os.path.join(path, file),'r', encoding='utf-8') as file:
-        my_file = file.read()#ast.literal_eval(file.read())
-        file.close()
-    return my_file
-
-def load_choosen_file(path=os.getcwd(), ext='', contains=''):
-    files_df = display_files_as_pd(path, ext=ext, contains=contains)
-    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
-    my_file = load_file(filename, path)
-    return my_file
-
-def load_multiple_files(file_list):
-    loaded_files = {}
-    for file_name in file_list:
-        loaded_files[os.path.basename(file_name).split('.')[0]] = load_file(file=file_name)
-    print('Loaded Files:', list(loaded_files.keys()))
-    return loaded_files
-
-
-def pdf_to_text(pdf_path):
-    with open(pdf_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        text = ""
-        for page_num in range(len(reader.pages)):
-            page = reader.pages[page_num]
-            text += page.extract_text()
-    return text
-
-def clearchat(warning=True):
-    global chat_thread
-    global total_tokens
-    chat_thread = []
-    total_tokens = 0
-    if warning: print('*chat cleared*\n')
-
-def show_chat():
-    global chat_thread
-    print(chat_thread)
-
-def pop_chat():
-    global chat_thread
-    chat_thread = chat_thread.pop()
-    print(chat_thread)
-
-def tokenizer(text):
-    return Tokenizer().tokens(text)
-
-def chat_tokenizer(chat_thread, print_token=True):
-    global total_tokens
-
-    context_fix = (str(chat_thread).replace("{'role': 'system', 'content':", "")
-                   .replace("{'role': 'user', 'content':", "")
-                   .replace("{'role': 'assistant', 'content':", "")
-                   .replace("},", ""))
-
-    tokens = Tokenizer().tokens(context_fix)
-    total_tokens += tokens
-    if print_token:
-        print('\n <prompt tokens:', str(total_tokens)+'>')
-    return total_tokens
-
-# def write_log(reply, message, filename='chat_log.txt'):
-#     with open(filename, 'a', encoding= 'utf-8') as file:
-#         file.write('---------------------------')
-#         file.write('\nUser: '+str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))+'\n' + message)
-#         if persona != '' and persona.find(',') != -1:
-#             comma_ind = persona.find(',')
-#             persona_p = persona[:comma_ind]
-#         elif persona != '' and persona.find(',') == -1:
-#             persona_p = persona
-#         else:
-#             persona_p = model
-#         file.write('\n\n'+persona_p+':\n' + reply + '\n\n')
-
-def update_log(nuovo_dict):
-    aggiorna_json(nuovo_dict, 'chat_log.json')
-
-
-# Accessory Request Functions ================================
-# https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
-def stream_reply(response, print_reply=True, lag = 0.00):
-    collected_messages = []
-    for chunk in response:
-        chunk_message = chunk.choices[0].delta.content or ""  # extract the message
-        collected_messages.append(chunk_message)
-
-        if print_reply:
-            if chunk_message is not None:
-                time.sleep(lag)
-                print(chunk_message, end='')
-
-    reply = ''.join(collected_messages).strip()
-    return reply
-
-def add_system(system='', reinforcement=False):
-    global chat_thread
-    global assistant
-    if not reinforcement:
-        sys_duplicate = []
-        for entry in chat_thread:
-            x = system == entry.get('content')
-            sys_duplicate.append(x)
-            if x:
-                break
-    else:
-        sys_duplicate = [False]
-
-    if system != '' and not any(sys_duplicate):
-        chat_thread.append({"role": "system",
-                            "content": system})
-
-    if assistant != '' and not any(sys_duplicate):
-        chat_thread.append({"role": "system",
-                            "content": assistant})
-
+### Chat functions
 def prune_chat(token_limit, chat_thread):
     print('\nWarning: reaching token limit. \nThis model maximum context length is ', token_limit, ' => early interactions in the chat are forgotten\n')
     cut_length = 0
@@ -740,140 +487,6 @@ def set_token_limit(model='gpt-3.5-turbo', maxtoken=500):
     # Calculate the token limit, default to 0 if model isn't found
     token_limit = context_window - (maxtoken * 1.3) if context_window else "Model not found or no limit"
     return token_limit
-
-
-# Request Functions ================================
-def chat_loop(who='',system='',gpt=model, max=1000, language='eng', exit_chat= 'stop', printall=True):
-    print('Send "'+exit_chat+'" to exit chat.')
-    if who in assistants:
-        system = assistants[who]
-    elif who != '':
-        add_persona(who, language)
-    else:
-        system = system
-    while True:
-        message = input('\n')
-        if message == exit_chat:
-            print('Chat Closed')
-            break
-        else:
-            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True)
-            print('')
-
-def send_message(message,
-                 model=model,        # choose openai model (choose_model())
-                 system='',          # 'system' instruction
-                 img = '',           # insert an image path to activate gpt vision
-
-                 maxtoken=800,       # max tokens in reply
-                 temperature=1,      # output randomness [0-2]
-                 lag=0.00,           # word streaming lag
-
-                 create=False,       # image prompt
-                 dalle="dall-e-2",   # choose dall-e model
-                 size='512x512',
-
-                 play= False,        # play audio response
-                 voice='nova',       # choose voice (op.voices)
-                 tts="tts-1",        # choose tts model
-
-                 save_chat=True,     # update chat_log.txt
-                 to_clip=False,       # send reply to clipboard
-                 reinforcement=False,
-
-                 print_reply=True,
-                 print_user=False,
-                 print_token=True,
-                 print_debug=False
-                 ):
-    global assistant
-    global persona
-    global chat_thread
-    global reply
-    global total_tokens
-    global token_limit
-    global reply
-
-    if isinstance(model, int):
-        model = make_model(model)
-    else:
-        model = model
-    if print_debug: print('using model: ',model)
-
-    token_limit = set_token_limit(model, maxtoken)
-
-    if img != '':
-        send_image(img, message, system,
-                   model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                   maxtoken=maxtoken, lag=lag, print_reply=print_reply, to_clip=to_clip)
-    elif create:
-        create_image(message,
-                     model= dalle,
-                     size=size,
-                     response_format='b64_json',
-                     quality="standard",
-                     time_flag=True,
-                     show_image=True)
-    else:
-        if message.startswith("@"):
-            clearchat()
-            message = message.lstrip("@")
-
-        # add system instruction
-        add_system(system, reinforcement=reinforcement)
-
-        # check token limit---------------------
-        if total_tokens > token_limit:
-            cut_length = prune_chat(token_limit, chat_thread)
-            chat_thread = chat_thread[cut_length:]
-
-            if keep_persona and persona != '':
-                add_persona(persona)
-            if keep_persona and system != '':
-                chat_thread.append({"role": "system", "content": system})
-
-        # expand chat
-        expand_chat(message)
-        if print_user:
-            print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
-            print('user:',print_mess)
-
-        # send message----------------------------
-        messages = build_messages(chat_thread)
-        response = client.chat.completions.create(
-            model = model,
-            messages = messages,
-            temperature = temperature,
-            stream=True,
-            max_tokens = maxtoken,  # set max token
-            top_p = 1,
-            frequency_penalty = 0,
-            presence_penalty = 0
-        )
-
-        # stream reply ---------------------------------------------
-        reply = stream_reply(response, print_reply=print_reply, lag = lag)
-
-        time.sleep(0.85)
-        # expand chat--------------------------------
-        chat_thread.append({"role": "assistant", "content":reply})
-
-        # count tokens--------------------------------
-        total_tokens = chat_tokenizer(chat_thread, print_token)
-
-        # Add the assistant's reply to the chat log-------------
-        if save_chat:
-            #write_log(reply, message)
-            update_log(chat_thread[-2])
-            update_log(chat_thread[-1])
-
-        if to_clip and has_copy_paste:
-            clip_reply = reply.replace('```', '###')
-            pc.copy(clip_reply)
-
-        if play:
-            text2speech_stream(reply, voice=voice, model=tts)
-            #text2speech_stream(reply)
 
 
 def moderation(text="Sample text goes here.", plot=True):
@@ -901,76 +514,6 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
-
-def send_image(image_path = dummy_img,
-               message="What’s in this image?",
-               system = '',     # add 'system' instruction
-               model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-               maxtoken=1000, lag=0.00, print_reply=True, to_clip=True):
-    global reply
-    global chat_thread
-    global total_tokens
-
-    #token_limit = set_token_limit(model, maxtoken)
-    if isinstance(model, int): model = make_model(model)
-
-    if message.startswith("@"):
-        clearchat()
-        message = message.lstrip("@")
-
-    # add system instruction
-    add_system(system)
-
-    if image_path.startswith('http'):
-        print('Image path:',image_path)
-        dummy = image_path
-        pass
-    else:
-        print('<Enconding Image...>')
-        base64_image = encode_image(image_path)
-        image_path = f"data:image/jpeg;base64,{base64_image}"
-        dummy = "image_path"
-
-    # expand chat
-    chat_thread.append({"role": 'user',
-                        "content": [
-                            {"type": "text", "text": message},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": image_path,
-                                },
-                            },
-                        ]
-                        })
-
-    # send message----------------------------
-    messages = build_messages(chat_thread)
-    print('<Looking Image...>')
-    response = client.chat.completions.create(
-        model= model,
-        messages=messages,
-        max_tokens=maxtoken,
-        stream=True,
-    )
-
-    #reply = response.choices[0].message.content
-    reply = stream_reply(response, print_reply=print_reply, lag = lag)
-
-    # reset compatibility with the other models
-    time.sleep(0.85)
-    # expand chat--------------------------------
-    chat_thread.append({"role": "assistant", "content":'TAG'+reply})
-    chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
-    # content is a list [] I have to replace ("image_file", "text") and GO!
-
-    # count tokens-------------------------------
-    total_tokens = chat_tokenizer(chat_thread, True)
-
-    if to_clip and has_copy_paste:
-        reply = reply.replace('```', '###')
-        pc.copy(reply)
 
 
 def display_image(filename, jupyter = False, plotlib=True, dpi=200):
@@ -986,78 +529,6 @@ def display_image(filename, jupyter = False, plotlib=True, dpi=200):
     else:
         image = Image.open(filename)
         image.show()
-
-
-# dalle_models= ['dall-e-2', dall-e-3]
-# sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
-# response_format ['url', 'b64_json']
-def create_image(prompt= "a cute kitten",
-                 model="dall-e-2",
-                 size='512x512',
-                 response_format='b64_json',
-                 quality="standard",
-                 time_flag=True,
-                 show_image=True):
-
-    if model == "dall-e-2":
-        response = client.images.generate(
-            model=model,
-            prompt=prompt,
-            response_format=response_format,
-            size=size,
-            n=1,
-        )
-    elif model == "dall-e-3":
-        if size in ['256x256', '512x512']:
-            size = '1024x1024'
-
-        response = client.images.generate(
-            model=model,
-            prompt=prompt,
-            response_format=response_format,
-            quality=quality,
-            size=size,
-            n=1,
-        )
-
-    image_url = response.data[0].url
-    image_b64 = response.data[0].b64_json
-
-    if time_flag:
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        base_path= r''
-        filename = os.path.join(base_path, timestamp+'.png')
-    else:
-        filename = 'image.png'
-
-    if response_format == 'b64_json':
-        # Decode the base64-encoded image data
-        decoded_image = base64.b64decode(image_b64)
-        # Create a PIL Image object from the decoded image data
-        image = Image.open(BytesIO(decoded_image))
-        image.save(filename)
-    elif response_format == 'url':
-        if has_copy_paste:
-            pc.copy(str(image_url))
-        print('url:',image_url)
-        gdown.download(image_url,filename, quiet=True)
-
-    # Create a PngInfo object and add the metadata
-    image = Image.open(filename)
-    metadata = PngInfo()
-    metadata.add_text("key", prompt)
-    image.save(filename, pnginfo=metadata)
-
-    if show_image:
-        display_image(filename)
-
-#create_image(response_format='b64_json')
-
-def replicate(image, styler='', model ='dall-e-2'):
-    send_image(image=image)
-    create_image(prompt=reply, response_format='b64_json', model=model, show_image=True)
-
-#replicate('https://avatars.githubusercontent.com/u/116732521?v=4')
 
 '''
 Model	Quality	Resolution	Price
@@ -1078,433 +549,878 @@ TTS	    $0.015 / 1K characters
 TTS HD	$0.030 / 1K characters
 '''
 
-####### Speech to Text #######
-def whisper(filepath,
-            translate=False,
-            response_format="text",
-            print_transcription=True):
-    global transcript
-    audio_file = open(filepath, "rb")
-    if not translate:
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file,
-            response_format=response_format)
-    else:
-        transcript = client.audio.translations.create(
-            model="whisper-1",
-            file=audio_file,
-            response_format=response_format)
-    if print_transcription: print(transcript)
-    audio_file.close()
-
-# response_format =  ["json", "text", "srt", "verbose_json", "vtt"]
-
-
-####### Text to Speech #######
-
-voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
-response_formats = ["mp3", "flac", "aac", "opus"]
-def text2speech(text,
-                voice="alloy",
-                filename="speech.mp3",
-                model="tts-1",
-                speed=1,
-                play=False):
-    if os.path.exists(filename):
-        os.remove(filename)
-    spoken_response = client.audio.speech.create(
-        model=model, # tts-1 or tts-1-hd
-        voice=voice,
-        input=text,
-        speed=speed
-    )
-    spoken_response.stream_to_file(filename)
-    if play:
-        play_audio(filename)
-
-
-def text2speech_stream(text,
-                       voice="alloy",
-                       model="tts-1",
-                       speed=1):
-    spoken_response = client.audio.speech.create(
-        model=model,
-        voice=voice,
-        response_format="opus",
-        input=text,
-        speed=speed
-    )
-
-    # Create a buffer using BytesIO to store the data
-    buffer = io.BytesIO()
-
-    # Iterate through the 'spoken_response' data in chunks of 4096 bytes and write each chunk to the buffer
-    for chunk in spoken_response.iter_bytes(chunk_size=4096):
-        buffer.write(chunk)
-
-    # Set the position in the buffer to the beginning (0) to be able to read from the start
-    buffer.seek(0)
-
-    with sf.SoundFile(buffer, 'r') as sound_file:
-        data = sound_file.read(dtype='int16')
-        sd.play(data, sound_file.samplerate)
-        sd.wait()
-
-
-#if "silence.mp3" not in os.listdir():
-#    text2speech(' ',filename="silence.mp3")
-
-def speech2speech(voice= 'nova', tts= 'tts-1',
-                  filename="speech2speech.mp3",
-                  translate=False, play=True, info =True, duration=5):
-    #record_audio(duration=duration, filename="audio.mp3")
-    loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=info)
-    whisper('temp.wav', translate=translate)
-    text2speech(transcript, voice=voice, model= tts, filename=filename, play=play)
-
-def speech2speech_loop(voice='nova', filename="speech2speech.mp3",
-                       translate=False, play=True, tts= 'tts-1',
-                       chat='alt' , exit='shift'):
-    print('Press '+chat+' to record, '+exit+' to exit.')
-    while True:
-        if kb.is_pressed(chat):
-            speech2speech(voice= voice, tts= tts, filename=filename, translate=translate, play=play, info=False)
-            print('Press '+chat+' to record, '+exit+' to exit.')
-        elif kb.is_pressed(exit):
-            print('Loop Stopped')
-            break
 
 
 
-###### Talk With ######
 
-talk_model = 'gpt-4o'
-def chat_with(who='',  # An embedded assistant or a character of your choice
-              message='', system='',  voice='nova', language='eng', gpt=talk_model, tts= 'tts-1',  max=1000, printall=False):
-    if who in assistants:
-        system = assistants[who]
-    elif who != '':
-        add_persona(who, language)
-    else:
-        system = system
-    send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False)
-    text2speech_stream(reply, voice=voice, model=tts)
+########## ASSISTANTS ####################
 
-def chat_with_loop(who='', system='', voice='nova',  gpt=talk_model, tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop'):
-    print('Send "'+exit_chat+'" to exit.')
-    if who in assistants:
-        system = assistants[who]
-    elif who != '':
-        add_persona(who, language)
-    else:
-        system = system
-    while True:
-        message = input('\n')
-        if message == exit_chat:
-            print('Chat Closed')
-            break
-        else:
-            send_message(message,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False, print_user=True,
-                         play=True, voice=voice, tts=tts)
-            print('')
-
-
-def talk_with(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, write=False):
-    #record_audio(duration, "input.mp3")
-    loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printall)
-    whisper("temp.wav", print_transcriprion=printall)
-    if who in assistants:
-        system = assistants[who]
-    else:
-        add_persona(who, language)
-        system = ''
-    play = not write
-    printall = printall if not write else True
-    send_message(transcript,system=system, maxtoken=max, model=gpt, print_reply=printall, print_token=False,
-                 play=play, voice=voice, tts=tts)
-
-def talk_with_loop(who, voice='nova', language='eng', gpt=talk_model, tts= 'tts-1', max=1000, printall=False, write=False, chat='alt' , exit='shift'):
-    print('Press '+chat+' to chat, '+exit+' to exit.')
-    while True:
-        if kb.is_pressed(chat):
-            talk_with(who, voice=voice, language=language, gpt=gpt, tts= tts, max=max, printall=printall, write=write)
-            print('Press '+chat+' to chat, '+exit+' to exit.')
-        elif kb.is_pressed(exit):
-            print('Chat Closed')
-            break
-
-#####################################
-from .assistants import *
-
+from pychatgpt.assistants import *
 assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
-
-
-####### Assistants #######
-def send_to(m, who,  gpt=model, max = 1000, img = '', clip=True):
-    if who in assistants:
-        sys = assistants[who]
-    elif len(who.split()) < 8:
-        add_persona(who)
-        sys = ''
-    else:
-        sys = who
-    send_message(m,system=sys, maxtoken=max, model=gpt, img= img, to_clip=clip)
-
-# Reusable function to send message to assistants
-def send_to_assistant(system, m, gpt=model, max=1000, img='', paste = False, clip=True, token=False):
-    if paste: p = pc.paste()
-    else: p = ''
-    send_message(m+p, system=system, maxtoken=max, model=gpt, img=img, to_clip=clip, print_token=token)
-
-# Wrapper functions for different assistants
-
 # Copilots
 copilot_gpt = 'gpt-4o-2024-08-06'
 copilot_assistant = 'delamain' #'oracle'
 copilot_intructions = compose_assistant(assistants[copilot_assistant])
 
 
-def chatgpt(m, gpt=model, max=1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['base'], m, gpt, max, img, paste, clip)
-def creator(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['creator'], m, gpt, max, img, paste, clip)
-def fixer(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['fixer'], m, gpt, max, img, paste, clip)
-def delamain(m, gpt=model, max=1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['delamain'], m, gpt, max, img, paste, clip)
-def oracle(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['oracle'], m, gpt, max, img, paste, clip)
-def R(m,  gpt=copilot_gpt, max = 1000, img='', paste = False, clip=True):
-    expand_chat('Return always just the R code in your output.','system')
-    send_to_assistant(assistants['roger'], m, gpt, max, img, paste, clip)
-def Rt(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['robert'], m, gpt, max, img, paste, clip)
 
 
-def C(m, gpt=copilot_gpt, max=1000, img='', paste = False, clip=True):
-    send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
-def Cp(m, gpt=copilot_gpt, max=1000, img='', clip=True):
-    send_to_assistant(copilot_intructions, m+pc.paste(), gpt, max, img, clip)
-def Ci(m, gpt=copilot_gpt, max=1000, paste = False, clip=True):
-    img = pc.paste()
-    send_to_assistant(copilot_intructions, m, gpt, max, img, paste, clip)
+#%%
+
+###### global variables ######
+
+model = 'gpt-4o-mini'
+talk_model = 'gpt-4o-2024-08-06'
+
+def make_model(version=3):
+    model = 'gpt-'+str(version)
+    if version == 3: model = model+'.5-turbo'
+    if version == 4: model = model + 'o-2024-08-06' #gpt-4o-2024-08-06
+    return model
+
+models_info='''
+    Model	                point_at                   Context    Input (1K tokens) Output (1K tokens)   
+    gpt-3.5-turbo           gpt-3.5-turbo-0125         16K        $0.0005 	        $0.0015 
+    gpt-3.5-turbo-instruct  nan                        4K         $0.0015 	        $0.0020 
+    gpt-4	                gpt-4-0613                 8K         $0.03   	        $0.06   
+    gpt-4o	                gpt-4o-2024-05-13          128K       $0.01   	        $0.02   
+    gpt-4-turbo             gpt-4-turbo-2024-04-09     128K       $0.01   	        $0.03   
+    gpt-4-32k	            gpt-4-32k-0613             32K        $0.06   	        $0.12   
+    gpt-4-1106-preview	    nan                        128K       $0.01   	        $0.03   
+    gpt-4-vision-preview    gpt-4-1106-vision-preview  128K       $0.01   	        $0.03   
+    
+    Vision pricing 
+    500x500   = ld: $0.000425
+    500x500   = hd: $0.001275
+    1000x1000 = ld: $0.000425 
+    1000x1000 = hd: $0.003825 
+    '''
+
+class GPT:
+    def __init__(self,
+                 assistant='',
+                 persona='',
+                 format='',
+                 translate=False,
+                 translate_jap=False,
+                 save_log=True,
+                 to_clip=True,
+                 print_token=True,
+                 model='gpt-4o-mini',
+                 talk_model='gpt-4o-2024-08-06',
+                 user_name='',
+                 bio=False
+                 ):
+        self.assistant = assistant
+        self.persona = persona
+        self.transcript = ''
+        self.format = format
+        self.user_name = user_name
+        self.save_log = save_log
+        self.to_clip = to_clip
+        self.print_token = print_token
+        self.bio = bio
+        self.reply = ''
+
+        self.total_tokens = 0  # iniziale token count
+        self.token_limit = 0  # iniziale token limit
+        self.chat_thread = [] # iniziale chat thread
+        self.keep_persona = True
+        self.translate = translate
+        self.translate_jap = translate_jap
+        self.dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
+
+        if not os.path.exists('chat_log.json'):
+            with open('chat_log.json', 'w') as json_file:
+                json.dump([], json_file)  # Save empty list as JSON
+
+        # init model
+        if isinstance(model, int):
+            self.model = make_model(model)
+        else:
+            self.model = model
+        self.talk_model = talk_model
+
+        # init assistant
+        who = self.assistant
+        if self.assistant in assistants:
+            self.add_system(assistants[who])
+        elif len(who.split()) < 8:
+            self.add_persona(who)
+        elif len(who.split()) >= 8:
+            self.add_system(self.assistant)
+        else:
+            pass
+
+        if self.bio:
+            self.add_bio()#add = "and you are his assistant. ***")
+            # "and you are his best friend. ***")
+
+    def add_system(self, system='', reinforcement=False):
+        if system in assistants :
+            system = self.assistant
+        if not any(item == {"role": "system", "content": system} for item in self.chat_thread) or reinforcement:
+            self.chat_thread.append({"role": "system", "content": system})
+
+    def add_format(self, format_):
+        reply_styles = features['reply_style']
+        if any(item == {"role": "system", "content": reply_styles} for item in self.chat_thread):
+            self.chat_thread = [item for item in self.chat_thread if item != {"role": "system", "content": reply_styles}]
+        self.chat_thread.append({"role": "system", "content": reply_styles[format_]})
+
+    def add_persona(self, char, language='eng'):
+        self.persona = char
+        persona_dict = {
+            'character': "You are now impersonating "+char+". Please reflect "+char+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+char+"'s character. You are NOT an assistant or a helper but a real person.",
+            'personaggio': "Stai impersonando "+char+", . Ricorda di riflettere i tratti di "+char+" in tutte le interazioni. Assicurati di utilizzare uno stile linguistico appropriato e di mantenere un atteggiamento o una mentalità in linea con il personaggio di "+char+'. NON sei un assistente o un aiutante, ma una persona vera e propria.'
+        }
+        if language == 'eng':
+            self.add_system(persona_dict['character'])
+            #self.chat_thread.append({"role": "system", "content": persona_dict['character']})
+        if language == 'ita':
+            self.add_system(persona_dict['personaggio'])
+            #self.chat_thread.append({"role": "system", "content": persona_dict['personaggio']})
+
+    def add_bio(self, add = ''' and you are his best friend. ***'''):
+
+        if os.path.exists("my_bio.txt"):
+            self.expand_chat('''***'''+load_file("my_bio.txt")+'***', 'system')
+        elif self.user_name !='':
+            self.expand_chat('''*** Your interlocutor is called '''+ self.user_name + add+'***', 'system')
 
 
-# Formatters
-def schematizer(m, language='english', gpt=model, max = 1000, img='', paste = False, clip=True):
-    if language != 'english':
-        expand_chat('Reply only using '+language, 'system')
-    send_to_assistant(assistants['schematizer'], m, gpt, max, img, paste, clip)
-def prompt_maker(m,  gpt=model, max = 1000, img='', clip=True, sdxl=True):
-    import stablediff_rag as sd
-    if sdxl:
-        assistant = sd.rag_sdxl
-    else:
-        assistant = sd.rag_sd
-    send_to_assistant(assistant, m, gpt, max, img, clip)
+    def expand_chat(self, message, role="user"):
+        if message.startswith("@"):
+            self.clearchat()
+            message = message.lstrip("@")
+            self.chat_thread.append({"role": role, "content": message})
+        else:
+            self.chat_thread.append({"role": role, "content": message})
+
+    def build_messages(self, chat):
+        messages = []
+        for message in chat:
+            messages.append({"role": message["role"], "content": message["content"]})
+        return messages
+
+    def save_chat(self, path='chats/', chat_name='', prompt=True):
+        if prompt:
+            chat_name = input('chat name:')
+        if not os.path.exists('chats'):
+            os.mkdir('chats')
+        salva_in_json(self.chat_thread, path+chat_name+'.json')
+
+
+    def load_chat(self, contains='', path='chats/', log=True):
+        files_df = display_files_as_pd(path, ext='json',contains=contains)
+        files_df = files_df.sort_values().reset_index(drop=True)
+        files_df_rep = files_df.str.replace('.json','',regex =True)
+        files_list = "\n".join(str(i) + "  " + filename for i, filename in enumerate(files_df_rep))
+        filename = str(files_df[int(input('Choose file:\n' + files_list+'\n'))])
+        with open(path+filename,'r') as file:
+            self.chat_thread = ast.literal_eval(file.read())
+            file.close()
+        if log: print('*chat',filename,'loaded*')
+
+    def show_chat(self):
+        print(self.chat_thread)
+
+    def pop_chat(self):
+        self.chat_thread = self.chat_thread.pop()
+        print(self.chat_thread)
+
+    def chat_tokenizer(self, print_token=True):
+        context_fix = (str(self.chat_thread).replace("{'role': 'system', 'content':", "")
+                       .replace("{'role': 'user', 'content':", "")
+                       .replace("{'role': 'assistant', 'content':", "")
+                       .replace("},", ""))
+
+        tokens = Tokenizer().tokens(context_fix)
+        self.total_tokens += tokens
+        if print_token:
+            print('\n <prompt tokens:', str(self.total_tokens)+'>')
+        return self.total_tokens
+
+
+    # Accessory  Functions ================================
+    # https://til.simonwillison.net/gpt3/python-chatgpt-streaming-api
+    def stream_reply(self, response, print_reply=True, lag = 0.00):
+        collected_messages = []
+        for chunk in response:
+            chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+            collected_messages.append(chunk_message)
+
+            if print_reply:
+                if chunk_message is not None:
+                    time.sleep(lag)
+                    print(chunk_message, end='')
+
+        self.reply = ''.join(collected_messages).strip()
+        return self.reply
+
+
+
+    ###### Base Functions ######
+
+    def choose_model(self):
+        model_series =  pd.Series(gpt_models_dict.keys())
+        model_id = input('choose model by id:\n'+str(model_series))
+        model = model_series[int(model_id)]
+        self.model = model
+        print('*Using', model, 'model*')
+
+
+    def select_assistant(self):
+        self.clearchat(keep_system=False)
+        assistant_id = int(input('choose by id:\n'+str(assistants_df)))
+        assistant = assistants_df.instructions[assistant_id]
+        self.assistant = assistant
+        print('\n*Assistant:', assistants_df.assistant[assistant_id])
+
+    def clearchat(self, warning=True, keep_system=True):
+        if keep_system:
+            self.chat_thread = [line for line in self.chat_thread if line.get("role") == "system"]
+        else:
+            self.chat_thread = []
+        self.total_tokens = 0
+        if warning: print('*chat cleared*\n')
+
+
+    def display_assistants(self):
+        print('Available Assistants:')
+        display(assistants_df)
+
+
+
+
+    ##################  REQUESTS #####################
+
+    ###### Question-Answer-GPT ######
+
+    def ask(self,
+            prompt,
+            system='you are an helpful assistant',
+            #model = model,
+            maxtoken=800,
+            lag=0.00,
+            temperature=1,
+            print_user=False,
+            print_reply=True
+            ):
+
+        model = self.model
+        if isinstance(model, int): model = make_model(model)
+
+        response = client.chat.completions.create(
+            # https://platform.openai.com/docs/models/gpt-4
+            model=model,
+            stream=True,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=temperature,
+            max_tokens=maxtoken,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0)
+
+        if print_user:
+            print_mess = prompt.replace('\r', '\n').replace('\n\n', '\n')
+            print('user:',print_mess,'\n...')
+
+        collected_messages = []
+        for chunk in response:
+            chunk_message = chunk.choices[0].delta.content or ""  # extract the message
+            collected_messages.append(chunk_message)
+            if print_reply:
+                if chunk_message is not None:
+                    time.sleep(lag)
+                    print(chunk_message, end='')
+
+            self.reply = ''.join(collected_messages).strip()
+
+        time.sleep(0.85)
+
+        # Add the assistant's reply to the chat log
+        #if save_chat:
+        #    #write_log(reply, prompt)
+        #    update_log(chat_thread[-2])
+        #    update_log(chat_thread[-1])
+
+        if self.to_clip and has_copy_paste:
+            pc.copy(self.reply)
+
+
+
+    ############ Chat GPT ############
+
+    def send_message(self, message,
+                     model=model,        # choose openai model (choose_model())
+                     system='',          # 'system' instruction
+                     img='',           # insert an image path to activate gpt vision
+
+                     maxtoken=800,       # max tokens in reply
+                     temperature=1,      # output randomness [0-2]
+                     lag=0.00,           # word streaming lag
+
+                     create=False,       # image prompt
+                     dalle="dall-e-2",   # choose dall-e model
+                     size='512x512',
+
+                     play=False,        # play audio response
+                     voice='nova',       # choose voice (op.voices)
+                     tts="tts-1",        # choose tts model
+
+                     reinforcement=False,
+
+                     print_reply=True,
+                     print_user=False,
+                     print_token=True,
+                     print_debug=False
+                     ):
+
+        if isinstance(model, int): model = make_model(model)
+        if print_debug: print('using model: ',model)
+
+        token_limit = set_token_limit(model, maxtoken)
+
+        if message.startswith("@"):
+            self.clearchat()
+            message = message.lstrip("@")
+
+        if img != '':
+            self.send_image(img, message, system,
+                            model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+                            maxtoken=maxtoken, lag=lag, print_reply=print_reply)
+        elif create:
+            self.create_image(message,
+                              model=dalle,
+                              size=size,
+                              response_format='b64_json',
+                              quality="standard",
+                              time_flag=True,
+                              show_image=True)
+        else:
+            # add system instruction
+            if system != '':
+                self.add_system(system, reinforcement=reinforcement)
+            if self.format != '':
+                self.add_format(self.format)
+
+            # check token limit---------------------
+            if self.total_tokens > token_limit:
+                cut_length = prune_chat(token_limit, self.chat_thread)
+                self.chat_thread = self.chat_thread[cut_length:]
+
+                if self.keep_persona and self.persona != '':
+                    self.add_persona(self.persona)
+                if self.keep_persona and system != '':
+                    self.chat_thread.append({"role": "system", "content": system})
+
+            # expand chat
+            self.expand_chat(message)
+            if print_user:
+                print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
+                print('user:',print_mess)
+
+            # send message----------------------------
+            messages = self.build_messages(self.chat_thread)
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                stream=True,
+                max_tokens=maxtoken,  # set max token
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+            )
+
+            # stream reply ---------------------------------------------
+            self.reply = self.stream_reply(response, print_reply=print_reply, lag = lag)
+
+            time.sleep(0.85)
+            # expand chat--------------------------------
+            self.chat_thread.append({"role": "assistant", "content":self.reply})
+
+            # count tokens--------------------------------
+            self.total_tokens = self.chat_tokenizer(print_token)
+
+            # Add the assistant's reply to the chat log-------------
+            if self.save_log:
+                #write_log(reply, message)
+                update_log(self.chat_thread[-2])
+                update_log(self.chat_thread[-1])
+
+            if self.to_clip and has_copy_paste:
+                clip_reply = self.reply.replace('```', '###')
+                pc.copy(clip_reply)
+
+            if play:
+                self.text2speech_stream(self.reply, voice=voice, model=tts)
+                #text2speech_stream(reply)
+
+
+
+    ####### Image Models #######
+    def send_image(self,
+                   image_path = '',
+                   message="What’s in this image?",
+                   system='',     # add 'system' instruction
+                   model="gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+                   maxtoken=1000, lag=0.00, print_reply=True):
+        if image_path == '':
+            image_path = self.dummy_img
+
+        if message.startswith("@"):
+            self.clearchat()
+            message = message.lstrip("@")
+
+        # add system instruction
+        self.add_system(system)
+
+        if image_path.startswith('http'):
+            print('Image path:',image_path)
+            dummy = image_path
+            pass
+        else:
+            print('<Enconding Image...>')
+            base64_image = encode_image(image_path)
+            image_path = f"data:image/jpeg;base64,{base64_image}"
+            dummy = "image_path"
+
+        # expand chat
+        self.chat_thread.append({"role": 'user',
+                                 "content": [
+                                     {"type": "text", "text": message},
+                                     {
+                                         "type": "image_url",
+                                         "image_url": {
+                                             "url": image_path,
+                                         },
+                                     },
+                                 ]
+                                 })
+
+        # send message----------------------------
+        messages = self.build_messages(self.chat_thread)
+        print('<Looking Image...>')
+        response = client.chat.completions.create(
+            model= model,
+            messages=messages,
+            max_tokens=maxtoken,
+            stream=True,
+        )
+
+        #reply = response.choices[0].message.content
+        self.reply = self.stream_reply(response, print_reply=print_reply, lag = lag)
+
+        # reset compatibility with the other models
+        time.sleep(0.85)
+        # expand chat--------------------------------
+        self.chat_thread.append({"role": "assistant", "content":'[TAG] '+self.reply})
+        self.chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
+        # content is a list [] I have to replace ("image_file", "text") and GO!
+
+        # count tokens-------------------------------
+        self.total_tokens = self.chat_tokenizer(True)
+
+        if self.to_clip and has_copy_paste:
+            clip_reply = self.reply.replace('```', '###')
+            pc.copy(clip_reply)
+
+
+
+
+    # dalle_models= ['dall-e-2', dall-e-3]
+    # sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
+    # response_format ['url', 'b64_json']
+    def create_image(self,
+                     prompt= "a cute kitten",
+                     model="dall-e-2",
+                     size='512x512',
+                     response_format='b64_json',
+                     quality="standard",
+                     time_flag=True,
+                     show_image=True):
+
+        if model == "dall-e-2":
+            response = client.images.generate(
+                model=model,
+                prompt=prompt,
+                response_format=response_format,
+                size=size,
+                n=1,
+            )
+        elif model == "dall-e-3":
+            if size in ['256x256', '512x512']:
+                size = '1024x1024'
+
+            response = client.images.generate(
+                model=model,
+                prompt=prompt,
+                response_format=response_format,
+                quality=quality,
+                size=size,
+                n=1,
+            )
+
+        image_url = response.data[0].url
+        image_b64 = response.data[0].b64_json
+
+        if time_flag:
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            base_path= r''
+            filename = os.path.join(base_path, timestamp+'.png')
+        else:
+            filename = 'image.png'
+
+        if response_format == 'b64_json':
+            # Decode the base64-encoded image data
+            decoded_image = base64.b64decode(image_b64)
+            # Create a PIL Image object from the decoded image data
+            image = Image.open(BytesIO(decoded_image))
+            image.save(filename)
+        elif response_format == 'url':
+            if has_copy_paste:
+                pc.copy(str(image_url))
+            print('url:',image_url)
+            gdown.download(image_url,filename, quiet=True)
+
+        # Create a PngInfo object and add the metadata
+        image = Image.open(filename)
+        metadata = PngInfo()
+        metadata.add_text("key", prompt)
+        image.save(filename, pnginfo=metadata)
+
+        if show_image:
+            display_image(filename)
+
+    def replicate(self, image, styler='', model ='dall-e-2'):
+        self.send_image(image)
+        self.create_image(prompt=self.reply, response_format='b64_json', model=model, show_image=True)
+
+
+    ####### Speech to Text #######
+    def whisper(self, filepath,
+                translate=False,
+                response_format="text",
+                print_transcription=True):
+        #global transcript
+        audio_file = open(filepath, "rb")
+        if not translate:
+            transcript = client.audio.transcriptions.create( model="whisper-1", file=audio_file, response_format=response_format)
+        else:
+            transcript = client.audio.translations.create( model="whisper-1", file=audio_file, response_format=response_format)
+        if print_transcription: print(transcript)
+        audio_file.close()
+        return transcript
+
+    # response_format =  ["json", "text", "srt", "verbose_json", "vtt"]
+
+
+    ####### Text to Speech #######
+
+    voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+    response_formats = ["mp3", "flac", "aac", "opus"]
+    def text2speech(self,
+                    text,
+                    voice="alloy",
+                    filename="speech.mp3",
+                    model="tts-1",
+                    speed=1,
+                    play=False):
+        if os.path.exists(filename):
+            os.remove(filename)
+        spoken_response = client.audio.speech.create(
+            model=model, # tts-1 or tts-1-hd
+            voice=voice,
+            input=text,
+            speed=speed
+        )
+        spoken_response.stream_to_file(filename)
+        if play:
+            play_audio(filename)
+
+
+    def text2speech_stream(self,
+                           text,
+                           voice="alloy",
+                           model="tts-1",
+                           speed=1):
+        spoken_response = client.audio.speech.create(
+            model=model,
+            voice=voice,
+            response_format="opus",
+            input=text,
+            speed=speed
+        )
+
+        # Create a buffer using BytesIO to store the data
+        buffer = io.BytesIO()
+
+        # Iterate through the 'spoken_response' data in chunks of 4096 bytes and write each chunk to the buffer
+        for chunk in spoken_response.iter_bytes(chunk_size=4096):
+            buffer.write(chunk)
+
+        # Set the position in the buffer to the beginning (0) to be able to read from the start
+        buffer.seek(0)
+
+        with sf.SoundFile(buffer, 'r') as sound_file:
+            data = sound_file.read(dtype='int16')
+            sd.play(data, sound_file.samplerate)
+            sd.wait()
+
+
+    #if "silence.mp3" not in os.listdir():
+    #    text2speech(' ',filename="silence.mp3")
+
+    def speech2speech(self, voice= 'nova', tts= 'tts-1',
+                      filename="speech2speech.mp3",
+                      translate=False, play=True, info =True, duration=5):
+        #record_audio(duration=duration, filename="audio.mp3")
+        loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=info)
+        transcript = self.whisper('temp.wav', translate=translate)
+        self.text2speech(transcript, voice=voice, model= tts, filename=filename, play=play)
+
+    def speech2speech_loop(self, voice='nova', filename="speech2speech.mp3",
+                           translate=False, play=True, tts= 'tts-1',
+                           chat='alt' , exit='shift'):
+        print('Press '+chat+' to record, '+exit+' to exit.')
+        while True:
+            if kb.is_pressed(chat):
+                self.speech2speech(voice= voice, tts= tts, filename=filename, translate=translate, play=play, info=False)
+                print('Press '+chat+' to record, '+exit+' to exit.')
+            elif kb.is_pressed(exit):
+                print('Loop Stopped')
+                break
+
+
+    ###### Talk With ######
+    def speak(self,
+              message='',
+              system='',
+              voice='nova', language='eng', tts= 'tts-1',  max=1000, printall=False):
+
+        gpt = self.talk_model
+
+        who = self.assistant
+        if who in assistants:
+            system = assistants[who]
+        elif who != '':
+            self.add_persona(who, language)
+        else:
+            system = system
+        self.send_message(message,system=system, model=gpt, maxtoken=max, print_reply=printall, print_token=False)
+        self.text2speech_stream(self.reply, voice=voice, model=tts)
+
+
+    def speak_loop(self,
+                   system='',
+                   voice='nova', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop'):
+        gpt = self.talk_model
+
+        print('Send "'+exit_chat+'" to exit.')
+
+        who = self.assistant
+        if who in assistants:
+            system = assistants[who]
+        elif who != '':
+            self.add_persona(who, language)
+        else:
+            system = system
+        while True:
+            message = input('\n')
+            if message == exit_chat:
+                print('Chat Closed')
+                break
+            else:
+                self.send_message(message,system=system, model=gpt, maxtoken=max, print_reply=printall, print_token=False, print_user=True, play=True, voice=voice, tts=tts)
+                print('')
+
+
+    def talk(self,
+             voice='nova', language='eng', tts= 'tts-1', max=1000, printall=False, write=False):
+
+        gpt = self.talk_model
+
+        #record_audio(duration, "input.mp3")
+        loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printall)
+        transcript = self.whisper("temp.wav", print_transcription=printall)
+
+        who = self.assistant
+        if who in assistants:
+            system = assistants[who]
+        else:
+            self.add_persona(who, language)
+            system = ''
+        play = not write
+        printall = printall if not write else True
+        self.send_message(transcript,system=system, model=gpt, maxtoken=max,  print_reply=printall, print_token=False, play=play, voice=voice, tts=tts)
+
+    def talk_loop(self,
+                  voice='nova', language='eng', tts= 'tts-1', max=1000, printall=False, write=False, chat='alt' , exit='shift'):
+        model = self.talk_model
+        who = self.assistant
+        print('Press '+chat+' to chat, '+exit+' to exit.')
+        while True:
+            if kb.is_pressed(chat):
+                self.talk(who, gpt=model, voice=voice, language=language, tts= tts, max=max, printall=printall, write=write)
+                print('Press '+chat+' to chat, '+exit+' to exit.')
+            elif kb.is_pressed(exit):
+                print('Chat Closed')
+                break
+
+
+    ####### Assistants #######
+    def chat(self,
+             m,
+             gpt=None,
+             max=1000, img='', paste=False, token=False, translate=False, create=False):
+
+        gpt = gpt or self.model
+
+        p = pc.paste() if paste else ''
+
+        if self.bio:
+            self.add_bio()#add = "and you are his assistant. ***")
+            # "and you are his best friend. ***")
+
+        self.send_message(m+p,
+                          #system=sys,
+                          maxtoken=max,
+                          model=gpt,
+                          img=img,
+                          print_token=token,
+                          create=create)
+
+        if translate or self.translate:
+            translator = create_translator(rileva_lingua(m))
+            if self.translate_jap:
+                translator = create_jap_translator(rileva_lingua(m))
+            print('\n')
+            self.ask(self.reply, translator)
+
+    ct = chat
+
+    def cp(self, *args, **kwargs):
+        # Passes all positional and keyword arguments to the chat method, setting paste to True
+        kwargs['paste'] = True  # Ensure paste is always set to True
+        self.chat(*args, **kwargs)
+
+    def ci(self, *args, **kwargs):
+        kwargs['img'] = pc.paste()
+        self.chat(*args, **kwargs)
+
+    # def cp(self, m, max=1000, img='', clip=True, token=False, translate= False, create=False):
+    #     self.chat(m=m, max=max, img=img, paste=True, clip=clip, token=token, translate=translate, create=create)
+
+    def chat_loop(self,
+                  system='',
+                  max=1000, language='eng', exit_chat= 'stop', printall=True):
+        gpt = self.model
+        who = self.assistant
+        print('Send "'+exit_chat+'" to exit chat.')
+        if who in assistants:
+            system = assistants[who]
+        elif who != '':
+            self.add_persona(who, language)
+        else:
+            system = system
+        while True:
+            message = input('\n')
+            if message == exit_chat:
+                print('Chat Closed')
+                break
+            else:
+                self.send_message(message,system=system, model=gpt, maxtoken=max, print_reply=printall, print_token=False, print_user=True)
+                print('')
+
+
+    # Formatting
+    def schematize(self, m, language='english', max = 1000, img='', paste = False, clip=True):
+        if language != 'english':
+            self.expand_chat('Reply only using '+language, 'system')
+        self.add_system(assistants['schematizer'])
+        self.chat(m, max, img, paste, clip)
+
+    def make_prompt(self, m, max = 1000, img='', clip=True, sdxl=True):
+        import stablediff_rag as sd
+        if sdxl:
+            assistant = sd.rag_sdxl
+        else:
+            assistant = sd.rag_sd
+        self.add_system(assistant)
+        self.chat(m, max, img, clip)
+
+    # Translators
+    def translate(self, language='English'):
+        self.ask(self.reply, create_translator(language))
+
+
+    # def japanese_learner(self, m,voice='nova', times= 3, speed=1):
+    #     self.japanese_teacher(m, 'gpt-4o')
+    #     print('')
+    #     phrase = self.reply.split('\n')[0].split(':')[1].strip()
+    #     text2speech(phrase,voice=voice, speed = speed, play=True)
+    #     audio_loop()
+    #
+    # def portuguese_learner(self, m,voice='nova', times= 3, speed=1):
+    #     self.portuguese_teacher(m, 'gpt-4o')
+    #     print('')
+    #     phrase = self.reply.split('\n')[0].split(':')[1].strip()
+    #     text2speech(phrase,voice=voice, speed = speed, play=True)
+    #     audio_loop()
+
+
+
+# An embedded assistant or a character of your choice
+chatgpt = GPT(assistant='base')
+creator = GPT(assistant='creator')
+fixer = GPT(assistant='fixer')
+delamain = GPT(assistant='delamain')
+oracle = GPT(assistant='oracle')
+R = GPT(assistant='roger')
+Rt = GPT(assistant='robert')
+C = GPT(assistant='roger')
 
 
 # Scientific Assistants
-def galileo(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['galileo'], m, gpt, max, img, paste, clip)
-def newton(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['newton'], m, gpt, max, img, paste, clip)
-def leonardo(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['leonardo'], m, gpt, max, img, paste, clip)
-def mendel(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['mendel'], m, gpt, max, img, paste, clip)
-def watson(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['watson'], m, gpt, max, img, paste, clip)
-def crick(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['crick'], m, gpt, max, img, paste, clip)
-def venter(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['venter'], m, gpt, max, img, paste, clip)
-def darwin(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['darwin'], m, gpt, max, img, paste, clip)
-def dawkins(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['dawkins'], m, gpt, max, img, paste, clip)
-def turing(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['turing'], m, gpt, max, img, paste, clip)
-def penrose(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['penrose'], m, gpt, max, img, paste, clip)
-def marker(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['marker'], m, gpt, max, img, paste, clip)
-def collins(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['collins'], m, gpt, max, img, paste, clip)
-def springer(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['springer'], m, gpt, max, img, paste, clip)
-def elsevier(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['elsevier'], m, gpt, max, img, paste, clip)
+leonardo = GPT(assistant='leonardo')
+newton = GPT(assistant='leonardo', format='python')
+galileo = GPT(assistant='leonardo', format='markdown')
+mendel = GPT(assistant='mendel')
+watson = GPT(assistant='mendel', format='latex')
+venter = GPT(assistant='mendel', format='python')
+crick = GPT(assistant='mendel', format='markdown')
+darwin = GPT(assistant='darwin')
+dawkins = GPT(assistant='darwin', format='markdown')
+penrose = GPT(assistant='penrose')
+turing = GPT(assistant='penrose', format='python')
+marker = GPT(assistant='penrose', format='markdown')
+collins = GPT(assistant='collins')
+elsevier = GPT(assistant='collins', format='latex')
+springer = GPT(assistant='collins', format='markdown')
+
 
 # Characters
-def add_bio(assistant, my_name='', add = ''' and you are his best friend. ***'''):
-    if os.path.exists("my_bio.txt"):
-        assistant = assistant+'''\n***'''+load_file("my_bio.txt")+'***'
-    elif my_name !='':
-        assistant = assistant+'''\n*** Your interlocutor is called '''+ my_name + add
-    else:
-        assistant = assistant
-    return assistant
+julia = GPT(assistant='julia', bio=True)
+mike = GPT(assistant='mike', bio=True)
+michael = GPT(assistant='michael', translate=True, bio=True)
+miguel = GPT(assistant='miguel', translate=True, bio=True)
+francois = GPT(assistant='francois', translate=True, bio=True)
+luca = GPT(assistant='luca', translate=True, bio=True)
+hero = GPT(assistant='hero', translate=True, translate_jap=True, bio=True)
+yoko = GPT(assistant='yoko', translate=True, translate_jap=True, bio=True)
 
-def julia(m,  gpt=model, max = 1000, img='', who='julia', my_name = '', clip=False):
-    assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-
-def mike(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
-    assistant = add_bio(assistants['mike'], my_name=my_name, add = "and you are his best friend. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-
-def michael(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
-    assistant = add_bio(assistants['michael'], my_name=my_name, add = "and you are his best friend. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-    print('\n')
-    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
-
-def miguel(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
-    assistant = add_bio(assistants['miguel'], my_name=my_name, add = "and you are his best friend. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-    print('\n')
-    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
-
-def francois(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
-    assistant = add_bio(assistants['francois'], my_name=my_name, add = "and you are his best friend. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-    print('\n')
-    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
-
-def luca(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
-    assistant = add_bio(assistants['luca'], my_name=my_name, add = "and you are his best friend. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-    print('\n')
-    ask_gpt(reply, create_translator(rileva_lingua(m)), model=gpt)
-
-def hero(m,  gpt=model, max = 1000, img='', my_name = '', clip=False,):
-    assistant = add_bio(assistants['hero'], my_name=my_name, add = "and you are his best friend. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-    print('\n')
-    ask_gpt(reply, create_jap_translator(rileva_lingua(m)), model=gpt)
-
-def yoko(m,  gpt=model, max = 1000, img='', who='yoko', my_name = '', clip=False):
-    assistant = add_bio(assistants[who], my_name=my_name, add = "and you are his assistant. ***")
-    send_to_assistant(assistant, m, gpt, max, img, clip)
-    print('\n')
-    ask_gpt(reply, create_jap_translator(rileva_lingua(m)), model=gpt)
-
-
-# Translators
-def english(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['english'], m, gpt, max, img, paste, clip)
-def italian(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['italian'], m, gpt, max, img, paste, clip)
-def portuguese(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['portuguese'], m, gpt, max, img, paste, clip)
-def japanese(m,  gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['japanese'], m, gpt, max, img, paste, clip)
-def japanese_teacher(m, gpt=model, max = 1000, img='', paste = False, clip=True):
-    print('Text: '+m.lstrip("@"))
-    send_to_assistant(assistants['japanese_teacher'], m, gpt, max, img, paste, clip)
-def portuguese_teacher(m, gpt=model, max = 1000, img='', paste = False, clip=True):
-    send_to_assistant(assistants['portuguese_teacher'], m, gpt, max, img, paste, clip)
-
-def japanese_learner(m, voice='nova', times= 3, speed=1):
-    japanese_teacher(m, 'gpt-4-turbo')
-    print('')
-    phrase = reply.split('\n')[0].split(':')[1].strip()
-    text2speech(phrase,voice=voice, speed = speed, play=True)
-    audio_loop()
-    #i = 0
-    #while i in range(times-1):
-    #    time.sleep(len(phrase)/3)
-    #    play_audio("speech.mp3")
-    #    i += 1
-
-def portuguese_learner(m, voice='nova', times= 3, speed=1):
-    portuguese_teacher(m, 'gpt-4-turbo')
-    print('')
-    phrase = reply.split('\n')[0].split(':')[1].strip()
-    text2speech(phrase,voice=voice, speed = speed, play=True)
-    audio_loop()
-    #i = 0
-    #while i in range(times-1):
-    #    time.sleep(len(phrase)/4)
-    #    play_audio("speech.mp3")
-    #    i += 1
-
-def portoghese_studio(m, voice='nova', times= 3, speed=1):
-    send_message(m,system=assistants['portoghese_insegnante'], maxtoken=1000, model='gpt-4-turbo', to_clip=True)
-    print('')
-    phrase = reply.split('\n')[0].split(':')[1].strip()
-    text2speech(phrase,voice=voice, speed = speed, play=True)
-    audio_loop()
-
-
-def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
-    print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
-    while True:
-        if kb.is_pressed(repeat):
-            play_audio(audio_file)
-            #print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
-        elif kb.is_pressed(exit):
-            print('Chat Closed')
-            break
-
-#%%
-# m="""@
-# You need to write instructions for an assistant “fixer.” His job is to fix, adapt, correct, adjust, rearrange, improve, implement, contextualize whatever the user sends him. It understands the context itself and adapts any text to it.
-# """
-# creator(m,4)
-#%%
-
-### trial ###
-#yoko('@Ciao Yoko, come stai?', 'gpt-4o', who='yoko')
-#francois('@ ciao  ! Come va oggi, sei carico?')#, 'gpt-4o')
-
-#%%
-#creator("""@
-#Create the personality of a interesting intellectual person with social and interesting personality interested in art, cinema, photography, music. He is a poetic, dreamer, literate and a bit shy.
-#
-#Take inspiration from the example intruction below:
-#...
-#""", 'gpt-4o')
-#
-#clearchat()
-#add_persona('Antonio Gramsci')
-#send_message("""Cosa ne pensi di Giorgia Meloni""", 'gpt-4o')
-#%%
-#clearchat()
-#add_persona('Pino Scotto')
-#send_message("""Cosa ne pensi di Chiara Ferragni""", 'gpt-4o')
-#%%
-#julia('@Hi Julia, what do you think about this girl? Do you know her? I have a crush on her.', img=r"", my_name='John')#
-#%%
-#clearchat()
-#add_persona('Vincent Van Gogh')
-#send_message(""" Tell me what you see. Can you paint it?""", 'gpt-4o', img=dummy_img)
-#%%
+# Languages
+japanese_teacher = GPT(assistant='japanese_teacher')
+portuguese_teacher = GPT(assistant='portuguese_teacher')
 
 
 #%%
-#clearchat()
-#talk_with('julia',8,'nova')
-#talk_with('Adolf Hitler',8, 'onyx')
-#talk_with('Son Goku (Dragonball)',8, 'fable')
-#send_image(image='https://i.pinimg.com/736x/10/3f/00/103f002dbc59af101a55d812a66a3675.jpg')
-#send_image(image='https://i.pinimg.com/736x/ea/22/2d/ea222df6e85a7c50c4cc887a6c0a09bb.jpg')
-#giulia('parlami di te', 'gpt-4-turbo')
 
-#%%
-#url="https://www.viaggisicuri.com/viaggiareinformati/wp-content/uploads/2023/06/foto-articolo-1.jpg"
-#julia('@ciao carissima, oggi sei meravigliosa!', 'gpt-4-turbo')
-#send_image(image=url,message='Mi dici un po cosa vedi qui? Ti piace? Ci verresti con me...?')
-#julia('Sarebbe molto romantico. Non desidero altro...', 'gpt-4-turbo')
-
-##%%
-#julia('@Ad agosto andremo a visitare Lisbona per la prima volta!')
-##%%
-#chat_with('julia','@Andrò a visitare Lisbona per la prima volta, che quartiere mi consigli di visitare?')
-#%%
-#japanese_learner('@Lei mi piaceva tanto... volevo baciarla sulla bocca')
 
 ######### INFO #########
 # https://platform.openai.com/account/rate-limits

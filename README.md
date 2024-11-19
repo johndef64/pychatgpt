@@ -1,7 +1,7 @@
 # MyChatGPT 2.0: Python Module
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) [![PyPI Latest Release](https://img.shields.io/pypi/v/mychatgpt.svg)](https://pypi.org/project/mychatgpt/) [![PyPI Downloads](https://img.shields.io/pypi/dm/mychatgpt.svg?label=PyPI%20downloads)](https://pypi.org/project/mychatgpt/)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) [![PyPI Latest Release](https://img.shields.io/pypi/v/mychatgpt.svg)](https://pypi.org/project/mychatgpt/) 
 
-`pychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
+`mychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
 
 Now implemented with vision, hearing and drawing functions.
 
@@ -50,10 +50,7 @@ op.send_message('Your message goes here',
                 play= False,        # play audio response
                 voice='nova',       # choose voice (op.voices)
                 tts="tts-1",        # choose tts model
-				
-                save_chat=True,     # update chat_log.txt
-                to_clip=False,      # send reply to clipboard
-                reinforcement=False,
+				reinforcement=False,
                 
                 print_reply=True, 
                 print_user=False,
@@ -69,8 +66,6 @@ op.chat('Your message goes here',
         max=1000,
         img='',
         paste=False,
-        clip=True,
-        token=False,
         translate = False,
         create=False)
 ```
