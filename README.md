@@ -1,4 +1,4 @@
-# PyChatGPT 2.0: Python Module
+# MyChatGPT 2.0: Python Module
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) 
 
 `pychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
@@ -9,7 +9,11 @@ Now implemented with vision, hearing and drawing functions.
 
 Install package with pip: 
 ```bash
-pip install git+https://github.com/johndef64/pychatgpt.git
+pip install mychatgpt
+```
+Install latest version through git
+```bash
+pip install git+https://github.com/johndef64/mychatgpt.git
 ```
 
 To use this module, you need an **OpenAI API key**. You have to provide your API key when requested once and it will be stored as `openai_api_key.txt` in your working directory.
@@ -18,17 +22,17 @@ To use this module, you need an **OpenAI API key**. You have to provide your API
 
 The module provides the following main functions:
 
-1. `op.ask_gpt(prompt, *parameters*)`:  
+1. `GPT().ask_gpt(prompt, *args)`:  
 This basic function takes a prompt as input and generates a single response from the GPT chosen model. It returns the generated response and update `chat_log.json`.
 You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
 
-2. `op.send_message(message,*parameters*)`:  
-This main function allows for a more interactive conversation with the GPT chosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.txt` file.  
+2. `GPT().send_message(message,*args)`:  
+This main function allows for a more interactive conversation with the GPT chosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.json` file.  
 This function is implemented with GPT vision, Text2Speech and Dall-E functionalities.
 Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
 ```python
-from pychatgpt import GPT
+from mychatgpt import GPT
 op = GPT()
 
 op.send_message('Your message goes here',
