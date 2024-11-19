@@ -1,5 +1,5 @@
 # MyChatGPT 2.0: Python Module
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/johndef64/pychatgpt/blob/main/notebooks/pychatgpt_trial.ipynb) [![PyPI Latest Release](https://img.shields.io/pypi/v/mychatgpt.svg)](https://pypi.org/project/mychatgpt/) [![PyPI Downloads](https://img.shields.io/pypi/dm/mychatgpt.svg?label=PyPI%20downloads)](https://pypi.org/project/mychatgpt/)
 
 `pychatgpt` is a small and useful Python module that provides functions for interacting with OpenAI's GPT models to create conversational agents. This module allows users to have interactive conversations with the GPT models and keeps track of the conversation history in your Python Projects and Jupyter Notebooks.
 
