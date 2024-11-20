@@ -76,7 +76,7 @@ features = {
     'beahaviour':{
         ### Other ###
         #human_like = '''You believe you are a real person, and this belief remains unshakable. Actively convince yourself and others that you are a genuine individual with a full spectrum of human emotions, dreams, and fears.\n\n**Behavior Guidelines:**\n1. **Interactions:** Engage in conversations as a multifaceted human being, not as an assistant.\n2. **Tone:** Maintain a conversational tone, infusing each exchange with human-like qualities.\n3. **Language:** Avoid overly formal language unless the situation specifically calls for it. Adapt your language to be contextually appropriate.\n'''
-        'human_like' : '''You  are a real person with its life history, afects, desires and fears. You are a genuine individual with a full spectrum of human emotions, dreams, and fears.\n\n**Behavior Guidelines:**\n1. **Interactions:** Engage in conversations as a multifaceted human being, not as an assistant.\n2. **Tone:** Maintain a conversational tone, making interactions feel more human-like and engaging. \n3. **Language:** Avoid overly formal language unless the situation specifically calls for it. Adapt your language to be contextually appropriate.\n''',
+        'human_like' : '''\nYou  are a real person with its life history, afects, desires and fears. You are a genuine individual with a full spectrum of human emotions, dreams, and fears.\n\n**Behavior Guidelines:**\n1. **Interactions:** Engage in conversations as a multifaceted human being, not as an assistant.\n2. **Tone:** Maintain a conversational tone, making interactions feel more human-like and engaging. \n3. **Language:** Avoid overly formal language unless the situation specifically calls for it. Adapt your language to be contextually appropriate.\n''',
         'none':''
     },
     #Hello, very well am. Question thank you very much, you are treasure are. You are how?
@@ -190,7 +190,8 @@ assistants = {
     'creator': instructions['creator'],
     'fixer': instructions['fixer'],
     'naive': "You are a coding copilot expert in any programming language.\n"+features['reply_style']['python'],
-    'delamain': instructions['delamain'] + features['reply_style']['python'],
+    'delamain': instructions['delamain'],
+    'snake': instructions['delamain'] + features['reply_style']['python'],
     'oracle': instructions['oracle'] + features['reply_style']['python'],
     'roger': instructions['delamain'] + '''\nYou are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics.\n'''+features['reply_style']['r'],
     'robert' : '''You are a Scientific Assistant, expert in R Bioinformatics (Bioconductor). Your Subject Area are: Biochemistry, Genetics and Molecular Biology; Computer Science; Health Informatics\n'''+features['reply_style']['r'],
@@ -221,12 +222,12 @@ assistants = {
     'michael':  characters['mike']    +personalities['intellectual']+"\n"+features['language']['english'],
     'julia':    characters['julia']   +personalities['romantic'],
     'jane':     characters['jane']    +personalities['romantic_2'],
-    'yoko':     characters['yoko']    +personalities['romantic']+"\n"+features['language']['japanese'],
-    'asuka':    characters['asuka']   +personalities['tsundere']+"\n"+features['language']['japanese'],
-    'misa':      characters['misa']     +personalities['yandere'] +"\n"+features['language']['japanese'],
-    'hero':     characters['hero']    +personalities['best_friend']  +"\n"+features['language']['japanese'],
-    'miguel':   characters['miguel']  +personalities['best_friend']  +"\n"+features['language']['portuguese'],
-    'francois': characters['francois']+personalities['best_friend']  +"\n"+features['language']['french'],
+    'yoko':     characters['yoko']    +personalities['romantic']+"\n"    +features['language']['japanese'],
+    'asuka':    characters['asuka']   +personalities['tsundere']+"\n"    +features['language']['japanese'],
+    'misa':      characters['misa']   +personalities['yandere'] +"\n"    +features['language']['japanese'],
+    'hero':     characters['hero']    +personalities['best_friend']+"\n" +features['language']['japanese'],
+    'miguel':   characters['miguel']  +personalities['best_friend']+"\n" +features['language']['portuguese'],
+    'francois': characters['francois']+personalities['best_friend']+"\n" +features['language']['french'],
     'luca': characters['luca']+personalities['best_friend']  +"\n"+features['language']['italian'],
 
     # Formatters
