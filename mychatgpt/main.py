@@ -1383,16 +1383,16 @@ class GPT:
     #     audio_loop()
 
 
-
 # An embedded assistant or a character of your choice
+copilot_gpt = 'gpt-4o-2024-08-06'
 chatgpt = GPT(assistant='base')
 creator = GPT(assistant='creator')
-fixer = GPT(assistant='fixer')
-delamain = GPT(assistant='delamain')
-oracle = GPT(assistant='oracle')
-R = GPT(assistant='roger')
-Rt = GPT(assistant='robert')
-C = GPT(assistant='roger')
+fixer = GPT(assistant='fixer', model=copilot_gpt)
+delamain = GPT(assistant='delamain', model=copilot_gpt)
+oracle = GPT(assistant='oracle', model=copilot_gpt)
+R = GPT(assistant='roger', model=copilot_gpt)
+Rt = GPT(assistant='robert', model=copilot_gpt)
+C = GPT(assistant='delamain', format='python', model=copilot_gpt)
 
 
 # Scientific Assistants
