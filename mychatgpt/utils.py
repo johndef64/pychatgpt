@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-import keyboard as kb
 import pyperclip as pc
+import keyboard as kb
 import pandas as pd
 import importlib
 import subprocess
