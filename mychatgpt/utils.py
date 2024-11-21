@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-import sounddevice as sd
-import soundfile as sf
 import keyboard as kb
 import pyperclip as pc
 import pandas as pd
@@ -29,6 +27,9 @@ if platform.system() == "Linux":
         subprocess.check_call(["sudo","apt-get", "install", "libportaudio2"])
     else:
         pass
+
+import sounddevice as sd
+import soundfile as sf
 
 # try:
 #     import PIL
