@@ -34,23 +34,23 @@ Use `op.send_message(message)` keeping the default *parameters* or change them a
 ```python
 from mychatgpt import GPT
 
-op = GPT(assistant='',            # in-build assistant name 
-         persona='',              # any known character
-         format='',               # output format (latex,python,markdown)
-         translate=False,         # translate outputs
-         translate_jap=False,     # translate in jap outputs
-         save_log=True,           # save log file
-         to_clip=True,            # send reply t clipboard
-         print_token=True,        # print token count
-         model='gpt-4o-mini',     # set openai main model
+op = GPT(assistant='',                   # in-build assistant name 
+         persona='',                     # any known character
+         format=None,                    # output format (latex,python,markdown)
+         translate=False,                # translate outputs
+         translate_jap=False,            # translate in jap outputs
+         save_log=True,                  # save log file
+         to_clip=True,                   # send reply t clipboard
+         print_token=True,               # print token count
+         model='gpt-4o-mini',            # set openai main model
          talk_model='gpt-4o-2024-08-06', # set openai speak model
-         dalle="dall-e-2",        # set dall-e model
-         image_size='512x512',    # set generated image size
+         dalle="dall-e-2",               # set dall-e model
+         image_size='512x512',           # set generated image size
          )
 
 op.chat('Your message goes here', 
         max=1000,          # max tokens in reply
-        img='',            # insert an image path to activate gpt vision
+        img=None,          # insert an image path to activate gpt vision
         paste=False,       # append clipboard to message
         create=False       # create an image
         )
@@ -75,7 +75,7 @@ vincent.chat("""Tell me what you see. Can you paint it?""", img=vincent.dummy_im
 ```python
 op.send_image(image="https://repo.com/image.jpg",
               message="What’s in this image?",
-              system = '',     # add 'system' instruction
+              system = None,     # add 'system' instruction
               model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
               maxtoken=1000, 
               lag=0.00, printreply=True)
@@ -110,7 +110,7 @@ response_formats = ["mp3", "flac", "aac", "opus"]
 6. Speak With...
 ```python
 op.speak(message='',
-         system='',
+         system=None,
          voice='nova', 
          language='eng', 
          tts= 'tts-1', max=1000, printall=False)
@@ -120,7 +120,7 @@ socrates = GPT('Socrates')
 socrates.speak('Tell me about the Truth.', 'onyx')
 
 # Endless chat, keyboard controlled
-socrates.speak_loop(system='',
+socrates.speak_loop(system=Nonr,
                     voice='nova', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
 ```
 7. Talk With...

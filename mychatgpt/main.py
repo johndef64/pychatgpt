@@ -1,78 +1,39 @@
-import os
 import io
 import sys
 import ast
-import glob
 import json
-import time
-import platform
-import requests
-import importlib
-import subprocess
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+from .utils import *
+from .assistants import *
+
+main_requirements = ["openai", "tiktoken", "langdetect", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2", 'cryptography', 'matplotlib']
+audio_requirements = ["pygame", "sounddevice", "soundfile", "keyboard"]
+#check_and_install_requirements(main_requirements)
+#check_and_install_requirements(audio_requirements)
+
+import tiktoken
+import pandas as pd
+import pyperclip as pc
+from openai import OpenAI
+from scipy.spatial import distance
+from cryptography.fernet import Fernet
+
+import keyboard as kb
+import soundfile as sf
+import sounddevice as sd
+
+import gdown
+import base64
+from PIL import Image
+from io import BytesIO
+from datetime import datetime
+import matplotlib.pyplot as plt
+from IPython.display import display
+from PIL.PngImagePlugin import PngInfo
+from langdetect import detect, DetectorFactory
+
 
 is_colab = 'google.colab' in sys.modules
-
-def simple_bool(message, y='y', n ='n'):
-    choose = input(message+" ("+y+"/"+n+"): ").lower()
-    your_bool = choose in [y]
-    return your_bool
-
-
-def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
-    file_pattern = os.path.join(path, "*." + ext) if ext else os.path.join(path, "*")
-    files = glob.glob(file_pattern)
-    files_name = []
-    for file in files:
-        file_name = os.path.basename(file)
-        files_name.append(file_name)
-
-    files_df = pd.Series(files_name)
-    file = files_df[files_df.str.contains(contains)]
-    return file
-
-
-############## Install Requirements ###################
-
-def check_and_install_requirements(requirements: list):
-    missing_requirements = []
-    for module in requirements:
-        try:
-            # Check if the module is already installed
-            importlib.import_module(module)
-        except ImportError:
-            missing_requirements.append(module)
-    if len(missing_requirements) == 0:
-        pass
-    else:
-        x = simple_bool(str(missing_requirements)+" are missing.\nWould you like to install them all?")
-        if x:
-            for module in missing_requirements:
-                subprocess.check_call(["pip", "install", module])
-                print(f"{module}' was installed correctly.")
-        else:
-            print("Waring: missing modules")#exit()
-
-requirements = ["openai", "tiktoken", "langdetect", "pandas", "pyperclip", "gdown","scipy", "nltk", "PyPDF2", 'cryptography', 'matplotlib']
-check_and_install_requirements(requirements)
-from cryptography.fernet import Fernet
-from scipy.spatial import distance
-from openai import OpenAI
-import pyperclip as pc
-import pandas as pd
-import tiktoken
-
-
-# Function to check whether pyperclip works in the system
-def check_copy_paste():
-    try:
-        pc.copy("test")
-        test_text = pc.paste()
-        if test_text == "test":
-            return True
-    except pc.PyperclipException:
-        return False
-
 has_copy_paste = check_copy_paste()
 
 if not has_copy_paste:
@@ -85,46 +46,7 @@ if platform.system() == "Linux":
     subprocess.check_call(["sudo","apt", "install", "xclip"])
     ''')
 
-
-### audio requirements
-audio_requirements = ["pygame", "sounddevice", "soundfile", "keyboard"]
-def is_package_installed(package_name):
-    try:
-        output = subprocess.check_output("dpkg -l | grep " + package_name, shell=True)
-        return bool(output)
-    except subprocess.CalledProcessError:
-        return False
-
-if platform.system() == "Linux":
-    if not is_package_installed("libportaudio2"):
-        subprocess.check_call(["sudo","apt-get", "update"])
-        subprocess.check_call(["sudo","apt-get", "install", "libportaudio2"])
-    else:
-        pass
-
-check_and_install_requirements(audio_requirements)
-import sounddevice as sd
-import soundfile as sf
-import keyboard as kb
-import pygame
-
-
-### image requirements
-try:
-    import PIL
-except ImportError:
-    subprocess.check_call(['pip', 'install', 'pillow'])
-
-import gdown
-import base64
-import PyPDF2
-from PIL import Image
-from io import BytesIO
-from datetime import datetime
-import matplotlib.pyplot as plt
-from PIL.PngImagePlugin import PngInfo
-from IPython.display import display
-
+#print('START')
 
 ################ set API-key #################
 
@@ -172,6 +94,8 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
         api_key = simple_decrypter(psw, api_hash)
 else:
     api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
+
+# initialize client
 client = OpenAI(api_key=str(api_key))
 
 def change_key():
@@ -183,80 +107,6 @@ def change_key():
             file.write(input('insert here your openai api key:'))
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
         client = OpenAI(api_key=str(api_key))
-
-
-###### audio functions  #####
-def play_audio(file_name):
-    pygame.mixer.init()
-    pygame.mixer.music.load(file_name)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(10)
-    pygame.mixer.music.stop()
-    pygame.mixer.quit() # Close the file after music play ends
-
-def audio_loop(audio_file="speech.mp3", repeat='alt' , exit='shift'):
-    print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
-    while True:
-        if kb.is_pressed(repeat):
-            play_audio(audio_file)
-            #print('Press '+repeat+' to repeat aloud, '+exit+' to exit.')
-        elif kb.is_pressed(exit):
-            print('Chat Closed')
-            break
-
-
-def record_audio(duration=5, filename="recorded_audio.mp3"): # duration: in seconds
-    print('start recording for',str(duration),'seconds')
-    sample_rate = 44100
-    channels = 2
-    recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=channels)
-    sd.wait() # wait until recording is finished
-    print('recording ended')
-    sf.write(filename, recording, sample_rate) #save audio file
-
-
-def record_audio_press(filename='recorded_audio.wav',
-                       channels=1,
-                       rate=44100,
-                       subtype='PCM_16',
-                       stop= 'ctrl'):
-    # start recording with the given sample rate and channels
-    print("Recording... Press "+stop+" to stop")
-    myrecording = sd.rec(int(rate * 10), samplerate=rate, channels=channels)
-    while True:
-        # If  'Key'  is pressed stop the recording and break the loop
-        if kb.is_pressed(stop):
-            print("Recording Stopped.")
-            break
-
-    sd.wait()  # wait until recording is finished
-    sf.write(filename, myrecording, rate, subtype)
-
-
-def loop_audio(start='alt', stop='ctrl',exit='shift', filename='recorded_audio.wav', printinfo=True):
-    if printinfo:
-        print("Press "+start+" to start recording, "+exit+" to exit")
-    while True:
-        # If 'Key' is pressed start the recording
-        if kb.is_pressed(start):
-            record_audio_press(filename, stop=stop)
-            break
-        elif kb.is_pressed(exit):
-            break
-
-
-def while_kb_press(start='alt',stop='ctrl'):
-    while True:
-        if kb.is_pressed(start):
-            print("Press "+stop+" to stop")
-            while True:
-                if kb.is_pressed(stop):  # if key 'ctrl + c' is pressed
-                    break  # finish the loop
-                else:
-                    print('while...')
-                    time.sleep(2)
-            print("Finished loop.")
 
 
 gpt_models_dict = {
@@ -294,62 +144,6 @@ def tokenizer(text):
     return Tokenizer().tokens(text)
 
 
-def get_gitfile(url, flag='', dir=os.getcwd()):
-    url = url.replace('blob','raw')
-    response = requests.get(url)
-    file_name = flag + url.rsplit('/',1)[1]
-    file_path = os.path.join(dir, file_name)
-    if response.status_code == 200:
-        with open(file_path, 'wb') as file:
-            file.write(response.content)
-        print(f"File downloaded successfully. Saved as {file_name}")
-    else:
-        print("Unable to download the file.")
-
-
-def get_chat():
-    handle = "https://github.com/johndef64/pychatgpt/blob/main/chats/"
-    response = requests.get(handle)
-    data = response.json()
-    files = [item['name'] for item in data['payload']['tree']['items']]
-    path = os.getcwd() + '/chats'
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-    file = files[int(input('select chat:\n'+str(pd.Series(files))))]
-    url = handle + file
-    get_gitfile(url, dir=os.getcwd()+'/chats')
-
-### file manager ###
-
-def load_file(file='', path=os.getcwd()):
-    with open(os.path.join(path, file),'r', encoding='utf-8') as file:
-        my_file = file.read()#ast.literal_eval(file.read())
-        file.close()
-    return my_file
-
-def load_choosen_file(path=os.getcwd(), ext='', contains=''):
-    files_df = display_files_as_pd(path, ext=ext, contains=contains)
-    filename = str(files_df[int(input('Choose file:\n'+str(files_df)))])
-    my_file = load_file(filename, path)
-    return my_file
-
-def load_multiple_files(file_list):
-    loaded_files = {}
-    for file_name in file_list:
-        loaded_files[os.path.basename(file_name).split('.')[0]] = load_file(file=file_name)
-    print('Loaded Files:', list(loaded_files.keys()))
-    return loaded_files
-
-
-def pdf_to_text(pdf_path):
-    with open(pdf_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        text = ""
-        for page_num in range(len(reader.pages)):
-            page = reader.pages[page_num]
-            text += page.extract_text()
-    return text
 
 #%%
 
@@ -384,7 +178,6 @@ if not os.path.exists('chat_log.json'):
 
 
 ##### LANG #####
-from langdetect import detect, DetectorFactory
 
 def rileva_lingua(testo):
     # Reinizializzare il seed per ottenere risultati consistenti
@@ -508,28 +301,9 @@ def moderation(text="Sample text goes here.", plot=True):
     return df
 
 
+
+
 ####### Image Models #######
-
-def encode_image(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
-
-
-
-def display_image(filename, jupyter = False, plotlib=True, dpi=200):
-    if jupyter:
-        image = Image.open(filename)
-        display(image)
-    elif plotlib:
-        image = Image.open(filename)
-        plt.figure(dpi=dpi)
-        plt.imshow(image)
-        plt.axis('off')
-        plt.show()
-    else:
-        image = Image.open(filename)
-        image.show()
-
 '''
 Model	Quality	Resolution	Price
 DALL·E 3	Standard	1024×1024	            $0.040 / image
@@ -551,11 +325,8 @@ TTS HD	$0.030 / 1K characters
 
 
 
-
-
 ########## ASSISTANTS ####################
 
-from pychatgpt.assistants import *
 assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
 # Copilots
 copilot_gpt = 'gpt-4o-2024-08-06'
@@ -598,24 +369,23 @@ models_info='''
 
 class GPT:
     def __init__(self,
-                 assistant='',
-                 persona='',
-                 format='',
-                 translate=False,
-                 translate_jap=False,
-                 save_log=True,
-                 to_clip=True,
-                 print_token=True,
-                 model='gpt-4o-mini',
-                 talk_model='gpt-4o-2024-08-06',
-                 dalle="dall-e-2",
-                 image_size='512x512',
-                 user_name='',
-                 bio=False
+                 assistant: str = '',                    # in-build assistant name
+                 persona: str = '',                      # any known character
+                 format: str = None,                     # output format (latex,python,markdown)
+                 translate: bool = False,                # translate outputs
+                 translate_jap: bool = False,            # translate in jap outputs
+                 save_log: bool = True,                  # save log file
+                 to_clip: bool = True,                   # send reply t clipboard
+                 print_token: bool = True,               # print token count
+                 model: str = 'gpt-4o-mini',             # set openai main model
+                 talk_model: str = 'gpt-4o-2024-08-06',  # set openai speak model
+                 dalle: str = "dall-e-2",                # set dall-e model
+                 image_size: str = '512x512',            # set generated image size
+                 user_name: str = None,
+                 bio: bool = False
                  ):
         self.assistant = assistant
         self.persona = persona
-        self.transcript = ''
         self.format = format
         self.user_name = user_name
         self.save_log = save_log
@@ -623,6 +393,7 @@ class GPT:
         self.print_token = print_token
         self.bio = bio
         self.reply = ''
+        self.ask_reply = ''
 
         self.total_tokens = 0  # iniziale token count
         self.token_limit = 0  # iniziale token limit
@@ -672,7 +443,7 @@ class GPT:
             self.chat_thread = [item for item in self.chat_thread if item != {"role": "system", "content": reply_styles}]
         self.chat_thread.append({"role": "system", "content": reply_styles[format_]})
 
-    def add_persona(self, char, language='eng'):
+    def add_persona(self, char: str = '', language='eng'):
         self.persona = char
         persona_dict = {
             'character': "You are now impersonating "+char+". Please reflect "+char+"'s traits in all interactions. Make sure to use an appropriate language style and uphold an attitude or mindset that aligns with "+char+"'s character. You are NOT an assistant or a helper but a real person.",
@@ -685,11 +456,11 @@ class GPT:
             self.add_system(persona_dict['personaggio'])
             #self.chat_thread.append({"role": "system", "content": persona_dict['personaggio']})
 
-    def add_bio(self, add = ''' and you are his best friend. ***'''):
+    def add_bio(self, add: str = " and you are his best friend. ***"):
 
         if os.path.exists("my_bio.txt"):
             self.expand_chat('''***'''+load_file("my_bio.txt")+'***', 'system')
-        elif self.user_name !='':
+        elif self.user_name:
             self.expand_chat('''*** Your interlocutor is called '''+ self.user_name + add+'***', 'system')
 
 
@@ -802,17 +573,16 @@ class GPT:
     ###### Question-Answer-GPT ######
 
     def ask(self,
-            prompt,
-            system='you are an helpful assistant',
-            #model = model,
-            maxtoken=800,
-            lag=0.00,
-            temperature=1,
-            print_user=False,
-            print_reply=True
+            prompt: str = '',
+            system: str = 'you are an helpful assistant',
+            model: str = model,        # choose openai model (choose_model())
+            maxtoken: int = 800,
+            lag: float = 0.00,
+            temperature: float = 1,
+            print_user: bool = False,
+            print_reply: bool = True
             ):
 
-        model = self.model
         if isinstance(model, int): model = make_model(model)
 
         response = client.chat.completions.create(
@@ -842,7 +612,7 @@ class GPT:
                     time.sleep(lag)
                     print(chunk_message, end='')
 
-            self.reply = ''.join(collected_messages).strip()
+            self.ask_reply = ''.join(collected_messages).strip()
 
         time.sleep(0.85)
 
@@ -853,35 +623,36 @@ class GPT:
         #    update_log(chat_thread[-1])
 
         if self.to_clip and has_copy_paste:
-            pc.copy(self.reply)
+            pc.copy(self.ask_reply)
+
 
 
 
     ############ Chat GPT ############
 
     def send_message(self, message,
-                     model=model,        # choose openai model (choose_model())
-                     system='',          # 'system' instruction
-                     img='',           # insert an image path to activate gpt vision
+                     model: str = model,        # choose openai model (choose_model())
+                     system: str = None,          # 'system' instruction
+                     img: str = None,           # insert an image path to activate gpt vision
 
-                     maxtoken=800,       # max tokens in reply
-                     temperature=1,      # output randomness [0-2]
-                     lag=0.00,           # word streaming lag
+                     maxtoken: int = 800,       # max tokens in reply
+                     temperature: float = 1,      # output randomness [0-2]
+                     lag: float = 0.00,           # word streaming lag
 
-                     create=False,       # image prompt
-                     dalle="dall-e-2",   # choose dall-e model
-                     image_size='512x512',
+                     create: bool = False,       # image prompt
+                     dalle: str = "dall-e-2",   # choose dall-e model
+                     image_size: str = '512x512',
 
-                     play=False,        # play audio response
-                     voice='nova',       # choose voice (op.voices)
-                     tts="tts-1",        # choose tts model
+                     play: bool = False,        # play audio response
+                     voice: str = 'nova',       # choose voice (op.voices)
+                     tts: str = "tts-1",        # choose tts model
 
-                     reinforcement=False,
+                     reinforcement: bool = False,
 
-                     print_reply=True,
-                     print_user=False,
-                     print_token=True,
-                     print_debug=False
+                     print_reply: bool = True,
+                     print_user: bool = False,
+                     print_token: bool = True,
+                     print_debug: bool = False
                      ):
 
         if isinstance(model, int): model = make_model(model)
@@ -898,23 +669,19 @@ class GPT:
             self.clear_chat()
             message = message.lstrip("@")
 
-        if img != '':
+        if create:
+            self.expand_chat('Remember, if the user ask for an image creation, or a photo display to you, you must pretend you are showing it to you as you have truly sent this image to him.','system')
+
+        if img:
             self.send_image(img, message, system,
                             model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
                             maxtoken=maxtoken, lag=lag, print_reply=print_reply)
-        elif create:
-            self.create_image(message,
-                              model=dalle,
-                              size=image_size,
-                              response_format='b64_json',
-                              quality="standard",
-                              time_flag=True,
-                              show_image=True)
+
         else:
             # add system instruction
-            if system != '':
+            if system:
                 self.add_system(system, reinforcement=reinforcement)
-            if self.format != '':
+            if self.format:
                 self.add_format(self.format)
 
             # check token limit---------------------
@@ -956,6 +723,16 @@ class GPT:
             # count tokens--------------------------------
             self.total_tokens = self.chat_tokenizer(print_token)
 
+            if create:
+                self.ask(self.reply, "Convert the input text into prompt instruction for Dall-e image generation model 'Create an image of ...' ")
+                self.create_image(self.ask_reply,
+                                  model=dalle,
+                                  size=image_size,
+                                  response_format='b64_json',
+                                  quality="standard",
+                                  time_flag=True,
+                                  show_image=True)
+
             # Add the assistant's reply to the chat log-------------
             if self.save_log:
                 #write_log(reply, message)
@@ -974,12 +751,13 @@ class GPT:
 
     ####### Image Models #######
     def send_image(self,
-                   image_path = '',
-                   message="What’s in this image?",
-                   system='',     # add 'system' instruction
-                   model="gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                   maxtoken=1000, lag=0.00, print_reply=True):
-        if image_path == '':
+                   image_path: str = None,
+                   message: str = "What’s in this image?",
+                   image: str = None,      # bs64 image
+                   system: str = None,     # add 'system' instruction
+                   model: str = "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
+                   maxtoken: int = 1000, lag: float =0.00, print_reply : bool =True):
+        if image_path:
             image_path = self.dummy_img
 
         if message.startswith("@"):
@@ -987,15 +765,19 @@ class GPT:
             message = message.lstrip("@")
 
         # add system instruction
-        self.add_system(system)
+        if system: self.add_system(system)
 
         if image_path.startswith('http'):
             print('Image path:',image_path)
             dummy = image_path
             pass
+        elif image:
+            base64_image = image
+            image_path = f"data:image/jpeg;base64,{base64_image}"
+            dummy = "image_path"
         else:
-            print('<Enconding Image...>')
             base64_image = encode_image(image_path)
+            print('<Enconding Image...>', type(base64_image))
             image_path = f"data:image/jpeg;base64,{base64_image}"
             dummy = "image_path"
 
@@ -1106,17 +888,19 @@ class GPT:
         if show_image:
             display_image(filename)
 
+
     def replicate(self, image, styler='', model ='dall-e-2'):
         self.send_image(image)
         self.create_image(prompt=self.reply, response_format='b64_json', model=model, show_image=True)
 
 
     ####### Speech to Text #######
-    def whisper(self, filepath,
-                translate=False,
-                response_format="text",
-                print_transcription=True):
-        #global transcript
+    def whisper(self,
+                filepath: str = '',
+                translate: bool = False,
+                response_format: str = "text",
+                print_transcription: bool = True):
+
         audio_file = open(filepath, "rb")
         if not translate:
             transcript = client.audio.transcriptions.create( model="whisper-1", file=audio_file, response_format=response_format)
@@ -1134,12 +918,12 @@ class GPT:
     voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
     response_formats = ["mp3", "flac", "aac", "opus"]
     def text2speech(self,
-                    text,
-                    voice="alloy",
-                    filename="speech.mp3",
-                    model="tts-1",
-                    speed=1,
-                    play=False):
+                    text: str = '',
+                    voice: str = "alloy",
+                    filename: str = "speech.mp3",
+                    model: str = "tts-1",
+                    speed: int = 1,
+                    play: bool = False):
         if os.path.exists(filename):
             os.remove(filename)
         spoken_response = client.audio.speech.create(
@@ -1154,10 +938,10 @@ class GPT:
 
 
     def text2speech_stream(self,
-                           text,
-                           voice="alloy",
-                           model="tts-1",
-                           speed=1):
+                           text: str = '',
+                           voice: str = "alloy",
+                           model: str = "tts-1",
+                           speed: int = 1):
         spoken_response = client.audio.speech.create(
             model=model,
             voice=voice,
@@ -1185,7 +969,7 @@ class GPT:
     #if "silence.mp3" not in os.listdir():
     #    text2speech(' ',filename="silence.mp3")
 
-    def speech2speech(self, voice= 'nova', tts= 'tts-1',
+    def speech2speech(self, voice: str ='nova', tts: str = 'tts-1',
                       filename="speech2speech.mp3",
                       translate=False, play=True, info =True, duration=5):
         #record_audio(duration=duration, filename="audio.mp3")
@@ -1193,9 +977,12 @@ class GPT:
         transcript = self.whisper('temp.wav', translate=translate)
         self.text2speech(transcript, voice=voice, model= tts, filename=filename, play=play)
 
-    def speech2speech_loop(self, voice='nova', filename="speech2speech.mp3",
-                           translate=False, play=True, tts= 'tts-1',
-                           chat='alt' , exit='shift'):
+    def speech2speech_loop(self, voice: str ='nova', tts: str = 'tts-1',
+                           filename="speech2speech.mp3",
+                           translate=False,
+                           play=True,
+                           chat='alt' ,
+                           exit='shift'):
         print('Press '+chat+' to record, '+exit+' to exit.')
         while True:
             if kb.is_pressed(chat):
@@ -1208,9 +995,13 @@ class GPT:
 
     ###### Talk With ######
     def speak(self,
-              message='',
-              system='',
-              voice='nova', language='eng', tts= 'tts-1', max=1000, printall=False):
+              message: str = '',
+              system: str = None,
+              voice: str ='nova',
+              language: str = 'eng',
+              tts: str = 'tts-1',
+              max: int = 1000,
+              printall: bool = False):
 
         gpt = self.talk_model
 
@@ -1226,8 +1017,13 @@ class GPT:
 
 
     def speak_loop(self,
-                   system='',
-                   voice='nova', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop'):
+                   system: str = None,
+                   voice: str ='nova',
+                   language: str = 'eng',
+                   tts: str = 'tts-1',
+                   max: int = 1000,
+                   printall: bool = False,
+                   exit_chat: str = 'stop'):
         gpt = self.talk_model
 
         print('Send "'+exit_chat+'" to exit.')
@@ -1250,12 +1046,12 @@ class GPT:
 
 
     def talk(self,
-             voice='nova', language='eng', tts= 'tts-1', max=1000, printall=False, write=False):
+             voice='nova', language='eng', tts= 'tts-1', max=1000, printall=False, printinfo=True,  write=False):
 
         gpt = self.talk_model
 
         #record_audio(duration, "input.mp3")
-        loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printall)
+        loop_audio(start='alt', stop='ctrl', filename='temp.wav', printinfo=printinfo)
         transcript = self.whisper("temp.wav", print_transcription=printall)
 
         who = self.assistant
@@ -1326,7 +1122,7 @@ class GPT:
     #     self.chat(m=m, max=max, img=img, paste=True, clip=clip, token=token, translate=translate, create=create)
 
     def chat_loop(self,
-                  system='',
+                  system=None,
                   max=1000, language='eng', exit_chat= 'stop', printall=True):
         gpt = self.model
         who = self.assistant

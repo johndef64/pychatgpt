@@ -1,37 +1,80 @@
 from mychatgpt import julia, yoko, watson, C, GPT
 
+#%%
+
+# Engage in a chat with Julia model
 julia.chat('How are you today?')
 #%%
+
+# Set the model version to 4 for Julia
 julia.model = 4
 julia.chat("What's on the agenda today?")
 #%%
+
+# Chat using an image input with Julia
 julia.chat('What is this?', img=julia.dummy_img)
+
 #%%
+
+# Return a spoken reply from Julia model
+julia.speak('What do you like to do when spring arrives?')
+#%%
+
+# Speak directly with Julia model (keyboard controlled)
+julia.talk()
+#%%
+
+# Access the chat history/thread for Julia
 julia.chat_thread
 #%%
+
+# Set the dall-e version to 3 (default version 2)
+julia.dalle = 'dall-e-3'
+# Create an image with a specific prompt using the DALL-E model
+julia.chat("Create a Sailor Mercury fan art in punk goth style", create=True)
+print('\nPrompt used: ', julia.ask_reply)
 #%%
-julia.create_image("Create a Sailor Mercury fan art in punk goth style", model='dall-e-3')
+# Direct use of create function
+GPT().create_image("Create a Sailor Mercury fan art in punk goth style", model='dall-e-3')
 #%%
+
+
+# Set the model version to 4 for Yoko
 yoko.model = 4
-yoko.chat('@What flavour of ice cream do you like?')
+# Engage in a chat with Yoko model
+yoko.chat('What flavour of ice cream do you like?')
 #%%
+
+# Access the chat history/thread for Yoko
 yoko.chat_thread
 #%%
+
+# Set the model version to 4 for Watson
 watson.model = 4
+# Instruct Watson to write a made-up scientific abstract
 watson.chat('write an abstract of a made-up scientific paper')
 #%%
+
+# Change the response format to markdown for Watson
 watson.format = 'markdown'
+# Instruct Watson again to write a scientific abstract
 watson.chat('write an abstract of a made-up scientific paper')
 #%%
-# Copy your code into Clipboard
+
+# Copy your code to the clipboard for code correction
 C.cp('correct this code: \n')
 #%%
+
+# Copy your code to the clipboard to complete the code
 C.cp('@complete this code: \n')
 #%%
-C.cp("@ save an empy json  with an empy list [] inside:\n\n")
+
 #%%
-# Custom Assistants
+
+# Initialize a custom assistant with a persona
 sailor_mercury = GPT(assistant='Sailor Mercury')
+# Engage in a conversation with the custom assistant
 sailor_mercury.chat('Hi! How are you today?')
+###
 
 #%%
