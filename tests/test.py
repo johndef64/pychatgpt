@@ -1,7 +1,7 @@
+# Import module
 from mychatgpt import julia, yoko, watson, C, GPT
 
 #%%
-
 # Engage in a chat with Julia model
 julia.chat('How are you today?')
 #%%
@@ -78,3 +78,4 @@ sailor_mercury.chat('Hi! How are you today?')
 ###
 
 #%%
+

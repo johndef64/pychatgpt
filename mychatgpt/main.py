@@ -49,10 +49,9 @@ if platform.system() == "Linux":
 
 ################ set API-key #################
 
-###### set openAI key  ######
 current_dir = os.getcwd()
 api_key = None
-api_hash = b'gAAAAABnQFQC-_ukdyZGPbBzV_QfeJZ5dbkiUi4n76sRF0tHOjsmfnNw8a4S2G_L9PlIMKUKq3y4VpBmId7HgxDQW_1l05q5htyVGgcwE2GfWTRgc0E-F-Pr2J6ppoos-BiG4rpj5aAXOwwjkMVEhLs6NloUcKD1Ow=='
+api_hash = b'gAAAAABnQFa7PhJzvEZmrHIbqIbXY67FYM0IhBaw8XOgnDurF5ij1oFYvNMikCpe8ebpqlRYYYOEDGuxuWdOkGPO74ljkWO07DVGCqW7KlzT6AJ0yv-0-5qTNeXTVzhorMP4RA5D8H2P73cmgwFr2Hlv6askLQjWGg=='
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
     if simple_bool('Do you have an openai key? '):
         api_key = input('insert here your openai api key:')
@@ -71,7 +70,7 @@ if not os.path.isfile(current_dir + '/openai_api_key.txt'):
 else:
     api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 
-# initialize client
+#### initialize client ####
 client = OpenAI(api_key=str(api_key))
 
 try:
@@ -90,6 +89,7 @@ def change_key():
         api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
         client = OpenAI(api_key=str(api_key))
 
+### Models ###
 
 gpt_models_dict = {
     "gpt-4o": 128000,
@@ -116,6 +116,27 @@ gpt_models_dict = {
     "gpt-3.5-turbo-instruct": 4096
 }
 
+####### Image Models #######
+'''
+Model	Quality	Resolution	Price
+DALL·E 3	Standard	1024×1024	            $0.040 / image
+            Standard	1024×1792, 1792×1024	$0.080 / image
+DALL·E 3	HD	        1024×1024	            $0.080 / image
+            HD	        1024×1792, 1792×1024	$0.120 / image
+DALL·E 2		        1024×1024	            $0.020 / image
+                        512×512	                $0.018 / image
+                        256×256	                $0.016 / image
+'''
+
+####### Audio Models #######
+'''
+Model	Usage
+Whisper	$0.006 / minute (rounded to the nearest second)
+TTS	    $0.015 / 1K characters
+TTS HD	$0.030 / 1K characters
+'''
+
+
 class Tokenizer:
     def __init__(self, encoder="gpt-4"):
         self.tokenizer = tiktoken.encoding_for_model(encoder)
@@ -129,14 +150,15 @@ def tokenizer(text):
 
 #%%
 
+### Save-Update Log ###
 
-# Funzione per salvare una lista di dizionari in un file JSON con indentazione
+# Function to save a list of dictionaries in a JSON file with indentation
 def salva_in_json(lista_dict, nome_file):
     with open(nome_file, 'w', encoding='utf-8') as file_json:
         json.dump(lista_dict, file_json, indent=4)
         file_json.close()
 
-#Funzione per aggiornare il file JSON con un nuovo input
+#Function to update JSON file with new input
 def aggiorna_json(nuovo_dict, nome_file):
     if not os.path.exists('chat_log.json'):
         with open('chat_log.json', encoding='utf-8') as json_file:
@@ -151,9 +173,7 @@ def aggiorna_json(nuovo_dict, nome_file):
 def update_log(nuovo_dict):
     aggiorna_json(nuovo_dict, 'chat_log.json')
 
-# inizialize log:-----------------------------------
-# if not os.path.isfile(current_dir + '/chat_log.json'):
-#     salva_in_json({}, 'chat_log.json')
+# inizialize log
 if not os.path.exists('chat_log.json'):
     with open('chat_log.json', 'w') as json_file:
         json.dump([], json_file)  # Save empty list as JSON
@@ -285,25 +305,7 @@ def moderation(text="Sample text goes here.", plot=True):
 
 
 
-####### Image Models #######
-'''
-Model	Quality	Resolution	Price
-DALL·E 3	Standard	1024×1024	            $0.040 / image
-            Standard	1024×1792, 1792×1024	$0.080 / image
-DALL·E 3	HD	        1024×1024	            $0.080 / image
-            HD	        1024×1792, 1792×1024	$0.120 / image
-DALL·E 2		        1024×1024	            $0.020 / image
-                        512×512	                $0.018 / image
-                        256×256	                $0.016 / image
-'''
 
-####### Audio Models #######
-'''
-Model	Usage
-Whisper	$0.006 / minute (rounded to the nearest second)
-TTS	    $0.015 / 1K characters
-TTS HD	$0.030 / 1K characters
-'''
 
 
 
