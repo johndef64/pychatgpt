@@ -14,9 +14,8 @@ audio_requirements = ["pygame", "sounddevice", "soundfile", "keyboard"]
 import tiktoken
 import pandas as pd
 import pyperclip as pc
-from openai import OpenAI
+from openai import OpenAI, AuthenticationError
 from scipy.spatial import distance
-from cryptography.fernet import Fernet
 
 import keyboard as kb
 import soundfile as sf
@@ -50,53 +49,36 @@ if platform.system() == "Linux":
 
 ################ set API-key #################
 
-def key_gen(input_value, random_key=False):
-    input_string = str(input_value)
-    # Create an initial key by multiplying
-    key = (input_string * 32)[:32]
-    # Ensure the exact length of 32
-    key_bytes = key.encode('utf-8')[:32]
-    # Base64 encode the byte array to create a Fernet key
-    key = base64.urlsafe_b64encode(key_bytes)
-    if random_key:
-        key = Fernet.generate_key()
-    return key
-
-def simple_encrypter(num = 0, txt_to_encrypt = "Hello World"):
-    key = key_gen(num)
-    cipher = Fernet(key)
-    # Encrypt the string
-    encrypted_text = cipher.encrypt(txt_to_encrypt.encode('utf-8'))
-    return encrypted_text
-
-def simple_decrypter(num = 0, encrypted_text = "Hello World"):
-    key = key_gen(num)
-    cipher = Fernet(key)
-    try:
-        # Decrypt the string
-        decrypted_string = cipher.decrypt(encrypted_text).decode('utf-8')
-        return decrypted_string
-    except Exception as e:
-        print(f"Wrong key. Try again...")
-
 ###### set openAI key  ######
 current_dir = os.getcwd()
 api_key = None
-api_hash = b'gAAAAABnGgA8aUFwkvN4Jo0lGrgXgkJIj8FqAeg62wu0y2nau0ZmV-q2Jy8gNH6ltc48S6ibseDmx0bw3wlsF3LDBAG0EkLEcBuIDKRujwCYymyLJBQtbETGgshZsboHNeLFrb5G9Ex8C-y5nw0uZMbBIlRHs2FwMg=='
+api_hash = b'gAAAAABnQFQC-_ukdyZGPbBzV_QfeJZ5dbkiUi4n76sRF0tHOjsmfnNw8a4S2G_L9PlIMKUKq3y4VpBmId7HgxDQW_1l05q5htyVGgcwE2GfWTRgc0E-F-Pr2J6ppoos-BiG4rpj5aAXOwwjkMVEhLs6NloUcKD1Ow=='
 if not os.path.isfile(current_dir + '/openai_api_key.txt'):
     if simple_bool('Do you have an openai key? '):
-        my_key = input('insert here your openai api key:')
-        with open(current_dir + '/openai_api_key.txt', 'w') as file:
-            file.write(my_key)
-        api_key = my_key
+        api_key = input('insert here your openai api key:')
     else:
-        psw = input('if not, you can insert here you DEV password:')
+        print('\nPlease, get your API-key at https://platform.openai.com/api-keys')
+        psw = input('\nOtherwise, you can insert here you DEV password:')
         api_key = simple_decrypter(psw, api_hash)
+        if not api_key:
+            print('Please try again...')
+            api_key = simple_decrypter(psw, api_hash)
+            if not api_key:
+                api_key = 'missing key'
+    with open(current_dir + '/openai_api_key.txt', 'w') as file:
+        file.write(api_key)
+
 else:
     api_key = open(current_dir + '/openai_api_key.txt', 'r').read()
 
 # initialize client
 client = OpenAI(api_key=str(api_key))
+
+try:
+    client.embeddings.create(input='', model= "text-embedding-3-small")
+except AuthenticationError as e:
+    # If an error occurs (e.g., wrong API key)
+    print(f"Error occurred: {e}")
 
 def change_key():
     global client

@@ -1,3 +1,4 @@
+from cryptography.fernet import Fernet
 import matplotlib.pyplot as plt
 import pyperclip as pc
 import keyboard as kb
@@ -113,6 +114,38 @@ def get_chat():
     file = files[int(input('select chat:\n'+str(pd.Series(files))))]
     url = handle + file
     get_gitfile(url, dir=os.getcwd()+'/chats')
+
+### encrypters ###
+
+def key_gen(input_value, random_key=False):
+    input_string = str(input_value)
+    # Create an initial key by multiplying
+    key = (input_string * 32)[:32]
+    # Ensure the exact length of 32
+    key_bytes = key.encode('utf-8')[:32]
+    # Base64 encode the byte array to create a Fernet key
+    key = base64.urlsafe_b64encode(key_bytes)
+    if random_key:
+        key = Fernet.generate_key()
+    return key
+
+def simple_encrypter(password: str or int = 0, txt_to_encrypt: str = "Hello World"):
+    key = key_gen(password)
+    cipher = Fernet(key)
+    # Encrypt the string
+    encrypted_text = cipher.encrypt(txt_to_encrypt.encode('utf-8'))
+    return encrypted_text
+
+def simple_decrypter(password: str or int =  0, encrypted_text: str = "Hello World"):
+    key = key_gen(password)
+    cipher = Fernet(key)
+    try:
+        # Decrypt the string
+        decrypted_string = cipher.decrypt(encrypted_text).decode('utf-8')
+        return decrypted_string
+    except Exception as e:
+        print(f"Wrong password.")
+        return None
 
 ### file manager ###
 
