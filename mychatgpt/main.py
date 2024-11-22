@@ -741,7 +741,7 @@ class GPT:
                    system: str = None,     # add 'system' instruction
                    model: str = "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
                    maxtoken: int = 1000, lag: float =0.00, print_reply : bool =True):
-        if image_path:
+        if not image_path:
             image_path = self.dummy_img
 
         if message.startswith("@"):
