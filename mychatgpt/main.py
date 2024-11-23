@@ -136,15 +136,53 @@ TTS	    $0.015 / 1K characters
 TTS HD	$0.030 / 1K characters
 '''
 
+#
 
-class Tokenizer:
-    def __init__(self, encoder="gpt-4"):
-        self.tokenizer = tiktoken.encoding_for_model(encoder)
-    def tokens(self, text):
-        return len(self.tokenizer.encode(text))
+def tokenizer(string: str, encoding_name: str = "gpt-4") -> int:
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.encoding_for_model(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
 
-def tokenizer(text):
-    return Tokenizer().tokens(text)
+def num_tokens_from_messages(messages, model="gpt-4o-mini-2024-07-18", warning = False):
+    """Return the number of tokens used by a list of messages."""
+    try:
+        encoding = tiktoken.encoding_for_model(model)
+    except KeyError:
+        if warning: print("Warning: model not found. Using o200k_base encoding.")
+        encoding = tiktoken.get_encoding("o200k_base")
+    if model in {
+        "gpt-3.5-turbo-0125",
+        "gpt-4-0314",
+        "gpt-4-32k-0314",
+        "gpt-4-0613",
+        "gpt-4-32k-0613",
+        "gpt-4o-mini-2024-07-18",
+        "gpt-4o-2024-08-06"
+    }:
+        tokens_per_message = 3
+        tokens_per_name = 1
+    elif "gpt-3.5-turbo" in model:
+        return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0125")
+    elif "gpt-4o-mini" in model:
+        return num_tokens_from_messages(messages, model="gpt-4o-mini-2024-07-18")
+    elif "gpt-4o" in model:
+        return num_tokens_from_messages(messages, model="gpt-4o-2024-08-06")
+    elif "gpt-4" in model:
+        return num_tokens_from_messages(messages, model="gpt-4-0613")
+    else:
+        raise NotImplementedError(
+            f"""num_tokens_from_messages() is not implemented for model {model}."""
+        )
+    num_tokens = 0
+    for message in messages:
+        num_tokens += tokens_per_message
+        for key, value in message.items():
+            num_tokens += len(encoding.encode(value))
+            if key == "name":
+                num_tokens += tokens_per_name
+    num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
+    return num_tokens
 
 
 
@@ -179,7 +217,7 @@ if not os.path.exists('chat_log.json'):
         json.dump([], json_file)  # Save empty list as JSON
 
 
-##### LANG #####
+##### LANGUAGE #####
 
 def rileva_lingua(testo):
     # Reinizializzare il seed per ottenere risultati consistenti
@@ -241,14 +279,13 @@ def cosine_similarity(s1, s2, model="text-embedding-3-small", preprocessing=Fals
 def nltk_preprocessing(text, lower=True, trim=True, stem=True, language='english'):
     #update_nlkt()
     #docs_processed = [nltk_preprocessing(doc) for doc in docs_to_process]
-    timea = time.time()
     stop_words = set(stopwords.words(language))
     stemmer = PorterStemmer()
     word_tokens = word_tokenize(text)
     word_tokens = [word.lower() for word in word_tokens] if lower else word_tokens
     word_tokens = [word for word in word_tokens if word not in stop_words] if trim else word_tokens
     word_tokens = [stemmer.stem(word) for word in word_tokens] if stem else word_tokens
-    #print(word_tokens)
+
     return " ".join(word_tokens)
 
 '''
@@ -306,9 +343,6 @@ def moderation(text="Sample text goes here.", plot=True):
 
 
 
-
-
-
 ########## ASSISTANTS ####################
 
 assistants_df = pd.DataFrame(assistants.items(), columns=['assistant', 'instructions'])
@@ -318,14 +352,13 @@ copilot_assistant = 'delamain' #'oracle'
 copilot_intructions = compose_assistant(assistants[copilot_assistant])
 
 
-
-
 #%%
 
 ###### global variables ######
 
 model = 'gpt-4o-mini'
 talk_model = 'gpt-4o-2024-08-06'
+
 
 def make_model(version=3):
     model = 'gpt-'+str(version)
@@ -351,6 +384,7 @@ models_info='''
     1000x1000 = hd: $0.003825 
     '''
 
+### Main Class ###
 class GPT:
     def __init__(self,
                  assistant: str = '',                    # in-build assistant name
@@ -385,7 +419,7 @@ class GPT:
         self.keep_persona = True
         self.translate = translate
         self.translate_jap = translate_jap
-        self.dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
+
 
         if not os.path.exists('chat_log.json'):
             with open('chat_log.json', 'w') as json_file:
@@ -399,6 +433,7 @@ class GPT:
         self.talk_model = talk_model
         self.dalle = dalle
         self.image_size = image_size
+        self.dummy_img = "https://avatars.githubusercontent.com/u/116732521?v=4"
 
         # init assistant
         who = self.assistant
@@ -435,10 +470,8 @@ class GPT:
         }
         if language == 'eng':
             self.add_system(persona_dict['character'])
-            #self.chat_thread.append({"role": "system", "content": persona_dict['character']})
         if language == 'ita':
             self.add_system(persona_dict['personaggio'])
-            #self.chat_thread.append({"role": "system", "content": persona_dict['personaggio']})
 
     def add_bio(self, add: str = " and you are his best friend. ***"):
 
@@ -488,17 +521,14 @@ class GPT:
         self.chat_thread = self.chat_thread.pop()
         print(self.chat_thread)
 
-    def chat_tokenizer(self, print_token=True):
-        context_fix = (str(self.chat_thread).replace("{'role': 'system', 'content':", "")
-                       .replace("{'role': 'user', 'content':", "")
-                       .replace("{'role': 'assistant', 'content':", "")
-                       .replace("},", ""))
+    def chat_tokenizer(self, model: str = None, print_token : bool =True):
 
-        tokens = Tokenizer().tokens(context_fix)
-        self.total_tokens += tokens
+        if not model:
+            model = self.model
+        self.total_tokens = num_tokens_from_messages(self.chat_thread, model)
         if print_token:
-            print('\n <prompt tokens:', str(self.total_tokens)+'>')
-        return self.total_tokens
+            print('\n <chat tokens:', str(self.total_tokens)+'>')
+
 
 
     # Accessory  Functions ================================
@@ -615,21 +645,21 @@ class GPT:
     ############ Chat GPT ############
 
     def send_message(self, message,
-                     model: str = model,        # choose openai model (choose_model())
-                     system: str = None,          # 'system' instruction
-                     img: str = None,           # insert an image path to activate gpt vision
+                     model: str = None,          # choose openai model (choose_model())
+                     system: str = None,         # 'system' instruction
+                     img: str = None,            # insert an image path (local of http)
 
-                     maxtoken: int = 800,       # max tokens in reply
-                     temperature: float = 1,      # output randomness [0-2]
-                     lag: float = 0.00,           # word streaming lag
+                     maxtoken: int = 800,        # max tokens in reply
+                     temperature: float = 1,     # output randomness [0-2]
+                     lag: float = 0.00,          # word streaming lag
 
                      create: bool = False,       # image prompt
-                     dalle: str = "dall-e-2",   # choose dall-e model
-                     image_size: str = '512x512',
+                     dalle: str = "dall-e-2",    # choose dall-e model
+                     image_size: str = '512x512' ,
 
-                     play: bool = False,        # play audio response
-                     voice: str = 'nova',       # choose voice (op.voices)
-                     tts: str = "tts-1",        # choose tts model
+                     play: bool = False,         # play audio response
+                     voice: str = 'nova',        # choose voice (op.voices)
+                     tts: str = "tts-1",         # choose tts model
 
                      reinforcement: bool = False,
 
@@ -638,8 +668,10 @@ class GPT:
                      print_token: bool = True,
                      print_debug: bool = False
                      ):
-
-        if isinstance(model, int): model = make_model(model)
+        if not model:
+            model = self.model
+        if isinstance(model, int):
+            model = make_model(model)
         if print_debug: print('using model: ',model)
 
         if dalle != self.dalle:
@@ -656,157 +688,98 @@ class GPT:
         if create:
             self.expand_chat('Remember, if the user ask for an image creation, or a photo display to you, you must pretend you are showing it to you as you have truly sent this image to him.','system')
 
-        if img:
-            self.send_image(img, message, system,
-                            model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                            maxtoken=maxtoken, lag=lag, print_reply=print_reply)
 
-        else:
-            # add system instruction
-            if system:
-                self.add_system(system, reinforcement=reinforcement)
-            if self.format:
-                self.add_format(self.format)
 
-            # check token limit---------------------
-            if self.total_tokens > token_limit:
-                cut_length = prune_chat(token_limit, self.chat_thread)
-                self.chat_thread = self.chat_thread[cut_length:]
+        # add system instruction
+        if system:
+            self.add_system(system, reinforcement=reinforcement)
+        if self.format:
+            self.add_format(self.format)
 
-                if self.keep_persona and self.persona != '':
-                    self.add_persona(self.persona)
-                if self.keep_persona and system != '':
-                    self.chat_thread.append({"role": "system", "content": system})
+        # check token limit: prune chat if reaching token limit
+        if self.total_tokens > token_limit:
+            cut_length = prune_chat(token_limit, self.chat_thread)
+            self.chat_thread = self.chat_thread[cut_length:]
 
-            # expand chat
+            if self.keep_persona and self.persona != '':
+                self.add_persona(self.persona)
+            if self.keep_persona and system != '':
+                self.chat_thread.append({"role": "system", "content": system})
+
+        ### Expand chat ###
+        if not img:
             self.expand_chat(message)
             if print_user:
                 print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
                 print('user:',print_mess)
-
-            # send message----------------------------
-            messages = self.build_messages(self.chat_thread)
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=temperature,
-                stream=True,
-                max_tokens=maxtoken,  # set max token
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0
-            )
-
-            # stream reply ---------------------------------------------
-            self.reply = self.stream_reply(response, print_reply=print_reply, lag = lag)
-
-            time.sleep(0.85)
-            # expand chat--------------------------------
-            self.chat_thread.append({"role": "assistant", "content":self.reply})
-
-            # count tokens--------------------------------
-            self.total_tokens = self.chat_tokenizer(print_token)
-
-            if create:
-                self.ask(self.reply, "Convert the input text into prompt instruction for Dall-e image generation model 'Create an image of ...' ")
-                self.create_image(self.ask_reply,
-                                  model=dalle,
-                                  size=image_size,
-                                  response_format='b64_json',
-                                  quality="standard",
-                                  time_flag=True,
-                                  show_image=True)
-
-            # Add the assistant's reply to the chat log-------------
-            if self.save_log:
-                #write_log(reply, message)
-                update_log(self.chat_thread[-2])
-                update_log(self.chat_thread[-1])
-
-            if self.to_clip and has_copy_paste:
-                clip_reply = self.reply.replace('```', '###')
-                pc.copy(clip_reply)
-
-            if play:
-                self.text2speech_stream(self.reply, voice=voice, model=tts)
-                #text2speech_stream(reply)
-
-
-
-    ####### Image Models #######
-    def send_image(self,
-                   image_path: str = None,
-                   message: str = "What’s in this image?",
-                   image: str = None,      # bs64 image
-                   system: str = None,     # add 'system' instruction
-                   model: str = "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-                   maxtoken: int = 1000, lag: float =0.00, print_reply : bool =True):
-        if not image_path:
-            image_path = self.dummy_img
-
-        if message.startswith("@"):
-            self.clear_chat()
-            message = message.lstrip("@")
-
-        # add system instruction
-        if system: self.add_system(system)
-
-        if image_path.startswith('http'):
-            print('Image path:',image_path)
-            dummy = image_path
-            pass
-        elif image:
-            base64_image = image
-            image_path = f"data:image/jpeg;base64,{base64_image}"
-            dummy = "image_path"
         else:
-            base64_image = encode_image(image_path)
-            print('<Enconding Image...>', type(base64_image))
-            image_path = f"data:image/jpeg;base64,{base64_image}"
-            dummy = "image_path"
-
-        # expand chat
-        self.chat_thread.append({"role": 'user',
-                                 "content": [
-                                     {"type": "text", "text": message},
-                                     {
-                                         "type": "image_url",
-                                         "image_url": {
-                                             "url": image_path,
+            image_path, dummy = image_encoder(img)
+            self.chat_thread.append({"role": 'user',
+                                     "content": [
+                                         {"type": "text", "text": message},
+                                         {
+                                             "type": "image_url",
+                                             "image_url": {
+                                                 "url": image_path,
+                                             },
                                          },
-                                     },
-                                 ]
-                                 })
+                                     ]
+                                     })
 
-        # send message----------------------------
+            print('<Looking Image...>')
+
+        ### Send message ###
         messages = self.build_messages(self.chat_thread)
-        print('<Looking Image...>')
+
         response = client.chat.completions.create(
-            model= model,
+            model=model,
             messages=messages,
-            max_tokens=maxtoken,
+            temperature=temperature,
             stream=True,
+            max_tokens=maxtoken,  # set max token
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
         )
 
-        #reply = response.choices[0].message.content
+        ## stream reply ##
         self.reply = self.stream_reply(response, print_reply=print_reply, lag = lag)
-
-        # reset compatibility with the other models
         time.sleep(0.85)
-        # expand chat--------------------------------
-        self.chat_thread.append({"role": "assistant", "content":'[TAG] '+self.reply})
-        self.chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
-        # content is a list [] I have to replace ("image_file", "text") and GO!
 
-        # count tokens-------------------------------
-        self.total_tokens = self.chat_tokenizer(True)
+        ### Add Reply to chat ###
+        self.chat_thread.append({"role": "assistant", "content":self.reply})
+        if img:
+            self.chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
+
+        if create:
+            self.ask(self.reply, "Convert the input text into prompt instruction for Dall-e image generation model 'Create an image of ...' ")
+            self.create_image(self.ask_reply,
+                              model=dalle,
+                              size=image_size,
+                              response_format='b64_json',
+                              quality="standard",
+                              time_flag=True,
+                              show_image=True)
+
+        ## count tokens ##
+        self.chat_tokenizer(model=model, print_token=print_token)
+
+        # Add the assistant's reply to the chat log
+        if self.save_log:
+            update_log(self.chat_thread[-2])
+            update_log(self.chat_thread[-1])
 
         if self.to_clip and has_copy_paste:
             clip_reply = self.reply.replace('```', '###')
             pc.copy(clip_reply)
 
+        if play:
+            self.text2speech_stream(self.reply, voice=voice, model=tts)
 
 
+
+
+    ### Image Models ###
 
     # dalle_models= ['dall-e-2', dall-e-3]
     # sizes ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024']
@@ -1091,7 +1064,8 @@ class GPT:
             print('\n')
             self.ask(self.reply, translator)
 
-    ct = chat
+
+    c = chat  # alias for quick access to chat function
 
     def cp(self, *args, **kwargs):
         # Passes all positional and keyword arguments to the chat method, setting paste to True

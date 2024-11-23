@@ -12,6 +12,7 @@ import base64
 import time
 import glob
 import os
+import re
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
@@ -53,6 +54,20 @@ def check_copy_paste():
             return True
     except pc.PyperclipException:
         return False
+
+def is_base64_image(data):
+    # Regex pattern to check for base64 image prefix
+    pattern = r'^data:image\/[a-zA-Z]+;base64,'
+
+    # Check if data matches pattern and if it can be decoded
+    if re.match(pattern, data):
+        base64_str = data.split(',')[1] # Extract the base64 string
+        try:
+            base64.b64decode(base64_str) # Attempt to decode base64 string
+            return True
+        except base64.binascii.Error:
+            return False
+    return False
 
 def display_files_as_pd(path=os.getcwd(), ext='',  contains=''):
     file_pattern = os.path.join(path, "*." + ext) if ext else os.path.join(path, "*")
@@ -197,6 +212,25 @@ def display_image(filename, jupyter = False, plotlib=True, dpi=200):
     else:
         image = Image.open(filename)
         image.show()
+
+
+def image_encoder(image_path: str = None):
+
+    if image_path.startswith('http'):
+        print('Image path:',image_path)
+        dummy = image_path
+        pass
+    elif is_base64_image(image_path):
+        base64_image = image_path
+        image_path = f"data:image/jpeg;base64,{base64_image}"
+        dummy = "image_path"
+    else:
+        base64_image = encode_image(image_path)
+        print('<Enconding Image...>', type(base64_image))
+        image_path = f"data:image/jpeg;base64,{base64_image}"
+        dummy = "image_path"
+    return image_path, dummy
+
 
 
 ###### audio functions  #####

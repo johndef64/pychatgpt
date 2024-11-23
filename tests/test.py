@@ -1,9 +1,9 @@
 # Import module
 from mychatgpt import julia, yoko, watson, C, GPT
-
 #%%
+
 # Engage in a chat with Julia model
-julia.chat('How are you today?')
+julia.chat('Hi Julia, how are you today?')
 #%%
 
 # Set the model version to 4 for Julia
@@ -12,7 +12,7 @@ julia.chat("What's on the agenda today?")
 #%%
 
 # Chat using an image input with Julia
-julia.chat('What is this?', img=julia.dummy_img)
+julia.chat('What can you see?', img=julia.dummy_img)
 
 #%%
 
@@ -25,7 +25,8 @@ julia.talk()
 #%%
 
 # Access the chat history/thread for Julia
-julia.chat_thread
+print(julia.chat_thread)
+julia.chat_tokenizer()
 #%%
 
 # Set the dall-e version to 3 (default version 2)
@@ -49,7 +50,7 @@ yoko.chat('What flavour of ice cream do you like?')
 yoko.chat_thread
 #%%
 
-# Set the model version to 4 for Watson
+# Set the model version to 4 for Watson (native format reply:latex)
 watson.model = 4
 # Instruct Watson to write a made-up scientific abstract
 watson.chat('write an abstract of a made-up scientific paper')
@@ -61,14 +62,14 @@ watson.format = 'markdown'
 watson.chat('write an abstract of a made-up scientific paper')
 #%%
 
+# Generate code function from instructions (native format reply:python)
+C.c('Give me a function to generate a cat text art: \n')
+#%%
 # Copy your code to the clipboard for code correction
 C.cp('correct this code: \n')
 #%%
-
 # Copy your code to the clipboard to complete the code
 C.cp('@complete this code: \n')
-#%%
-
 #%%
 
 # Initialize a custom assistant with a persona
@@ -78,4 +79,3 @@ sailor_mercury.chat('Hi! How are you today?')
 ###
 
 #%%
-
