@@ -128,7 +128,8 @@ op.speak(message='',
 # Use an in-build assistant or any character of your choice, example:
 socrates = GPT('Socrates')
 socrates.speak('Tell me about the Truth.', 'onyx')
-
+```
+```python
 # Endless chat, keyboard controlled
 socrates.speak_loop(system=None,
                     voice='nova', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
@@ -136,10 +137,11 @@ socrates.speak_loop(system=None,
 7. Talk With...
 ```python
 dua = GPT('Dua Lipa')
-dua.talk(voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False)
-
+dua.talk(voice='nova', language='eng', gpt='gpt-4o', tts= 'tts-1', max=1000, printall=False)
+```
+```python
 # Endless talk, keyboard controlled
-dua.talk_loop(voice='nova', language='eng', gpt='gpt-4-turbo', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
+dua.talk_loop(voice='nova', language='eng', gpt='gpt-4o', tts= 'tts-1', max=1000, printall=False, chat='alt' , exit='shift')
 ```
 ```python
 nietzsche = GPT('Friedrich Nietzsche')
