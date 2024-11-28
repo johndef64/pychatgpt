@@ -12,7 +12,7 @@ julia.chat("What's on the agenda today?")
 #%%
 
 # Chat using an image input with Julia
-julia.chat('What can you see?', image=julia.dummy_img)
+julia.chat('What can you see in this image?', image=julia.dummy_img)
 
 #%%
 
@@ -76,6 +76,5 @@ C.cp('@complete this code: \n')
 sailor_mercury = GPT(assistant='Sailor Mercury')
 # Engage in a conversation with the custom assistant
 sailor_mercury.chat('Hi! How are you today?')
-###
 
 #%%

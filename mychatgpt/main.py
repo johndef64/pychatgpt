@@ -1035,20 +1035,23 @@ class GPT:
 
     ####### Assistants #######
     def chat(self,
-             m,
-             gpt=None,
-             max=1000, image='', paste=False, token=False, translate=False, create=False):
+             m: str = '',
+             gpt: str = None,
+             max: int = 1000,
+             image: str = None,
+             paste: bool = False,
+             translate: bool = False,
+             create: bool = False,
+             token: bool = False):
 
         gpt = gpt or self.model
 
         p = pc.paste() if paste else ''
 
         if self.bio:
-            self.add_bio()#add = "and you are his assistant. ***")
-            # "and you are his best friend. ***")
+            self.add_bio()
 
-        self.send_message(m+p,
-                          #system=sys,
+        self.send_message(m + p,
                           maxtoken=max,
                           model=gpt,
                           image=image,
