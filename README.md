@@ -20,17 +20,24 @@ To use this module, you need an **OpenAI API key**. You have to provide your API
 
 ## Usage
 
-The module provides the following main functions:
+The module provides the following main class:
 
-1. `GPT().ask_gpt(prompt, *args)`:  
-This basic function takes a prompt as input and generates a single response from the GPT chosen model. It returns the generated response and update `chat_log.json`.
-You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
+- `GPT()`
 
-2. `GPT().send_message(message,*args)`:  
-This main function allows for a more interactive conversation with the GPT chosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.json` file.  
-This function is implemented with GPT vision, Text2Speech and Dall-E functionalities.
-Use `op.send_message(message)` keeping the default *parameters* or change them as function operators:
 
+- Core Functions:
+  - `GPT().ask_gpt(prompt, *args)`:  
+  This basic function takes a prompt as input and generates a single response from the GPT chosen model. It returns the generated response and update `chat_log.json`.
+  You can simply use `op.ask_gpt(prompt)` and keep the default parameters.
+
+  - `GPT().send_message(message,*args)`:  
+  This core function allows for a more interactive conversation with the GPT chosen model. It takes a message as input, generates a response from the model, and updates the conversation history. It also logs the conversation in the `chat_log.json` file.  
+  This function is implemented with GPT vision, Text2Speech and Dall-E functionalities.
+  
+
+- Main Function:
+  - `GPT().chat(message,*args)`:
+  Main chat function tuned with class parameters.
 ```python
 from mychatgpt import GPT
 
@@ -50,37 +57,40 @@ op = GPT(assistant='',                   # in-build assistant name
 
 op.chat('Your message goes here', 
         max=1000,          # max tokens in reply
-        img=None,          # insert an image path to activate gpt vision
+        image=None,        # insert an image path to activate gpt vision
         paste=False,       # append clipboard to message
         create=False       # create an image
         )
 
-```
-```python
-op.add_persona('Elon Musk')
+# Usage Example
+op.add_persona('Elon Musk') # add custom personality to your agent
 op.chat("""What do you think about OpenAI?""")
 ```
-
+- Initialize a conversational agent: `GPT('Character')`
 ```python
-elon = GPT('Elon Musk')
+elon = GPT('Elon Musk') 
 elon.chat("""What do you think about OpenAI?""")
 ```
 
+- Activate GPT Vision: `op.chat("What’s in this image?", image="url/path",*parameters*)` insert in your chat context gpt-vision, activate  a multimodal chat
 ```python
 vincent = GPT('Vincent Van Gogh')
-vincent.chat("""Tell me what you see. Can you paint it?""", img=vincent.dummy_img)
+vincent.chat("""Tell me what you see.""", 
+             image=vincent.dummy_img)
 ```
         
-3. `op.send_image(url,*parameters*)` insert in your chat context gpt-vision, activate  a multimodal chat  
+
+- Image Generation in chat: `op.chat("prompt", create=Ture, *parameters*)`
+ask your conversational agent to create an image 
 ```python
-op.send_image(image="https://repo.com/image.jpg",
-              message="What’s in this image?",
-              system = None,     # add 'system' instruction
-              model= "gpt-4o", #"gpt-4-turbo", "gpt-4-vision-preview"
-              maxtoken=1000, 
-              lag=0.00, printreply=True)
+vincent = GPT('Vincent Van Gogh')
+vincent.dalle = "dall-e-3"  # change dall-e model
+vincent.chat("""Tell me what you see. Can you paint it?""", 
+             image=vincent.dummy_img, 
+             create = True)
 ```
-4. `op.create_image(prompt,*parameters*)`
+- Image Generation main function
+`op.create_image(prompt,*parameters*)`
 ```python
 op.create_image(prompt= "a cute kitten",
                 model="dall-e-2",
@@ -161,26 +171,7 @@ delamain.chat('your message',
 
 #n.b. assistants sends reply to clipboard by default
 ```
-An extract of the Assistants provided:
 
-| Role            | Assistant Name | Reply type    |
-|-----------------|----------------|---------------|
-| Copilots        | delamain       | python (main) |
-|                 | oracle         | python        |
-|                 | roger          | R             |
-| Formatters      | schematizer    | bulletpoint   |
-|                 | prompt_maker   | promt         |
-| Scientific Assistants  | galileo        | markdown      |
-|                 | newton         | python        |
-|                 | leonardo       | text          |
-|                 | turing         | python        |
-|                 | penrose        | text          |
-| Characters      | bestie         | text          |
-|                 | julia          | text          |
-| Translators     | english        | text          |
-|                 | italian        | text          |
-|                 | portuguese     | text          |
-|                 | japanese       | text          |
 
 
 

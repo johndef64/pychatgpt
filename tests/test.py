@@ -12,7 +12,7 @@ julia.chat("What's on the agenda today?")
 #%%
 
 # Chat using an image input with Julia
-julia.chat('What can you see?', img=julia.dummy_img)
+julia.chat('What can you see?', image=julia.dummy_img)
 
 #%%
 

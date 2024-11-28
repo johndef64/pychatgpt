@@ -395,7 +395,7 @@ class GPT:
                  save_log: bool = True,                  # save log file
                  to_clip: bool = True,                   # send reply t clipboard
                  print_token: bool = True,               # print token count
-                 model: str = 'gpt-4o-mini',             # set openai main model
+                 model: str or int = 'gpt-4o-mini',      # set openai main model
                  talk_model: str = 'gpt-4o-2024-08-06',  # set openai speak model
                  dalle: str = "dall-e-2",                # set dall-e model
                  image_size: str = '512x512',            # set generated image size
@@ -647,7 +647,7 @@ class GPT:
     def send_message(self, message,
                      model: str = None,          # choose openai model (choose_model())
                      system: str = None,         # 'system' instruction
-                     img: str = None,            # insert an image path (local of http)
+                     image: str = None,            # insert an image path (local of http)
 
                      maxtoken: int = 800,        # max tokens in reply
                      temperature: float = 1,     # output randomness [0-2]
@@ -674,10 +674,8 @@ class GPT:
             model = make_model(model)
         if print_debug: print('using model: ',model)
 
-        if dalle != self.dalle:
-            dalle = self.dalle
-        if image_size != self.image_size:
-            image_size = self.image_size
+        dalle = dalle if dalle != self.dalle else self.dalle
+        image_size = image_size if image_size != self.image_size else self.image_size
 
         token_limit = set_token_limit(model, maxtoken)
 
@@ -707,13 +705,13 @@ class GPT:
                 self.chat_thread.append({"role": "system", "content": system})
 
         ### Expand chat ###
-        if not img:
+        if not image:
             self.expand_chat(message)
             if print_user:
                 print_mess = message.replace('\r', '\n').replace('\n\n', '\n')
                 print('user:',print_mess)
         else:
-            image_path, dummy = image_encoder(img)
+            image_path, dummy = image_encoder(image)
             self.chat_thread.append({"role": 'user',
                                      "content": [
                                          {"type": "text", "text": message},
@@ -748,7 +746,7 @@ class GPT:
 
         ### Add Reply to chat ###
         self.chat_thread.append({"role": "assistant", "content":self.reply})
-        if img:
+        if image:
             self.chat_thread[-2] = {"role": "user", "content": message+":\nImage:"+dummy}
 
         if create:
@@ -1039,7 +1037,7 @@ class GPT:
     def chat(self,
              m,
              gpt=None,
-             max=1000, img='', paste=False, token=False, translate=False, create=False):
+             max=1000, image='', paste=False, token=False, translate=False, create=False):
 
         gpt = gpt or self.model
 
@@ -1053,7 +1051,7 @@ class GPT:
                           #system=sys,
                           maxtoken=max,
                           model=gpt,
-                          img=img,
+                          image=image,
                           print_token=token,
                           create=create)
 
@@ -1073,11 +1071,11 @@ class GPT:
         self.chat(*args, **kwargs)
 
     def ci(self, *args, **kwargs):
-        kwargs['img'] = pc.paste()
+        kwargs['image'] = pc.paste()
         self.chat(*args, **kwargs)
 
-    # def cp(self, m, max=1000, img='', clip=True, token=False, translate= False, create=False):
-    #     self.chat(m=m, max=max, img=img, paste=True, clip=clip, token=token, translate=translate, create=create)
+    # def cp(self, m, max=1000, image='', clip=True, token=False, translate= False, create=False):
+    #     self.chat(m=m, max=max, image=image, paste=True, clip=clip, token=token, translate=translate, create=create)
 
     def chat_loop(self,
                   system=None,
@@ -1102,20 +1100,20 @@ class GPT:
 
 
     # Formatting
-    def schematize(self, m, language='english', max = 1000, img='', paste = False, clip=True):
+    def schematize(self, m, language='english', max = 1000, image='', paste = False, clip=True):
         if language != 'english':
             self.expand_chat('Reply only using '+language, 'system')
         self.add_system(assistants['schematizer'])
-        self.chat(m, max, img, paste, clip)
+        self.chat(m, max, image, paste, clip)
 
-    def make_prompt(self, m, max = 1000, img='', clip=True, sdxl=True):
+    def make_prompt(self, m, max = 1000, image='', clip=True, sdxl=True):
         import stablediff_rag as sd
         if sdxl:
             assistant = sd.rag_sdxl
         else:
             assistant = sd.rag_sd
         self.add_system(assistant)
-        self.chat(m, max, img, clip)
+        self.chat(m, max, image, clip)
 
     # Translators
     def translate(self, language='English'):
