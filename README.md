@@ -130,7 +130,7 @@ socrates = GPT('Socrates')
 socrates.speak('Tell me about the Truth.', 'onyx')
 
 # Endless chat, keyboard controlled
-socrates.speak_loop(system=Nonr,
+socrates.speak_loop(system=None,
                     voice='nova', tts= 'tts-1', max=1000, language='eng', printall=False, exit_chat='stop')
 ```
 7. Talk With...
